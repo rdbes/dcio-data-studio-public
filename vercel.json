@@ -3,8 +3,7 @@
     { "source": "/dashboard/", "destination": "/index.html" },
     { "source": "/analytics/", "destination": "/index.html" },
     { "source": "/incidents/", "destination": "/index.html" },
-    { "source": "/tropical-cyclone-tracks/", "destination": "/index.html" },
-    { "source": "/report-generation/", "destination": "/index.html" }
+    { "source": "/tropical-cyclone-tracks/", "destination": "/index.html" }
   ],
   "headers": [
     {
