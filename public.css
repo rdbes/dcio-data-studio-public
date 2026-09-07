@@ -1,0 +1,13 @@
+/* Public wrapper glue. The visual system is supplied by the local app assets. */
+[data-public-shell] {
+  min-width: 0;
+}
+
+[data-public-shell] [data-filter-header-slot],
+[data-public-shell] [data-map-analysis-panel] {
+  min-width: 0;
+}
+
+[data-public-shell] .public-release-note {
+  font-size: 0.6875rem;
+}
