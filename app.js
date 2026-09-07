@@ -19,6 +19,7 @@ const PUBLIC_SCRIPTS = [
   "/assets/vendor/chartjs/chart.umd.js",
   "/assets/js/analytics/chart_presets.js",
   "/assets/js/map_coordinate_grid.js",
+  "/assets/js/map_browser_fullscreen.js",
   "/assets/js/maps/map_appearance.js",
   "/assets/js/maps/map_administrative_base.js",
   "/assets/js/maps/map_legend_scale.js",
