@@ -1,0 +1,219 @@
+<section data-map-canvas-card class="ui-main-card relative h-[32rem] overflow-visible border border-zinc-200/80 bg-white text-left shadow-xs lg:h-auto lg:min-h-0{% if map_canvas_class %} {{ map_canvas_class }}{% endif %}">
+            <div class="relative h-full min-h-0">
+                <div id="ph-map" class="h-full min-h-0 w-full overflow-hidden bg-sky-50" data-map-root{% if map_aria_label %} role="application" aria-label="{{ map_aria_label }}"{% endif %}></div>
+                <div data-map-coordinate-labels class="add-map-coordinate-labels" aria-hidden="true"></div>
+                <div data-map-control-rail class="absolute left-2.5 top-2.5 z-[1000] flex flex-col items-start gap-1">
+                <div data-map-primary-controls class="flex flex-col gap-1">
+                    <button id="map-fullscreen" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Expand map to browser window" aria-pressed="false" title="Expand map to browser window">
+                        <i data-map-fullscreen-icon class="fa-solid fa-expand text-xs" aria-hidden="true"></i>
+                    </button>
+
+                    <button id="map-reset-view" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Reset map extent" title="Reset map extent">
+                        <i data-map-reset-icon class="fa-solid fa-location-crosshairs text-xs" aria-hidden="true"></i>
+                    </button>
+
+                    <div data-map-zoom-controls class="add-map-zoom-controls" role="group" aria-label="Map zoom controls">
+                        <button id="map-zoom-in" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-400" aria-label="Zoom in" title="Zoom in">
+                            <i data-map-zoom-in-icon class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+                        </button>
+                        <button id="map-zoom-out" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-400" aria-label="Zoom out" title="Zoom out">
+                            <i data-map-zoom-out-icon class="fa-solid fa-minus text-xs" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                {% if show_map_level_switcher %}
+                <div
+                    data-map-level-control
+                    class="add-map-metric-control"
+                >
+                    <button
+                        id="map-level-toggle"
+                        type="button"
+                        class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 disabled:cursor-default disabled:opacity-40"
+                        aria-label="Choose map boundary level"
+                        aria-controls="map-level-panel"
+                        aria-expanded="false"
+                        title="Choose map boundary level"
+                        disabled
+                    >
+                        <i
+                            data-map-level-icon
+                            class="fa-solid fa-layer-group text-xs"
+                            aria-hidden="true"
+                        ></i>
+                    </button>
+
+                    <div
+                        id="map-level-panel"
+                        class="add-map-metric-panel hidden"
+                        data-map-control-popover="boundary"
+                        role="dialog"
+                        aria-label="Map boundary level selection"
+                    >
+                        <div class="add-map-metric-panel__heading">
+                            Map boundary
+                        </div>
+
+                        <div
+                            class="add-map-metric-options"
+                            role="radiogroup"
+                            aria-label="Map boundary level"
+                        >
+                            <button
+                                type="button"
+                                data-map-level-option="municipality_city"
+                                class="add-map-metric-option"
+                                role="radio"
+                                aria-checked="false"
+                                hidden
+                                disabled
+                            >
+                                <span>Municipality / City</span>
+                                <span
+                                    data-map-level-detail
+                                    class="add-map-metric-option__detail"
+                                >Municipality and city boundaries</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                data-map-level-option="province_huc"
+                                class="add-map-metric-option"
+                                role="radio"
+                                aria-checked="false"
+                                hidden
+                                disabled
+                            >
+                                <span>Province</span>
+                                <span
+                                    data-map-level-detail
+                                    class="add-map-metric-option__detail"
+                                >Province boundaries</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                data-map-level-option="region"
+                                class="add-map-metric-option"
+                                role="radio"
+                                aria-checked="false"
+                                hidden
+                                disabled
+                            >
+                                <span>Region</span>
+                                <span
+                                    data-map-level-detail
+                                    class="add-map-metric-option__detail"
+                                >Regional boundaries</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if show_metric_switcher %}
+                <div data-map-metric-control class="add-map-metric-control">
+                    <button id="map-metric-toggle" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Choose map metric" aria-controls="map-metric-panel" aria-expanded="false" title="Choose map metric">
+                        <i data-map-metric-icon class="fa-solid fa-chart-simple text-xs" aria-hidden="true"></i>
+                    </button>
+
+                    <div id="map-metric-panel" class="add-map-metric-panel hidden" data-map-control-popover="metric" role="dialog" aria-label="Map metric selection">
+                        <div class="add-map-metric-panel__heading">Map metric</div>
+
+                        <div class="add-map-metric-options" role="radiogroup" aria-label="Map display metric">
+                            <button type="button" data-map-metric-option="value" class="add-map-metric-option" role="radio" aria-checked="true">
+                                <span>Value</span>
+                            </button>
+
+                            <button type="button" data-map-metric-option="volume" class="add-map-metric-option" role="radio" aria-checked="false">
+                                <span>Volume</span>
+                            </button>
+
+                            <button type="button" data-map-metric-option="area" class="add-map-metric-option" role="radio" aria-checked="false">
+                                <span>Area</span>
+                            </button>
+
+                            {% if not hide_farmers_metric %}
+                            <button type="button" data-map-metric-option="farmers" class="add-map-metric-option" role="radio" aria-checked="false">
+                                <span>Farmers</span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <div data-map-style-control class="add-map-style-control relative">
+                    <button id="map-style-toggle" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Customize map appearance" aria-controls="map-style-panel" aria-expanded="false" title="Customize map appearance">
+                        <i data-map-appearance-icon class="fa-solid fa-circle-half-stroke text-xs" aria-hidden="true"></i>
+                    </button>
+                    <div id="map-style-panel" class="add-map-style-panel hidden absolute" data-map-control-popover="style" role="dialog" aria-label="Map color settings">
+                        <fieldset>
+                            <legend class="add-map-style-panel__heading">Background</legend>
+                            <div class="add-map-background-palette">
+                                <button type="button" data-map-background-option="sky" class="add-map-background-option" aria-label="Use #c0e8ff map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" style="background-color:#c0e8ff" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="lightest" class="add-map-background-option" aria-label="Use #f7f7f7 map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="light" class="add-map-background-option" aria-label="Use #cccccc map background" aria-pressed="true"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="medium" class="add-map-background-option" aria-label="Use #969696 map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="dark" class="add-map-background-option" aria-label="Use #636363 map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="darkest" class="add-map-background-option" aria-label="Use #252525 map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                            </div>
+                        </fieldset>
+                        {% if show_value_palette %}
+                        <fieldset class="add-map-style-panel__section">
+                            <legend class="add-map-style-panel__heading">Legend palette</legend>
+                            <div class="add-map-palette-list">
+                                <button type="button" data-map-palette-option="singleGreen" class="add-map-palette-option" aria-label="Use green agricultural totals map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Green</span></button>
+                                <button type="button" data-map-palette-option="red" class="add-map-palette-option" aria-label="Use impact intensity red map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Red</span></button>
+                                <button type="button" data-map-palette-option="blue" class="add-map-palette-option" aria-label="Use general quantitative blue map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Blue</span></button>
+                                <button type="button" data-map-palette-option="purple" class="add-map-palette-option" aria-label="Use secondary analytical purple map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Purple</span></button>
+                                <button type="button" data-map-palette-option="orange" class="add-map-palette-option" aria-label="Use elevated impact orange map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Orange</span></button>
+                                <button type="button" data-map-palette-option="gray" class="add-map-palette-option" aria-label="Use neutral reference gray map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Gray</span></button>
+                                <button type="button" data-map-palette-option="ylgn" class="add-map-palette-option" aria-label="Use vegetation yellow to green map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Yellow–Green</span></button>
+                                <button type="button" data-map-palette-option="gnbu" class="add-map-palette-option" aria-label="Use green to blue environmental map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Green–Blue</span></button>
+                                <button type="button" data-map-palette-option="ylgnbu" class="add-map-palette-option" aria-label="Use yellow to green to blue agricultural map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Yellow–Green–Blue</span></button>
+                                <button type="button" data-map-palette-option="ylorrd" class="add-map-palette-option" aria-label="Use increasing impact yellow to orange to red map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Yellow–Orange–Red</span></button>
+                                <button type="button" data-map-palette-option="ylorbr" class="add-map-palette-option" aria-label="Use dryness and land yellow to orange to brown map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Yellow–Orange–Brown</span></button>
+                                <button type="button" data-map-palette-option="pubugn" class="add-map-palette-option" aria-label="Use analytical purple to blue to green map palette" aria-pressed="false"><span data-map-palette-preview class="add-map-palette-preview" aria-hidden="true"></span><span class="add-map-palette-name">Purple–Blue–Green</span></button>
+                            </div>
+                        </fieldset>
+                        {% endif %}
+                    </div>
+                    {% if show_copy_control %}
+                    <div data-map-resize-control class="add-map-resize-control relative shrink-0">
+                        <button id="map-resize" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Resize map canvas" aria-controls="map-resize-menu" aria-expanded="false" aria-pressed="false" title="Resize map canvas">
+                            <i data-map-resize-icon class="fa-solid fa-up-right-and-down-left-from-center text-xs" aria-hidden="true"></i>
+                        </button>
+                        {% include 'partials/map_resize_menu.html' %}
+                    </div>
+                    <button id="map-copy-image" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 disabled:cursor-wait disabled:opacity-50" aria-label="Copy visible map as image" title="Copy high-quality visible map image">
+                        <svg data-map-copy-icon width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <rect x="5" y="5" width="8" height="8" rx="1.25" stroke="currentColor" stroke-width="1.25"></rect>
+                            <path d="M11 5V3.75A1.75 1.75 0 0 0 9.25 2h-5.5A1.75 1.75 0 0 0 2 3.75v5.5A1.75 1.75 0 0 0 3.75 11H5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"></path>
+                        </svg>
+                    </button>
+                    <button id="map-download-image" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 disabled:cursor-wait disabled:opacity-50" aria-label="Download visible map as PNG" title="Download high-quality visible map PNG">
+                        <i data-map-download-icon class="fa-solid fa-download text-xs" aria-hidden="true"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                </div>
+                <div id="map-overview-wrap" class="pointer-events-none invisible absolute right-3 top-3 z-[500] h-36 w-28 overflow-hidden rounded-lg opacity-0 shadow-sm" role="img" aria-label="Philippines reference map showing the current map extent" aria-hidden="true">
+                    <div id="ph-map-overview" class="h-full w-full"></div>
+                </div>
+                <div data-map-cartography class="pointer-events-none absolute bottom-3 right-3 z-[500] flex w-24 flex-col items-center text-sky-500" aria-label="Map orientation and scale">
+                    <div data-map-north-arrow class="flex flex-col items-center" role="img" aria-label="North arrow">
+                        <span class="text-xs font-normal leading-none">N</span>
+                        <svg class="h-7 w-6" viewBox="0 0 64 76" fill="none" aria-hidden="true">
+                            <circle cx="32" cy="43" r="23" stroke="#ffffff" stroke-width="3"></circle>
+                            <path d="M32 5 53 68 32 53 11 68 32 5Z" fill="currentColor" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"></path>
+                            <path d="M32 5V53L11 68 32 5Z" fill="#ffffff"></path>
+                        </svg>
+                    </div>
+                    <div id="map-scale-host" class="add-map-scale-host mt-1 w-full" aria-label="Metric map scale">
+                        <span class="add-map-crs-label" aria-label="Coordinate reference system: EPSG:3857, WGS 84">EPSG:3857 · WGS 84</span>
+                    </div>
+                </div>
+            </div>
+            <div id="map-fallback" class="absolute bottom-4 left-1/2 z-[550] hidden -translate-x-1/2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-600 shadow-sm">
+                {{ fallback_message|default:"Map library or GeoJSON could not load. Check the locally served map assets." }}
+            </div>
+        </section>

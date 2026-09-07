@@ -1,0 +1,2 @@
+{% load filter_tags %}
+<button type="button" data-filter-option data-value="{{ value|default:'' }}" data-label="{{ label|title_case_label }}"{% if parent is not None %} data-parent="{{ parent }}"{% endif %} class="{{ css_class|default:'block w-full rounded-md px-2 py-2 text-left text-sm font-normal text-zinc-700 hover:bg-zinc-50' }}">{{ label|title_case_label }}</button>

@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load batch_tags %}
+{% load filter_tags %}
+
+{% block title %}Dashboard - DCIO Data Studio{% endblock %}
+
+{% block workspace_topbar_class %}farm-workspace-topbar--filter-only{% endblock %}
+
+{% block workspace_header_actions %}
+<div
+    data-filter-header-slot
+    data-filter-panel-target="map-filter-panel"
+    class="min-w-0 flex-1"
+    aria-label="Dashboard filters"
+></div>
+{% endblock %}
+
+
+{% block page_body_overflow_class %}overflow-y-auto lg:overflow-hidden{% endblock %}
+{% block page_body_spacing_class %}analytics-workspace-page-body map-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none lg:h-full{% endblock %}
+
+{% block content %}
+<h1 class="sr-only">Dashboard</h1>
+<link
+    rel="stylesheet"
+    href="{% static 'vendor/leaflet/leaflet.css' %}"
+/>
+
+<div data-damage-losses-dashboard class="relative flex min-h-0 w-full flex-col gap-3 lg:h-full">
+    {% if not is_embedded %}
+        <div class="map-filter-layer relative shrink-0">
+        <details id="map-filter-panel" data-analytics-filter-panel data-discrete-period-labels="true" class="group relative bg-white border border-zinc-200/80 rounded-xl shadow-xs text-left">
+            {% include 'partials/filter_card_summary.html' with map_filter_summary=True map_filter_chips=True topbar_filter_chips=True interaction_chips=True hide_filter_icon=True filter_chips=active_filter_chips chips_sr_label='Active map and chart filters' only %}
+
+            <div class="absolute left-0 right-0 top-full z-50 hidden max-h-[calc(100dvh-8rem)] overflow-y-auto rounded-b-xl border-t border-zinc-200/80 bg-white shadow-xl group-open:block xl:max-h-none xl:overflow-visible">
+                <form
+                    method="get"
+                    class="space-y-3 px-4 pb-3 pt-4"
+                >
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+                        <div class="space-y-2 lg:border-r lg:border-zinc-100 lg:pr-3">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Period</h3>
+                            <input type="hidden" name="date_mode" value="month">
+                            <div>
+                                <span class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Year</span>
+                                <details id="period_years" class="relative group/period" data-period-dropdown data-period-kind="year">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-period-label>{{ selected_filters.selected_year_label }}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/period:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                        <div class="mb-1 flex items-center justify-between gap-2 border-b border-zinc-100 pb-1">
+                                            <button type="button" data-period-select-all class="rounded-md px-2 py-1 text-xs font-normal text-blue-700 hover:bg-blue-50">Select all</button>
+                                            <button type="button" data-period-clear class="rounded-md px-2 py-1 text-xs font-normal text-zinc-500 hover:bg-zinc-50">Clear</button>
+                                        </div>
+                                        {% for year in available_years %}
+                                            <label class="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm font-normal text-zinc-700 hover:bg-zinc-50"><input type="checkbox" name="years" value="{{ year }}" {% if year in selected_filters.selected_years %}checked{% endif %} class="ui-choice ui-choice--info"><span>{{ year }}</span></label>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Month</span>
+                                <details id="period_months" class="relative group/period" data-period-dropdown data-period-kind="month">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-period-label>{{ selected_filters.selected_month_label }}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/period:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                        <div class="mb-1 flex items-center justify-between gap-2 border-b border-zinc-100 pb-1">
+                                            <button type="button" data-period-select-all class="rounded-md px-2 py-1 text-xs font-normal text-blue-700 hover:bg-blue-50">Select all</button>
+                                            <button type="button" data-period-clear class="rounded-md px-2 py-1 text-xs font-normal text-zinc-500 hover:bg-zinc-50">Clear</button>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-1">
+                                            {% for month in month_options %}
+                                                <label class="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-sm font-normal text-zinc-700 hover:bg-zinc-50"><input type="checkbox" name="months" value="{{ month.value }}" data-short-label="{{ month.short_label }}" {% if month.value in selected_filters.selected_months %}checked{% endif %} class="ui-choice ui-choice--info"><span>{{ month.short_label }}</span></label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                            {% if selected_filters.period_error %}
+                                <p class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700">{{ selected_filters.period_error }}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="space-y-2 lg:border-r lg:border-zinc-100 lg:pr-3">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Hazard</h3>
+                            <div>
+                                <span class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Hazard Type</span>
+                                <details id="hazard" class="relative group/filter" data-filter-dropdown data-filter-kind="hazard">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_hazard %}{{ selected_hazard.display_label }}{% else %}All Hazards{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="hazard" value="{{ selected_filters.hazard }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                        <button type="button" data-filter-option data-value="" data-label="All Hazards" class="block w-full rounded-md px-2 py-2 text-left text-sm font-normal text-zinc-700 hover:bg-zinc-50">All Hazards</button>
+                                        {% for hazard in active_hazards %}
+                                            <button type="button" data-filter-option data-value="{{ hazard.hazard_key }}" data-label="{{ hazard.display_label }}" class="block w-full rounded-md px-2 py-2 text-left text-sm font-normal text-zinc-700 hover:bg-zinc-50">{{ hazard.display_label }}</button>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Incident</span>
+                                <details id="incident" class="relative group/filter" data-filter-dropdown data-filter-kind="incident" data-cascade-parent="hazard" data-disabled-label="Select a Hazard Type First" data-disabled="{% if selected_hazard %}false{% else %}true{% endif %}">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_incident %}{{ selected_incident.label }}{% elif selected_hazard %}All Incidents{% else %}Select a Hazard Type First{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="incident" value="{{ selected_filters.incident }}" data-filter-input>
+                                    <div data-incident-options-list class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                         {% render_filter_option "All Incidents" "" parent="" %}
+                                         {% for incident in incident_cascade_options %}
+                                             {% render_filter_option incident.label incident.value parent=incident.parent %}
+                                         {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 lg:border-r lg:border-zinc-100 lg:pr-3">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Location</h3>
+                            <div>
+                                <span class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Region</span>
+                                <details id="region" class="relative group/filter" data-filter-dropdown data-filter-kind="region">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_filters.region %}{{ selected_filters.region }}{% else %}All Regions{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="region" value="{{ selected_filters.region }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                         {% render_filter_option "All Regions" "" %}
+                                         {% for region_name in region_options %}
+                                             {% render_filter_option region_name region_name %}
+                                         {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Province</span>
+                                <details id="province" class="relative group/filter" data-filter-dropdown data-filter-kind="province" data-cascade-parent="region" data-disabled-label="Select a Region First" data-disabled="{% if selected_filters.region %}false{% else %}true{% endif %}">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_filters.province %}{{ selected_filters.province_label }}{% else %}All Provinces{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="province" value="{{ selected_filters.province }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                         {% render_filter_option "All Provinces" "" parent="" %}
+                                         {% for province in province_cascade_options %}
+                                             {% render_filter_option province.label province.value parent=province.parent %}
+                                         {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Commodity</h3>
+                            <div>
+                                <span class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Commodity Group</span>
+                                <details id="commodity_group" class="relative group/filter" data-filter-dropdown data-filter-kind="commodity_group">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_filters.commodity_group %}{{ selected_filters.commodity_group }}{% else %}All Commodity Groups{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="commodity_group" value="{{ selected_filters.commodity_group }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                         {% render_filter_option "All Commodity Groups" "" %}
+                                         {% for commodity in commodity_group_options %}
+                                             {% render_filter_option commodity.label commodity.value %}
+                                         {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-1">Commodity Subgroup</span>
+                                <details id="commodity_subgroup" class="relative group/filter" data-filter-dropdown data-filter-kind="commodity_subgroup" data-cascade-parent="commodity_group" data-disabled-label="Select a Commodity Group First" data-disabled="{% if selected_filters.commodity_group %}false{% else %}true{% endif %}">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_filters.commodity_subgroup %}{{ selected_filters.commodity_subgroup }}{% else %}All Subgroups{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="commodity_subgroup" value="{{ selected_filters.commodity_subgroup }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                         {% render_filter_option "All Subgroups" "" parent="" %}
+                                         {% for commodity in commodity_subgroup_cascade_options %}
+                                             {% render_filter_option commodity.label commodity.value parent=commodity.parent %}
+                                         {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% include 'partials/filter_card_actions.html' with reset_url=dashboard_reset_url only %}
+                </form>
+            </div>
+            </details>
+        </div>
+    {% endif %}
+
+    <div data-map-workspace class="grid min-h-0 grid-cols-1 gap-3 lg:flex-1 lg:grid-cols-[minmax(22rem,0.8fr)_minmax(0,1.2fr)]">
+        <div data-dashboard-map-column class="flex min-h-0 min-w-0 flex-col gap-3">
+        {% include 'partials/map_canvas.html' with show_value_palette=1 show_copy_control=1 show_metric_switcher=1 fallback_message="Map library or GeoJSON could not load. Check the locally served map assets and reporting-area boundary file." hide_farmers_metric=True %}
+        </div>
+
+        <aside data-map-analysis-panel aria-label="Dashboard charts" class="min-h-0 text-left lg:overflow-y-auto" data-dashboard-analysis-panel>
+        <div class="flex h-full min-h-0 flex-col gap-3">
+            <section data-dashboard-analysis-summary class="dashboard-analysis-summary shrink-0 text-left">
+                <header class="ui-section-header rounded-lg border border-zinc-200/80 border-b-zinc-200/80 bg-zinc-50/20 px-3 py-2">
+                    <div class="dashboard-chart-header flex flex-row items-center justify-between gap-1">
+                        <h2 id="dashboard-analysis-title" class="ui-section-title line-clamp-2 min-w-0 break-words text-xs font-bold leading-tight">
+                            Damage and Losses
+                        </h2>
+                        <button
+                            id="map-show-national"
+                            type="button"
+                            class="ui-icon-button ui-icon-button--plain hidden shrink-0 cursor-pointer"
+                            aria-label="Clear selection"
+                            title="Clear selection"
+                        >
+                            <i class="fa-solid fa-xmark text-xs" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <section class="grid shrink-0 grid-cols-2 gap-2 px-0 pt-3 sm:grid-cols-4" data-dashboard-analysis-metrics aria-label="Selected scope impact metrics">
+                    <article data-dashboard-analysis-metric="farmers" class="ui-stat-card min-w-0">
+                        <div data-kpi-content-group class="mx-auto w-fit max-w-full text-left">
+                            <div class="farm-kpi-label-row">
+                                <span class="farm-kpi-indicator farm-kpi-indicator--farmers" aria-hidden="true"></span>
+                                <p class="farm-kpi-label min-w-0">Farmers/fisherfolk affected</p>
+                            </div>
+                            <p id="dashboard-analysis-farmers" class="farm-kpi-value mt-3 truncate tabular-nums" title="Affected Farmers/Fisherfolk">—</p>
+                        </div>
+                    </article>
+                    <article data-dashboard-analysis-metric="area" class="ui-stat-card min-w-0">
+                        <div data-kpi-content-group class="mx-auto w-fit max-w-full text-left">
+                            <div class="farm-kpi-label-row">
+                                <span class="farm-kpi-indicator farm-kpi-indicator--area" aria-hidden="true"></span>
+                                <p class="farm-kpi-label min-w-0">Area affected</p>
+                            </div>
+                            <p id="dashboard-analysis-area" class="farm-kpi-value mt-3 truncate tabular-nums" title="Area Affected">—</p>
+                        </div>
+                    </article>
+                    <article data-dashboard-analysis-metric="volume" class="ui-stat-card min-w-0">
+                        <div data-kpi-content-group class="mx-auto w-fit max-w-full text-left">
+                            <div class="farm-kpi-label-row">
+                                <span class="farm-kpi-indicator farm-kpi-indicator--volume" aria-hidden="true"></span>
+                                <p class="farm-kpi-label min-w-0">Production loss</p>
+                            </div>
+                            <p id="dashboard-analysis-volume" class="farm-kpi-value mt-3 truncate tabular-nums" title="Production Loss">—</p>
+                        </div>
+                    </article>
+                    <article data-dashboard-analysis-metric="value" class="ui-stat-card min-w-0">
+                        <div data-kpi-content-group class="mx-auto w-fit max-w-full text-left">
+                            <div class="farm-kpi-label-row">
+                                <span class="farm-kpi-indicator farm-kpi-indicator--value" aria-hidden="true"></span>
+                                <p class="farm-kpi-label min-w-0">Value loss</p>
+                            </div>
+                            <p id="dashboard-analysis-value" class="farm-kpi-value mt-3 truncate tabular-nums" title="Value Loss">—</p>
+                        </div>
+                    </article>
+                </section>
+            </section>
+
+            <section class="grid min-h-0 flex-1 grid-cols-1 gap-3" aria-label="Selected scope distributions">
+                <div class="grid min-h-0 grid-cols-1 gap-3 xl:grid-cols-2">
+                    {% include 'partials/analytics_chart_card.html' with chart_key='dashboard-region' title_id='dashboard-region-chart-title' subtitle_id='dashboard-region-chart-subtitle' title='Value Loss by Region' subtitle='National · Selected period' chart_description='regional distribution chart' canvas_id='dashboardRegionBarChart' canvas_label='Regional value loss horizontal bar chart' article_id='dashboard-region-chart-card' card_class='dashboard-analysis-chart-card' body_class='dashboard-analysis-chart-card__body' canvas_class='dashboard-analysis-chart-card__canvas' empty_id='dashboard-region-chart-empty' volume_label='Volume' hide_metric_switcher=True only %}
+
+                    {% include 'partials/analytics_chart_card.html' with chart_key='dashboard-commodity' title_id='dashboard-commodity-chart-title' title='Value Loss by Commodity' subtitle_id='dashboard-commodity-chart-subtitle' subtitle='National · Selected period' chart_description='commodity distribution chart' canvas_id='dashboardCommodityPieChart' canvas_label='Commodity value loss doughnut chart' article_id='dashboard-commodity-chart-card' card_class='dashboard-analysis-chart-card' body_class='dashboard-analysis-chart-card__body' canvas_class='dashboard-analysis-chart-card__canvas' empty_id='dashboard-commodity-chart-empty' volume_label='Volume' hide_metric_switcher=True only %}
+
+                    {% include 'partials/analytics_chart_card.html' with chart_key='dashboard-hazard' title_id='dashboard-hazard-chart-title' title='Value Loss by Hazard' subtitle_id='dashboard-hazard-chart-subtitle' subtitle='National · Selected period' chart_description='hazard distribution chart' canvas_id='dashboardHazardPieChart' canvas_label='Hazard value loss doughnut chart' article_id='dashboard-hazard-chart-card' card_class='dashboard-analysis-chart-card' body_class='dashboard-analysis-chart-card__body' canvas_class='dashboard-analysis-chart-card__canvas' empty_id='dashboard-hazard-chart-empty' volume_label='Volume' hide_metric_switcher=True only %}
+                </div>
+            </section>
+
+
+        </div>
+
+    </aside>
+    </div>
+</div>
+
+{% include 'partials/chart_table_modal.html' %}
+
+{{ map_data|json_script:"map-spatial-data" }}
+{{ map_config|json_script:"map-spatial-config" }}
+
+<script>
+    window.ADD_DAMAGE_LOSSES_INCIDENT_OPTIONS_URL = "{% url 'reports:damage_losses_incidents' %}";
+    window.ADD_PROVINCES_GEOJSON_URL = "{% static 'geo/ph/provinces.geojson' %}?v=a44a7309-adm3-3pct-sga";
+    window.ADD_PHILIPPINES_OUTLINE_GEOJSON_URL = "{% static 'geo/ph/philippines_outline.geojson' %}?v=a44a7309-adm3-3pct-sga-hd";
+</script>
+<script src="{% static 'js/analytics/dynamic_incident_options.js' %}?v=20260731-node-v1"></script>
+<script src="{% static 'js/analytics_filters.js' %}?v=20260825-outside-dismiss-v4"></script>
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
+<script src="{% static 'js/map_browser_fullscreen.js' %}?v=20260825-map-control-popovers-v1" defer></script>
+<script src="{% static 'vendor/chartjs/chart.umd.js' %}" defer></script>
+<script src="{% static 'js/analytics/chart_presets.js' %}?v=20260906-bar-radius-v1" defer></script>
+<script src="{% static 'js/maps/map_appearance.js' %}?v=20260810-ash-boundary-v1" defer></script>
+<script src="{% static 'js/maps/map_administrative_base.js' %}?v=20260810-ash-boundary-v1" defer></script>
+<script src="{% static 'js/maps/map_legend_scale.js' %}?v=20260803-low-bound-v1" defer></script>
+<script src="{% static 'js/maps/map_overlay_legend.js' %}?v=20260810-tc-legend-v1" defer></script>
+<script src="{% static 'js/maps/map_export.js' %}?v=20260810-canvas-export-v2" defer></script>
+<script src="{% static 'js/maps/map_keyboard_navigation.js' %}?v=20260725a" defer></script>
+<script src="{% static 'js/maps/map_dashboard.js' %}?v=20260825-map-control-popovers-v1" defer></script>
+<script src="{% static 'js/maps/dashboard_analysis_panel.js' %}?v=20260906-bar-radius-v1" defer></script>
+{% endblock %}

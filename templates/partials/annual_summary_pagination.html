@@ -1,0 +1,131 @@
+{% if page_obj.paginator.num_pages > 1 or pagination_note %}
+    <nav
+        data-annual-summary-pagination
+        class="annual-summary-pagination grid items-center justify-between gap-4 border-t border-zinc-100 px-4 py-2.5"
+        aria-label="{{ pagination_label|default:'Annual summary pages' }}"
+    >
+        {% if page_obj.paginator.num_pages > 1 %}
+            <span
+                data-annual-summary-page-count
+                class="block text-xs font-semibold tabular-nums text-zinc-600"
+                aria-live="polite"
+            >
+                <span class="sr-only">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <span aria-hidden="true">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </span>
+        {% endif %}
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <span
+                data-annual-summary-controls
+                class="flex shrink-0 items-center gap-2"
+            >
+                {% if page_obj.has_previous %}
+                <a
+                    href="?{% if pagination_querystring %}{{ pagination_querystring }}&amp;{% endif %}page=1{% if pagination_anchor %}#{{ pagination_anchor }}{% endif %}"
+                    data-no-page-transition="true"
+                    class="ui-icon-button ui-icon-button--pagination"
+                    aria-label="First page"
+                    title="First page"
+                >
+                    <i class="fa-solid fa-angles-left text-xs" aria-hidden="true"></i>
+                </a>
+                {% else %}
+                <button
+                    type="button"
+                    disabled
+                    class="ui-icon-button ui-icon-button--pagination"
+                    aria-label="First page"
+                    title="First page"
+                >
+                    <i class="fa-solid fa-angles-left text-xs" aria-hidden="true"></i>
+                </button>
+                {% endif %}
+
+                {% if page_obj.has_previous %}
+                <a
+                    href="?{% if pagination_querystring %}{{ pagination_querystring }}&amp;{% endif %}page={{ page_obj.previous_page_number }}{% if pagination_anchor %}#{{ pagination_anchor }}{% endif %}"
+                    data-no-page-transition="true"
+                    class="ui-icon-button ui-icon-button--pagination"
+                    aria-label="Previous page"
+                    title="Previous page"
+                >
+                    <i
+                        class="fa-solid fa-chevron-left text-xs"
+                        aria-hidden="true"
+                    ></i>
+                </a>
+                {% else %}
+                <button
+                    type="button"
+                    disabled
+                    class="ui-icon-button ui-icon-button--pagination"
+                    aria-label="Previous page"
+                    title="Previous page"
+                >
+                    <i
+                        class="fa-solid fa-chevron-left text-xs"
+                        aria-hidden="true"
+                    ></i>
+                </button>
+                {% endif %}
+
+                {% if page_obj.has_next %}
+                <a
+                    href="?{% if pagination_querystring %}{{ pagination_querystring }}&amp;{% endif %}page={{ page_obj.next_page_number }}{% if pagination_anchor %}#{{ pagination_anchor }}{% endif %}"
+                    data-no-page-transition="true"
+                    class="ui-icon-button ui-icon-button--pagination"
+                    aria-label="Next page"
+                    title="Next page"
+                >
+                    <i
+                        class="fa-solid fa-chevron-right text-xs"
+                        aria-hidden="true"
+                    ></i>
+                </a>
+                {% else %}
+                <button
+                    type="button"
+                    disabled
+                    class="ui-icon-button ui-icon-button--pagination"
+                    aria-label="Next page"
+                    title="Next page"
+                >
+                    <i
+                        class="fa-solid fa-chevron-right text-xs"
+                        aria-hidden="true"
+                    ></i>
+                </button>
+                {% endif %}
+
+                {% if page_obj.has_next %}
+                <a
+                    href="?{% if pagination_querystring %}{{ pagination_querystring }}&amp;{% endif %}page={{ page_obj.paginator.num_pages }}{% if pagination_anchor %}#{{ pagination_anchor }}{% endif %}"
+                    data-no-page-transition="true"
+                    class="ui-icon-button ui-icon-button--pagination"
+                    aria-label="Last page"
+                    title="Last page"
+                >
+                    <i class="fa-solid fa-angles-right text-xs" aria-hidden="true"></i>
+                </a>
+                {% else %}
+                <button
+                    type="button"
+                    disabled
+                    class="ui-icon-button ui-icon-button--pagination"
+                    aria-label="Last page"
+                    title="Last page"
+                >
+                    <i class="fa-solid fa-angles-right text-xs" aria-hidden="true"></i>
+                </button>
+                {% endif %}
+            </span>
+        {% endif %}
+
+        {% if pagination_note %}
+            <p class="annual-summary-footnote min-w-0">
+                {{ pagination_note }}
+            </p>
+        {% endif %}
+    </nav>
+{% endif %}

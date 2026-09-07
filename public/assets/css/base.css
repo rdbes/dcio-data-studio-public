@@ -1,0 +1,637 @@
+/* Base styling variables and rules in addition to compiled Tailwind CSS. */
+
+html, body {
+    font-family: var(--font-family-interface, "Inter", sans-serif);
+    font-weight: var(--font-weight-regular, 400);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    height: 100%;
+    overflow: hidden;
+}
+
+.farm-app-body {
+    background: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-family-interface);
+}
+
+.farm-app-shell {
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--color-background);
+}
+
+.farm-main-panel {
+    /* The workspace is the canvas; cards and panels own their own outlines. */
+    border: 0;
+    border-radius: 0;
+    background: var(--color-background);
+    box-shadow: var(--elevation-flat);
+}
+
+.farm-page-body {
+    background: var(--color-background);
+}
+
+.farm-page-content {
+    min-width: 0;
+}
+
+.farm-page-body-spacing {
+    padding: 0 var(--page-gutter-compact) var(--space-6);
+}
+
+@media (min-width: 48rem) {
+    .farm-page-body-spacing {
+        padding-right: var(--page-gutter-standard);
+        padding-left: var(--page-gutter-standard);
+        padding-bottom: var(--space-8);
+    }
+}
+
+@media (min-width: 64rem) {
+    .farm-page-body-spacing {
+        padding-right: var(--page-gutter-wide);
+        padding-left: var(--page-gutter-wide);
+    }
+}
+
+/* Data-heavy workspace views use the available canvas below the top bar. */
+.analytics-workspace-page-body {
+    /* Data-heavy workspaces use the full page canvas below the top bar. */
+    padding: 0;
+}
+
+.add-skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 2000;
+    transform: translateY(-200%);
+    border-radius: var(--control-radius, 0.5rem);
+    background: var(--color-surface-dark);
+    color: var(--color-text-inverse);
+    padding: 0.5rem 0.75rem;
+    font-size: var(--type-caption-size, 0.75rem);
+    font-weight: var(--font-weight-semibold, 600);
+    transition: transform 120ms ease-out;
+}
+
+.add-skip-link:focus-visible {
+    transform: translateY(0);
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+[data-page-body] {
+    scrollbar-gutter: auto;
+}
+
+/* Scrollbars are rendered by the shared overlay controller so they never
+ * reduce the width of module content. Both axes remain usable on narrow
+ * tables, while the visual rails are shown only during interaction. */
+[data-overlay-scrollbar-target] {
+    scrollbar-gutter: auto !important;
+    scrollbar-width: none;
+}
+
+[data-overlay-scrollbar-target]::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+.overlay-scrollbar {
+    position: fixed;
+    z-index: 1300;
+    border-radius: 9999px;
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms ease;
+}
+
+.overlay-scrollbar--vertical {
+    width: 0.25rem;
+}
+
+.overlay-scrollbar--horizontal {
+    height: 0.25rem;
+}
+
+.overlay-scrollbar.is-visible,
+.overlay-scrollbar:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.overlay-scrollbar__thumb {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--color-text-muted) 55%, transparent);
+    cursor: grab;
+}
+
+.overlay-scrollbar--vertical .overlay-scrollbar__thumb {
+    min-height: 1.5rem;
+}
+
+.overlay-scrollbar--horizontal .overlay-scrollbar__thumb {
+    min-width: 1.5rem;
+}
+
+.overlay-scrollbar__thumb:active {
+    cursor: grabbing;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .overlay-scrollbar {
+        transition: none;
+    }
+}
+
+/*
+ * Establish the persisted sidebar geometry before Alpine hydrates.
+ * The later Alpine utility classes resolve to these same dimensions,
+ * preventing the shared content panel from moving after first paint.
+ */
+@media (min-width: 80rem) {
+    html[data-sidebar-open="true"] [data-app-shell] {
+        gap: 0.75rem;
+    }
+
+    html[data-sidebar-open="false"] [data-app-shell] {
+        gap: 0;
+    }
+
+    html[data-sidebar-open="true"] [data-sidebar-shell] {
+        width: 14.5rem;
+        padding: 0;
+        overflow: visible;
+        transform: translateX(0);
+    }
+
+    html[data-sidebar-open="false"] [data-sidebar-shell] {
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 79.999rem) {
+    html[data-sidebar-open="true"] [data-sidebar-shell] {
+        width: 14.5rem;
+        padding: 0.75rem;
+        overflow: visible;
+        transform: translateX(0);
+    }
+
+    html[data-sidebar-open="false"] [data-sidebar-shell] {
+        width: 0;
+        padding: 0;
+        overflow: hidden;
+        transform: translateX(-100%);
+    }
+}
+
+/* Internal navigation must not translate or resize the shared shell. */
+.page-transition-target {
+    opacity: 1;
+    transform: none;
+}
+
+.page-is-leaving .page-transition-target {
+    opacity: 1;
+    transform: none;
+    pointer-events: none;
+}
+
+/* FARM uses Inter for all interface and text roles. */
+h1, h2, h3, h4, h5, h6, 
+.font-display, 
+.sidebar-link, 
+nav a, 
+nav div,
+.top-nav,
+.breadcrumb,
+.page-title {
+    font-family: var(--font-family-interface, "Inter", sans-serif);
+}
+
+/* Specific weights to keep UI consistent */
+h1, .page-title {
+    font-weight: var(--font-weight-semibold, 600) !important;
+}
+
+nav a, nav div, .sidebar-link {
+    font-weight: var(--font-weight-medium) !important;
+}
+
+/* Interface copy and controls use the same FARM interface family. */
+p, td, th, input, select, textarea, button, span, label, strong {
+    font-family: var(--font-family-interface, "Inter", sans-serif);
+}
+
+p, td, input, select, textarea {
+    font-weight: var(--font-weight-regular, 400);
+}
+
+button, th, thead, .btn {
+    font-weight: var(--font-weight-medium, 500);
+}
+
+label, .important-label, strong {
+    font-weight: var(--font-weight-semibold, 600);
+}
+
+@media (max-width: 47.999rem) {
+    .dashboard-chart-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .dashboard-chart-actions {
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-metric-switcher {
+        flex: 1 1 auto;
+    }
+
+    .dashboard-metric-switcher [data-metric] {
+        flex: 1 1 0;
+    }
+}
+
+/* Keep the shared workspace navigation visually secondary. */
+[data-workspace-nav],
+[data-workspace-nav] * {
+    font-weight: 300 !important;
+}
+
+/* Reusable client-side feedback for actions that do not submit a form. */
+.add-runtime-toast {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid;
+    border-radius: 0.75rem;
+    box-shadow: var(--elevation-overlay);
+    font-size: var(--type-caption-size);
+    font-weight: 600;
+    line-height: var(--type-caption-line-height);
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.add-runtime-toast.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.add-runtime-toast--success {
+    border-color: color-mix(in srgb, var(--color-success) 45%, transparent);
+    background: var(--color-success-surface);
+    color: var(--color-success);
+}
+
+.add-runtime-toast--error {
+    border-color: color-mix(in srgb, var(--color-danger) 45%, transparent);
+    background: var(--color-danger-subtle);
+    color: var(--color-danger);
+}
+
+.add-runtime-toast__dismiss {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 0;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: currentColor;
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.add-runtime-toast__dismiss:hover,
+.add-runtime-toast__dismiss:focus-visible {
+    background: color-mix(in srgb, var(--color-surface) 55%, transparent);
+    opacity: 1;
+}
+
+/* Shared nested navigation component. */
+.sidebar-submodule-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    border-radius: var(--control-radius);
+    padding: var(--space-2) var(--space-3);
+    color: var(--color-text-muted);
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-line-height);
+    text-decoration: none;
+    transition:
+        color 150ms ease,
+        background-color 150ms ease;
+}
+
+.sidebar-submodule-link:hover {
+    background-color: var(--color-surface-subtle);
+    color: var(--color-text-strong);
+}
+
+.sidebar-submodule-link:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+}
+
+.sidebar-submodule-link[aria-current="page"] {
+    background-color: var(--color-selected);
+    color: var(--color-text-strong);
+    font-weight: var(--font-weight-semibold) !important;
+}
+
+.sidebar-submodule-icon {
+    --sidebar-submodule-icon-color: var(--color-text-muted);
+    --sidebar-submodule-icon-active-color: var(--color-primary);
+    width: var(--icon-size-sm);
+    flex: 0 0 var(--icon-size-sm);
+    color: var(--sidebar-submodule-icon-color);
+    font-size: var(--type-caption-size);
+    text-align: center;
+    filter: none;
+    transition: color 150ms ease;
+}
+
+.sidebar-submodule-link[aria-current="page"]
+.sidebar-submodule-icon {
+    color:
+        var(
+            --sidebar-submodule-icon-active-color,
+            var(--sidebar-submodule-icon-color)
+        );
+}
+
+/* Responsive sidebar motion and layering — START */
+
+/*
+ * Persistent desktop sidebar (>= 1280px):
+ * animate only the two structural properties involved in opening
+ * and closing the sidebar. Do not transition the whole application.
+ */
+@media (min-width: 80rem) {
+    [data-app-shell] {
+        transition:
+            gap 280ms cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: gap;
+    }
+
+    [data-sidebar-shell] {
+        transition:
+            width 280ms cubic-bezier(0.22, 1, 0.36, 1),
+            transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: width, transform;
+    }
+
+    [data-sidebar-shell] > div {
+        transition:
+            opacity 180ms ease,
+            transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: opacity, transform;
+    }
+
+    html[data-sidebar-open="false"] [data-sidebar-shell] > div {
+        opacity: 0;
+        transform: translateX(-0.5rem);
+    }
+
+    html[data-sidebar-open="true"] [data-sidebar-shell] > div {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/*
+ * Overlay sidebar (< 1280px):
+ *
+ * The sidebar is an overlay, so its width remains stable while hidden.
+ * Only transform moves it on/off canvas. This prevents the old
+ * width: 14.5rem -> 0 collapse from fighting the slide animation.
+ *
+ * The mobile drawer/backdrop are intentionally above ordinary page UI.
+ * Current map controls may use z-index values around 1200 and the
+ * browser-fullscreen map uses 2000, so the navigation overlay receives
+ * its own shell-level range above both.
+ */
+@media (max-width: 79.999rem) {
+    [data-sidebar-shell] {
+        width: 14.5rem;
+        padding: 0.75rem;
+        z-index: 4000;
+        transition:
+            transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: transform;
+    }
+
+    [data-sidebar-shell] > div {
+        transition:
+            opacity 180ms ease,
+            transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: opacity, transform;
+    }
+
+    html[data-sidebar-open="true"] [data-sidebar-shell] {
+        width: 14.5rem;
+        padding: 0.75rem;
+        transform: translateX(0);
+    }
+
+    html[data-sidebar-open="false"] [data-sidebar-shell] {
+        width: 14.5rem;
+        padding: 0.75rem;
+        transform: translateX(-100%);
+    }
+
+    html[data-sidebar-open="false"] [data-sidebar-shell] > div {
+        opacity: 0;
+        transform: translateX(-0.5rem);
+    }
+
+    html[data-sidebar-open="true"] [data-sidebar-shell] > div {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    [data-sidebar-backdrop] {
+        z-index: 3900;
+    }
+}
+
+/* Respect the operating-system reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+    [data-app-shell],
+    [data-sidebar-shell],
+    [data-sidebar-backdrop] {
+        transition: none !important;
+    }
+}
+
+/* Responsive sidebar motion and layering — END */
+
+/* Global application overlay layering — START */
+
+/*
+ * Application shell layer contract.
+ *
+ * Normal page / map content:
+ *   ordinary content        < 1200
+ *   map/filter overlays     ~1200
+ *   browser map fullscreen  2000
+ *
+ * Navigation overlay:
+ *   sidebar backdrop        4900
+ *   sidebar drawer          5000
+ *
+ * Sidebar layering must not depend on the responsive breakpoint.
+ * Otherwise a high-z map/filter control can render through the drawer
+ * when the sidebar happens to be operating as an overlay.
+ */
+[data-sidebar-shell] {
+    z-index: 5000 !important;
+}
+
+[data-sidebar-backdrop] {
+    z-index: 4900 !important;
+}
+
+/*
+ * Keep the complete sidebar surface in the same high stacking context.
+ * Child navigation, profile, and close controls must never fall behind
+ * map panes, Leaflet controls, filter panels, or chart controls.
+ */
+[data-sidebar-shell] > div {
+    position: relative;
+    z-index: 1;
+    /* Match Map Studio's 232px navigation rail at every viewport. */
+    width: 14.5rem;
+    flex: 0 0 14.5rem;
+    min-width: 0;
+}
+
+/* Global application overlay layering — END */
+
+/* Sidebar responsive positioning contract — START */
+
+/*
+ * Shared shell breakpoint:
+ *
+ * < 1280px
+ *   Sidebar is a viewport overlay drawer.
+ *
+ * >= 1280px
+ *   Sidebar participates in the application's flex layout and must
+ *   never behave as an overlay.
+ *
+ * These rules intentionally define the structural behavior directly
+ * instead of relying solely on generated responsive utility classes.
+ */
+
+/* Overlay drawer. */
+@media (max-width: 79.999rem) {
+    [data-sidebar-shell] {
+        position: fixed !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 5000 !important;
+    }
+
+    [data-sidebar-backdrop] {
+        z-index: 4900 !important;
+    }
+}
+
+/* Persistent desktop navigation. */
+@media (min-width: 80rem) {
+    [data-sidebar-shell] {
+        position: relative !important;
+        inset: auto !important;
+        top: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+
+        height: 100% !important;
+        padding: 0 !important;
+
+        /*
+         * Persistent navigation is part of normal layout and no longer
+         * needs the overlay stacking level.
+         */
+        z-index: auto !important;
+    }
+
+    /*
+     * The early shell-state rules continue to decide whether the
+     * persistent sidebar is 14.5rem wide or collapsed to width 0.
+     */
+    html[data-sidebar-open="true"] [data-sidebar-shell] {
+        width: 14.5rem;
+        overflow: visible;
+        transform: translateX(0) !important;
+    }
+
+    html[data-sidebar-open="false"] [data-sidebar-shell] {
+        width: 0;
+        overflow: hidden;
+        transform: translateX(0) !important;
+    }
+
+    /*
+     * A desktop sidebar is not a modal drawer.
+     */
+    [data-sidebar-backdrop] {
+        display: none !important;
+        pointer-events: none !important;
+    }
+
+    [data-sidebar-shell] button[aria-label="Close Sidebar"] {
+        display: none !important;
+    }
+}
+
+/* Sidebar responsive positioning contract — END */
+
+/* Global toast stacking layer — START */
+
+/*
+ * Toasts are application-level feedback and must remain above
+ * page filters, map controls, and navigation overlays.
+ *
+ * Keep this in ordinary global CSS rather than relying on an
+ * arbitrary Tailwind z-index utility that may not exist until
+ * the Tailwind bundle is rebuilt.
+ */
+#toast-container {
+    z-index: 5000 !important;
+}
+
+/* Global toast stacking layer — END */

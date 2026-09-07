@@ -1,0 +1,30 @@
+<article id="dashboard-quarterly-breakdown-card" class="dashboard-quarterly-breakdown-card dashboard-analysis-chart-card ui-main-card analytics-chart-card--compact dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col">
+    <div class="ui-section-header border-b border-zinc-100 bg-white px-3 py-2">
+        <div class="dashboard-chart-header flex flex-row items-center justify-between gap-1">
+            <div class="min-w-0 flex-1">
+                <h3 id="dashboard-quarterly-breakdown-title" class="ui-section-title text-xs font-bold text-zinc-900 leading-tight">Quarterly Breakdown</h3>
+                <p id="dashboard-quarterly-breakdown-period" class="ui-section-subtitle mt-1 truncate text-xs text-zinc-400 font-medium"></p>
+            </div>
+            <div class="dashboard-quarterly-breakdown-card__actions flex shrink-0 items-center gap-1">
+                <label class="dashboard-quarterly-metric-select-label" for="dashboard-quarterly-breakdown-metric">Metric</label>
+                <select id="dashboard-quarterly-breakdown-metric" class="dashboard-quarterly-metric-select" aria-label="Quarterly chart metric">
+                    <option value="all">{% if include_farmers %}Area, volume and value{% else %}All metrics{% endif %}</option>
+                    <option value="area_affected">Area</option>
+                    <option value="volume_loss">Production</option>
+                    <option value="value_loss">Value</option>
+                    {% if include_farmers %}<option value="affected_farmers">Farmers/Fisherfolk</option>{% endif %}
+                </select>
+                <button type="button" data-quarterly-table-trigger class="ui-icon-button dashboard-chart-icon-button" aria-label="View quarterly data table" title="View quarterly data table">
+                    <i class="fa-solid fa-table text-xs" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="dashboard-quarterly-breakdown-card__body analytics-chart-card--compact__body p-3 flex-1 flex flex-col">
+        <div class="dashboard-quarterly-breakdown-card__canvas relative min-h-[16rem] w-full flex-1">
+            <canvas id="dashboardQuarterlyBreakdownChart" aria-label="Quarterly breakdown of reported metrics"></canvas>
+            <p id="dashboard-quarterly-breakdown-empty" class="absolute inset-0 hidden items-center justify-center text-sm text-zinc-500">No data for the selected filters.</p>
+        </div>
+        <div id="dashboard-quarterly-breakdown-legend" class="dashboard-quarterly-breakdown-card__legend" aria-label="Quarterly chart metrics"></div>
+    </div>
+</article>

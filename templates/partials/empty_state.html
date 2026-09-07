@@ -1,0 +1,15 @@
+{% load batch_tags %}
+<div class="ui-empty-state {% if compact %}ui-empty-state--compact{% endif %} {{ wrapper_class }}">
+    {% if icon %}
+        <div class="ui-empty-state__icon" aria-hidden="true">
+            <i class="{{ icon }}"></i>
+        </div>
+    {% endif %}
+    <h3 class="ui-empty-state__title">{{ title }}</h3>
+    {% if description %}<p class="ui-empty-state__description">{{ description }}</p>{% endif %}
+    {% if action_label and action_url %}
+        <div class="ui-empty-state__action">
+            {% render_button action_label href=action_url variant=action_variant|default:"primary" %}
+        </div>
+    {% endif %}
+</div>

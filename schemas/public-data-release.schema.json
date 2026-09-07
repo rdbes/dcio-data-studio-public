@@ -1,0 +1,538 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DCIO Data Studio public data release",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "release_version",
+    "generated_at",
+    "data_cutoff",
+    "source",
+    "read_only",
+    "hazards",
+    "commodities",
+    "locations",
+    "incidents",
+    "damage_reports",
+    "tropical_cyclones",
+    "tropical_cyclone_track_points",
+    "incident_cyclone_links"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.2.0"
+    },
+    "release_version": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data_cutoff": {
+      "type": "string",
+      "format": "date"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "read_only": {
+      "const": true
+    },
+    "hazards": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/hazard"
+      }
+    },
+    "commodities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/commodity"
+      }
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/location"
+      }
+    },
+    "incidents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/incident"
+      }
+    },
+    "damage_reports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/damageReport"
+      }
+    },
+    "tropical_cyclones": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/cyclone"
+      }
+    },
+    "tropical_cyclone_track_points": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/trackPoint"
+      }
+    },
+    "incident_cyclone_links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/incidentCycloneLink"
+      }
+    }
+  },
+  "$defs": {
+    "nullableString": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nullableDate": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "format": "date"
+        }
+      ]
+    },
+    "exactDecimal": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$"
+        }
+      ]
+    },
+    "hazard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hazard_key",
+        "hazard_category",
+        "hazard_type"
+      ],
+      "properties": {
+        "hazard_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hazard_category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hazard_type": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "commodity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commodity_key",
+        "main_sector",
+        "level_2_group",
+        "level_3_group"
+      ],
+      "properties": {
+        "commodity_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "main_sector": {
+          "type": "string",
+          "minLength": 1
+        },
+        "level_2_group": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "level_3_group": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "psgc_key",
+        "psgc_code",
+        "location_name",
+        "geographic_level",
+        "parent_psgc_key",
+        "region_name",
+        "province_huc_name",
+        "city_municipality_name",
+        "barangay_name",
+        "correspondence_code",
+        "region_key",
+        "province_huc_key",
+        "city_municipality_key",
+        "barangay_key"
+      ],
+      "properties": {
+        "psgc_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "psgc_code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "location_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "geographic_level": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parent_psgc_key": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "region_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "province_huc_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "city_municipality_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "barangay_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "correspondence_code": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "region_key": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "province_huc_key": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "city_municipality_key": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "barangay_key": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "incident": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "incident_key",
+        "incident_name",
+        "hazard_key",
+        "hazard_category",
+        "hazard_type",
+        "incident_start_date",
+        "incident_end_date"
+      ],
+      "properties": {
+        "incident_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "incident_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hazard_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hazard_category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hazard_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "incident_start_date": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "incident_end_date": {
+          "$ref": "#/$defs/nullableDate"
+        }
+      }
+    },
+    "damageReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "damage_report_key",
+        "incident_key",
+        "incident_name",
+        "hazard_key",
+        "hazard_category",
+        "hazard_type",
+        "incident_start_date",
+        "incident_end_date",
+        "location_psgc_key",
+        "region_name",
+        "province_huc_name",
+        "city_municipality_name",
+        "barangay_name",
+        "commodity_key",
+        "main_sector",
+        "level_2_group",
+        "level_3_group",
+        "area_totally_damaged_ha",
+        "area_partially_damaged_ha",
+        "area_affected_ha",
+        "production_loss_mt",
+        "value_loss_php",
+        "affected_farmers_fisherfolk_count",
+        "affected_livestock_poultry_heads_count"
+      ],
+      "properties": {
+        "damage_report_key": {
+          "type": "integer"
+        },
+        "incident_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "incident_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hazard_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hazard_category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hazard_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "incident_start_date": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "incident_end_date": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "location_psgc_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "region_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "province_huc_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "city_municipality_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "barangay_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "commodity_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "main_sector": {
+          "type": "string",
+          "minLength": 1
+        },
+        "level_2_group": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "level_3_group": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "area_totally_damaged_ha": {
+          "$ref": "#/$defs/exactDecimal"
+        },
+        "area_partially_damaged_ha": {
+          "$ref": "#/$defs/exactDecimal"
+        },
+        "area_affected_ha": {
+          "$ref": "#/$defs/exactDecimal"
+        },
+        "production_loss_mt": {
+          "$ref": "#/$defs/exactDecimal"
+        },
+        "value_loss_php": {
+          "$ref": "#/$defs/exactDecimal"
+        },
+        "affected_farmers_fisherfolk_count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "affected_livestock_poultry_heads_count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      }
+    },
+    "cyclone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cyclone_key",
+        "cyclone_name",
+        "international_name",
+        "occurrence_year",
+        "start_date",
+        "end_date",
+        "peak_intensity",
+        "catalog_source",
+        "source_agency",
+        "peak_intensity_within_par"
+      ],
+      "properties": {
+        "cyclone_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cyclone_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "international_name": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "occurrence_year": {
+          "type": "integer"
+        },
+        "start_date": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "end_date": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "peak_intensity": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "catalog_source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_agency": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "peak_intensity_within_par": {
+          "$ref": "#/$defs/nullableString"
+        }
+      }
+    },
+    "trackPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "track_point_key",
+        "cyclone_key",
+        "valid_at",
+        "latitude",
+        "longitude",
+        "intensity_code",
+        "maximum_wind_kt",
+        "central_pressure_hpa",
+        "source_type",
+        "source_agency"
+      ],
+      "properties": {
+        "track_point_key": {
+          "type": "integer"
+        },
+        "cyclone_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valid_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "latitude": {
+          "$ref": "#/$defs/exactDecimal"
+        },
+        "longitude": {
+          "$ref": "#/$defs/exactDecimal"
+        },
+        "intensity_code": {
+          "type": "string"
+        },
+        "maximum_wind_kt": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "central_pressure_hpa": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "source_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_agency": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "incidentCycloneLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "incident_cyclone_key",
+        "incident_key",
+        "cyclone_key",
+        "attribution_method"
+      ],
+      "properties": {
+        "incident_cyclone_key": {
+          "type": "integer"
+        },
+        "incident_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cyclone_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attribution_method": {
+          "enum": [
+            "direct",
+            "combined",
+            "manual"
+          ]
+        }
+      }
+    }
+  }
+}

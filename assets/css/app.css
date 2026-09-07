@@ -1,6 +1,0 @@
-/* One application stylesheet entry point. Keep the files below ordered by
-   responsibility: shell primitives, workspace layout, then components. */
-@import url("base.css?v=20260905-overlay-scrollbars-v18");
-@import url("layout.css?v=20260904-blue-sidebar-icons-v1");
-@import url("reports.css?v=20260907-chart-footer-spacing-v2");
-@import url("auth.css?v=20260906-consistent-form-fields-v15");

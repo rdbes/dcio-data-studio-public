@@ -1,0 +1,7 @@
+{% load batch_tags %}
+<div{% if el_nino_actions %} data-el-nino-filter-actions{% endif %} class="{{ actions_class|default:'flex items-center justify-end gap-2 border-t border-zinc-100 pt-2' }}">
+    {% with reset_text=reset_label|default:'Reset filters' %}
+        {% render_button "" href=reset_url variant="secondary" icon="fa-solid fa-rotate-left" title=reset_text aria_label=reset_text small=True extra_classes="filter-card-reset" %}
+    {% endwith %}
+    {% render_button apply_label|default:"Apply" type="submit" icon="fa-solid fa-filter" small=True extra_classes="filter-card-apply" %}
+</div>

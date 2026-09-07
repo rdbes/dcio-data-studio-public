@@ -1,0 +1,62 @@
+<div
+    id="map-resize-menu"
+    data-map-resize-menu
+    data-map-control-popover="resize"
+    class="map-resize-menu"
+    role="dialog"
+    aria-label="Resize canvas"
+    hidden
+>
+    <div class="map-resize-menu__title">Resize canvas</div>
+
+    <button
+        type="button"
+        data-map-resize-reset
+        class="map-resize-menu__reset"
+    >Reset canvas</button>
+
+    <div class="map-resize-menu__divider" aria-hidden="true"></div>
+
+    <div class="map-resize-menu__options" role="group" aria-label="Canvas size presets">
+        <button
+            type="button"
+            data-map-resize-preset="canvas"
+            data-map-resize-width="1150"
+            data-map-resize-height="1600"
+            aria-pressed="false"
+        >
+            <span class="map-resize-menu__option-name">Canva Size</span>
+            <span class="map-resize-menu__option-detail">1,150 × 1,600 px · 23:32</span>
+        </button>
+        <button
+            type="button"
+            data-map-resize-preset="landscape"
+            data-map-resize-width="2400"
+            data-map-resize-height="1800"
+            aria-pressed="false"
+        >
+            <span class="map-resize-menu__option-name">Landscape</span>
+            <span class="map-resize-menu__option-detail">2,400 × 1,800 px · 4:3</span>
+        </button>
+        <button
+            type="button"
+            data-map-resize-preset="wide"
+            data-map-resize-width="2560"
+            data-map-resize-height="1440"
+            aria-pressed="false"
+        >
+            <span class="map-resize-menu__option-name">Wide</span>
+            <span class="map-resize-menu__option-detail">2,560 × 1,440 px · 16:9</span>
+        </button>
+        <button
+            type="button"
+            data-map-resize-preset="square"
+            data-map-resize-width="1800"
+            data-map-resize-height="1800"
+            aria-pressed="false"
+        >
+            <span class="map-resize-menu__option-name">Square</span>
+            <span class="map-resize-menu__option-detail">1,800 × 1,800 px · 1:1</span>
+        </button>
+    </div>
+</div>

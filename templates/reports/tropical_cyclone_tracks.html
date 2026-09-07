@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load humanize static %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-tracks.css' %}?v=20260906-consistent-form-fields-v3">
+    <script defer src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+    <script defer src="{% static 'js/maps/map_appearance.js' %}?v=20260810-ash-boundary-v1"></script>
+    <script defer src="{% static 'js/maps/map_legend_scale.js' %}?v=20260803-low-bound-v1"></script>
+    <script defer src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
+    <script defer src="{% static 'js/maps/map_keyboard_navigation.js' %}?v=20260725a"></script>
+    <script defer src="{% static 'js/map_browser_fullscreen.js' %}?v=20260825-map-control-popovers-v1"></script>
+<script defer src="{% static 'js/tropical_cyclone_tracks.js' %}?v=20260906-white-location-boundaries-v1"></script>
+{% endblock %}
+
+{% block title %}Tropical Cyclone Tracks - DCIO Data Studio{% endblock %}
+
+{% block breadcrumbs %}
+<span class="text-zinc-900 font-semibold">TC Tracks</span>
+{% endblock %}
+
+{% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none h-full min-h-0{% endblock %}
+
+{% block content %}
+<section class="tc-tracks-page" data-tc-tracks-page aria-label="Tropical Cyclone Tracks">
+    <div class="tc-tracks-workspace">
+        <section class="tc-tracks-map-card relative" data-map-canvas-card aria-labelledby="tc-tracks-map-title">
+            <h2 id="tc-tracks-map-title" class="sr-only">Tropical-cyclone track map</h2>
+            <div id="tc-track-map" class="tc-tracks-map" data-map-root role="application" aria-label="Map of all tropical-cyclone tracks"></div>
+            <div data-map-coordinate-labels class="add-map-coordinate-labels" aria-hidden="true"></div>
+            <div data-map-control-rail class="absolute left-2.5 top-2.5 z-[1000] flex flex-col items-start gap-1">
+                <div data-map-primary-controls class="flex flex-col gap-1">
+                    <button id="map-fullscreen" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Expand map to browser window" aria-pressed="false" title="Expand map to browser window">
+                        <i data-map-fullscreen-icon class="fa-solid fa-expand text-xs" aria-hidden="true"></i>
+                    </button>
+
+                    <button id="map-reset-view" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Reset map extent" title="Reset map extent">
+                        <i data-map-reset-icon class="fa-solid fa-location-crosshairs text-xs" aria-hidden="true"></i>
+                    </button>
+
+                    <div data-map-zoom-controls class="add-map-zoom-controls" role="group" aria-label="Map zoom controls">
+                        <button id="map-zoom-in" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-400" aria-label="Zoom in" title="Zoom in">
+                            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+                        </button>
+                        <button id="map-zoom-out" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-400" aria-label="Zoom out" title="Zoom out">
+                            <i class="fa-solid fa-minus text-xs" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div data-map-style-control class="add-map-style-control relative">
+                    <button id="map-style-toggle" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Customize map appearance" aria-controls="map-style-panel" aria-expanded="false" title="Customize map appearance">
+                        <i data-map-appearance-icon class="fa-solid fa-circle-half-stroke text-xs" aria-hidden="true"></i>
+                    </button>
+                    <div id="map-style-panel" class="add-map-style-panel hidden absolute" data-map-control-popover="style" role="dialog" aria-label="Map color settings">
+                        <fieldset>
+                            <legend class="add-map-style-panel__heading">Background</legend>
+                            <div class="add-map-background-palette">
+                                <button type="button" data-map-background-option="sky" class="add-map-background-option" aria-label="Use #c0e8ff map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" style="background-color:#c0e8ff" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="lightest" class="add-map-background-option" aria-label="Use #f7f7f7 map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="light" class="add-map-background-option" aria-label="Use #cccccc map background" aria-pressed="true"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="medium" class="add-map-background-option" aria-label="Use #969696 map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="dark" class="add-map-background-option" aria-label="Use #636363 map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                                <button type="button" data-map-background-option="darkest" class="add-map-background-option" aria-label="Use #252525 map background" aria-pressed="false"><span data-map-background-swatch class="add-map-background-swatch" aria-hidden="true"></span></button>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div data-map-cartography class="pointer-events-none absolute bottom-3 right-3 z-[500] flex w-24 flex-col items-center text-sky-500" aria-label="Map orientation and scale">
+                <div data-map-north-arrow class="flex flex-col items-center" role="img" aria-label="North arrow">
+                    <span class="text-xs font-normal leading-none">N</span>
+                    <svg class="h-7 w-6" viewBox="0 0 64 76" fill="none" aria-hidden="true">
+                        <circle cx="32" cy="43" r="23" stroke="#ffffff" stroke-width="3"></circle>
+                        <path d="M32 5 53 68 32 53 11 68 32 5Z" fill="currentColor" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"></path>
+                        <path d="M32 5V53L11 68 32 5Z" fill="#ffffff"></path>
+                    </svg>
+                </div>
+                <div id="map-scale-host" class="add-map-scale-host mt-1 w-full" aria-label="Metric map scale">
+                    <span class="add-map-crs-label" aria-label="Coordinate reference system: EPSG:3857, WGS 84">EPSG:3857 · WGS 84</span>
+                </div>
+            </div>
+            <div id="tc-track-map-fallback" class="absolute bottom-4 left-1/2 z-[550] hidden -translate-x-1/2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-600 shadow-sm">Map library could not load. Check the locally served map assets.</div>
+        </section>
+
+        <aside class="tc-tracks-list-card" aria-labelledby="tc-tracks-list-title">
+            <div class="tc-tracks-card-header tc-tracks-card-header--stacked">
+                <div>
+                    <div class="tc-tracks-card-header__title-row">
+                        <h2 id="tc-tracks-list-title">Tropical Cyclone Tracks</h2>
+                        <span
+                            class="tc-tracks-report-ratio"
+                            aria-label="{{ paired_cyclone_count }} of {{ cyclone_count }} cyclones have paired Damage and Losses reports"
+                        >({{ paired_cyclone_count }}/{{ cyclone_count }})</span>
+                    </div>
+                </div>
+                <label class="ui-search-field tc-tracks-search">
+                    <span class="sr-only">Search tracks</span>
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input class="ui-search-field__input" type="search" placeholder="Search cyclone or source" data-tc-search>
+                </label>
+            </div>
+            <details
+                id="tc-track-filter-panel"
+                data-analytics-filter-panel
+                class="tc-tracks-catalogue-filters group relative"
+                open
+            >
+                {% include 'partials/filter_card_summary.html' with hide_filter_icon=True filter_title='Filter tracks' filter_chips=active_filter_chips chips_sr_label='Active tropical-cyclone track filters' only %}
+
+                <div class="tc-tracks-catalogue-filter-panel hidden group-open:block">
+                    <form method="get" class="space-y-3 px-3 pb-3 pt-3" aria-label="Filter tropical-cyclone tracks">
+                        <div class="tc-tracks-catalogue-filter-grid grid gap-3">
+                            <div>
+                                <span class="sr-only">Year</span>
+                                <details
+                                    id="tc-track-year-filter"
+                                    class="relative group/filter"
+                                    data-filter-dropdown
+                                    data-filter-kind="tc_year"
+                                    data-filter-label-name="Year"
+                                >
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_year %}{{ selected_year }}{% else %}All Years{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="year" value="{{ selected_year|default:'' }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                        <button type="button" data-filter-option data-value="" data-label="All Years" class="block w-full rounded-md px-2 py-1.5 text-left text-sm font-normal text-zinc-700 hover:bg-zinc-50">All Years</button>
+                                        {% for year in available_years %}
+                                            <button type="button" data-filter-option data-value="{{ year }}" data-label="{{ year }}" class="block w-full rounded-md px-2 py-1.5 text-left text-sm font-normal text-zinc-700 hover:bg-zinc-50">{{ year }}</button>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+
+                            <div>
+                                <span class="sr-only">Month</span>
+                                <details
+                                    id="tc-track-month-filter"
+                                    class="relative group/filter"
+                                    data-filter-dropdown
+                                    data-filter-kind="tc_month"
+                                    data-filter-label-name="Month"
+                                >
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{{ selected_month_label }}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="month" value="{{ selected_month|default:'' }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                        <button type="button" data-filter-option data-value="" data-label="All Months" class="block w-full rounded-md px-2 py-1.5 text-left text-sm font-normal text-zinc-700 hover:bg-zinc-50">All Months</button>
+                                        {% for month in month_options %}
+                                            <button type="button" data-filter-option data-value="{{ month.value }}" data-label="{{ month.label }}" class="block w-full rounded-md px-2 py-1.5 text-left text-sm font-normal text-zinc-700 hover:bg-zinc-50">{{ month.label }}</button>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+
+                            {% url 'reports:tropical_cyclone_tracks' as tracks_url %}
+                            {% include 'partials/filter_card_actions.html' with reset_url=tracks_url apply_label='Apply filters' actions_class='flex h-full items-end justify-end gap-2 border-0 pt-0' only %}
+
+                        </div>
+                    </form>
+                </div>
+            </details>
+            <div class="tc-tracks-list" data-tc-track-list tabindex="0">
+                {% for year_group in track_year_groups %}
+                    <details class="tc-tracks-year-group" data-tc-track-year-group {% if forloop.first %}open{% endif %}>
+                        <summary class="tc-tracks-year-group__summary">
+                            <span class="tc-tracks-year-group__year">{{ year_group.year }}</span>
+                            <span class="tc-tracks-year-group__count" aria-label="{{ year_group.paired_cyclone_count }} of {{ year_group.cyclone_count }} cyclones have paired Damage and Losses reports">({{ year_group.paired_cyclone_count }}/{{ year_group.cyclone_count }})</span>
+                        </summary>
+                        <div class="tc-tracks-year-group__rows">
+                            {% for track in year_group.rows %}
+                                <button
+                                    type="button"
+                                    class="tc-track-row{% if not track.point_count %} tc-track-row--unavailable{% endif %}"
+                                    data-tc-track-row
+                                    data-track-key="{{ track.track_key }}"
+                                    data-search-text="{{ track.cyclone_name }} {{ track.international_name }} {{ track.source_label }} {{ track.source_agency }} {{ track.occurrence_year }} {{ track.highest_strength }}{% if not track.point_count %} no track data{% endif %}{% if track.has_damage_report %} paired damage and losses report{% endif %}"
+                                    aria-label="{% if track.point_count %}Toggle {% if track.cyclone_name %}{{ track.cyclone_name }}{% else %}{{ track.international_name }}{% endif %} {{ track.occurrence_year }} track on map{% else %}{% if track.cyclone_name %}{{ track.cyclone_name }}{% else %}{{ track.international_name }}{% endif %} {{ track.occurrence_year }} has no track data{% endif %}"
+                                    {% if not track.point_count %}disabled aria-disabled="true"{% endif %}
+                                    aria-pressed="false"
+                                >
+                                    <span class="tc-track-row__body">
+                                        <strong class="tc-track-row__name">
+                                            <span class="tc-track-row__swatch" data-intensity-level="{{ track.highest_strength_code }}" aria-hidden="true"></span>
+                                            <span>{% if track.cyclone_name %}{{ track.cyclone_name }}{% if track.international_name %} &#123;{{ track.international_name }}&#125;{% endif %}{% else %}{{ track.international_name|default:"Unnamed Tropical Cyclone" }}{% endif %}</span>
+                                        </strong>
+                                        <span class="tc-track-row__badges">
+                                            {% if track.point_count %}
+                                                <span class="tc-track-row__strength" data-intensity-level="{{ track.highest_strength_code }}">{{ track.highest_strength }}</span>
+                                            {% else %}
+                                                <span class="tc-track-row__badge tc-track-row__badge--unlinked">No Track Data</span>
+                                            {% endif %}
+                                            {% if track.has_damage_report %}
+                                                <span class="tc-track-row__badge tc-track-row__badge--linked">With Damage Report</span>
+                                            {% else %}
+                                                <span class="tc-track-row__badge tc-track-row__badge--unlinked">No Damage Report</span>
+                                            {% endif %}
+                                        </span>
+                                        {% if track.point_count %}
+                                            <span>{{ track.source_label }} · {{ track.source_agency }}</span>
+                                        {% else %}
+                                            <span>{{ track.catalog_source }} · No track points available</span>
+                                        {% endif %}
+                                    </span>
+                                    {% if track.point_count %}
+                                        <i class="fa-solid fa-eye-slash tc-track-row__visibility-icon" data-tc-track-visibility-icon aria-hidden="true" title="Show track on map"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-minus tc-track-row__visibility-icon" aria-hidden="true" title="No track data"></i>
+                                    {% endif %}
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </details>
+                {% empty %}
+                    <p class="tc-tracks-empty">No tropical-cyclone records match the selected filters.</p>
+                {% endfor %}
+            </div>
+        </aside>
+    </div>
+</section>
+
+{{ track_payload|json_script:"tc-track-data" }}
+<script>
+    window.DATA_STUDIO_PHILIPPINES_GEOJSON_URL = "{% static 'geo/ph/provinces.geojson' %}";
+    window.DATA_STUDIO_PHILIPPINES_OUTLINE_URL = "{% static 'geo/ph/philippines_outline.geojson' %}";
+</script>
+<script src="{% static 'js/analytics_filters.js' %}?v=20260825-outside-dismiss-v4"></script>
+{% endblock %}

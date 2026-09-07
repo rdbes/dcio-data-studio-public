@@ -1,0 +1,40 @@
+{% comment %}dashboard_analysis_optional_actions{% endcomment %}
+<article{% if article_id %} id="{{ article_id }}"{% endif %} class="ui-main-card analytics-chart-card--compact dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col{% if card_class %} {{ card_class }}{% endif %}">
+    <div class="ui-section-header border-b border-zinc-100 bg-white px-3 py-2">
+        <div class="dashboard-chart-header flex flex-row items-center justify-between gap-1">
+            <div class="min-w-0 flex-1">
+                <h3 id="{{ title_id }}" class="ui-section-title text-xs font-bold text-zinc-900 leading-tight">{{ title }}</h3>
+                <p id="{{ subtitle_id }}" class="ui-section-subtitle text-xs text-zinc-400 font-medium truncate" title="{{ subtitle }}">{{ subtitle }}</p>
+            </div>
+            {% if not hide_actions %}
+                <div class="dashboard-chart-actions flex items-center gap-1 shrink-0">
+                    {% if not hide_metric_switcher %}
+                    <div class="dashboard-metric-switcher flex items-center gap-1 bg-zinc-100 p-1 rounded-md" data-chart-switcher="{{ chart_key }}">
+                        <button type="button" data-metric="value" class="dashboard-metric-option is-active" aria-pressed="true">Value</button>
+                        <button type="button" data-metric="volume" class="dashboard-metric-option" aria-pressed="false">{{ volume_label|default:'Vol' }}</button>
+                        <button type="button" data-metric="area" class="dashboard-metric-option" aria-pressed="false">Area</button>
+                    </div>
+                    {% endif %}
+                    <div class="dashboard-chart-utility-group">
+                        <button type="button" data-chart-table-trigger="{{ chart_key }}" class="ui-icon-button dashboard-chart-icon-button" aria-label="Show {{ chart_description }} data table">
+                            <i class="fa-solid fa-table text-xs" aria-hidden="true"></i>
+                        </button>
+                        <button type="button" data-chart-image-copy="{{ chart_key }}" class="ui-icon-button dashboard-chart-icon-button" aria-label="Copy {{ chart_description }} as PNG" title="Copy {{ chart_description }} as PNG">
+                            <i class="fa-regular fa-image text-xs" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="analytics-chart-card--compact__body p-3 flex-1 flex flex-col{% if body_class %} {{ body_class }}{% endif %}">
+        <div class="analytics-chart-card--compact__canvas relative w-full flex-1{% if canvas_class %} {{ canvas_class }}{% endif %}">
+            <canvas id="{{ canvas_id }}" aria-label="{{ canvas_label }}"></canvas>
+            {% if empty_id %}
+                <p id="{{ empty_id }}" class="hidden absolute inset-0 items-center justify-center px-3 text-center text-xs font-medium text-zinc-400">
+                    No matching data for the current scope.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</article>

@@ -1,0 +1,28 @@
+{% load batch_tags %}
+<div class="ui-section-header border-b border-zinc-100 bg-white {% if wrapper_class %}{{ wrapper_class }}{% else %}p-6{% endif %}">
+    <div class="{% if right_content or primary_label or secondary_label %}flex flex-col gap-3 md:flex-row md:items-center md:justify-between{% endif %}">
+        <div>
+            <h2 class="ui-section-title {% if compact %}text-sm{% else %}text-base{% endif %} font-semibold text-zinc-900">
+                {% if icon %}<i class="{{ icon }} text-zinc-500 {% if compact %}mr-2 text-xs{% else %}mr-2{% endif %}"></i>{% endif %}{{ title }}
+            </h2>
+            {% if subtitle %}
+                <p class="ui-section-subtitle {% if compact %}text-xs{% else %}text-xs{% endif %} text-zinc-500 mt-1 {{ subtitle_class }}">{{ subtitle }}</p>
+            {% endif %}
+        </div>
+
+        {% if right_content %}
+            {{ right_content }}
+        {% endif %}
+
+        {% if primary_label or secondary_label %}
+            <div class="ui-action-group">
+                {% if secondary_label %}
+                    {% render_button secondary_label href=secondary_url variant=secondary_variant|default:"secondary" icon=secondary_icon small=actions_small %}
+                {% endif %}
+                {% if primary_label %}
+                    {% render_button primary_label href=primary_url variant=primary_variant|default:"primary" icon=primary_icon small=actions_small %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>

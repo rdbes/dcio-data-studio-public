@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load humanize static %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <script defer src="{% static 'js/hazard_incidents.js' %}?v=20260831-incident-dashboard-iframe-v3"></script>
+{% endblock %}
+
+{% block title %}Incidents - DCIO Data Studio{% endblock %}
+
+{% block breadcrumbs %}
+<span class="truncate text-zinc-600">Incidents</span>
+{% endblock %}
+
+{% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none{% endblock %}
+
+{% block content %}
+<section class="w-full" aria-label="Incidents" data-incident-page>
+    <div class="sticky top-0 z-50 mb-4 rounded-xl border border-zinc-200/80 bg-white p-3 shadow-md sm:p-4">
+        <form data-incident-search-form data-no-page-transition="true" role="search" class="flex flex-col gap-1.5">
+            <label for="incident-search" class="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                Search incident name
+            </label>
+            <div class="flex min-w-0 items-center gap-2">
+                <span class="ui-search-field min-w-0 flex-1">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input
+                        id="incident-search"
+                        data-incident-search-input
+                        type="search"
+                        autocomplete="off"
+                        placeholder="Search by incident name"
+                        class="ui-search-field__input ui-control ui-control--compact min-w-0 flex-1 rounded-lg border-zinc-300 bg-white text-sm shadow-2xs outline-none placeholder:text-zinc-400 focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500"
+                    >
+                </span>
+                <button
+                    type="submit"
+                    class="ui-button ui-button--primary shrink-0 cursor-pointer"
+                >
+                    <i class="fa-solid fa-magnifying-glass mr-1.5 text-xs" aria-hidden="true"></i>
+                    Search
+                </button>
+                <button
+                    type="button"
+                    data-incident-search-clear
+                    class="ui-icon-button hidden shrink-0 cursor-pointer text-zinc-600"
+                    aria-label="Clear incident search"
+                    title="Clear search"
+                >
+                    <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+                </button>
+            </div>
+        </form>
+        <p data-incident-search-status class="mt-2 text-xs font-medium text-zinc-500" role="status" aria-live="polite"></p>
+    </div>
+
+    {% if year_groups %}
+        <div id="incident-year-groups" class="relative z-0 space-y-3" data-incident-year-groups data-incident-accordion>
+            {% for group in year_groups %}
+                <details
+                    class="ui-main-card group isolate min-w-0 max-w-full overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-xs"
+                    data-incident-year="{{ group.year }}"
+                    {% if forloop.first %}open{% endif %}
+                >
+                    <summary class="incident-year-summary ui-section-header flex cursor-pointer list-none items-center justify-between gap-3 rounded-lg border-b border-zinc-100 bg-white px-4 py-2.5 [&::-webkit-details-marker]:hidden group-open:rounded-b-none">
+                        <span class="flex min-w-0 items-center gap-2.5">
+                            <span class="incident-year-summary__year text-base font-semibold tabular-nums text-zinc-900">{{ group.year }}</span>
+                            <span data-incident-year-count data-total-count="{{ group.incident_count }}" class="incident-year-summary__count rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-semibold text-zinc-600">
+                                {{ group.incident_count }} incident{{ group.incident_count|pluralize }}
+                            </span>
+                        </span>
+                        <i class="incident-year-summary__icon fa-solid fa-chevron-down text-xs text-zinc-500 transition-transform group-open:rotate-180" aria-hidden="true"></i>
+                    </summary>
+
+                    <p class="border-b border-zinc-100 px-4 py-2 text-xs font-medium text-zinc-500 sm:hidden">
+                        Swipe horizontally to view all columns.
+                    </p>
+                    <div class="report-table-wrap max-w-full" tabindex="0" aria-label="Scrollable incident metrics table for {{ group.year }}">
+                        <table class="report-table report-table--blue-header ui-table--compact min-w-[920px]">
+                            <caption class="sr-only">Damage and loss metrics for incidents in {{ group.year }}</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="w-14">No.</th>
+                                    <th scope="col">Month</th>
+                                    <th scope="col">Calamity</th>
+                                    <th scope="col">Hazard</th>
+                                    <th scope="col" class="is-numeric">Farmers/Fisherfolk</th>
+                                    <th scope="col" class="is-numeric">Area (HA)</th>
+                                    <th scope="col" class="is-numeric">Volume (MT)</th>
+                                    <th scope="col" class="is-numeric">Value (PHP)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-incident-total class="border-b-2 border-zinc-200 bg-zinc-50 font-semibold text-zinc-900">
+                                    <th scope="row" colspan="4" class="px-5 py-3 text-left">{{ group.year }} total</th>
+                                    <td class="is-numeric px-5 py-3 text-right tabular-nums">{{ group.totals.affected_farmers|intcomma }}</td>
+                                    <td class="is-numeric px-5 py-3 text-right tabular-nums">{{ group.totals.area_affected|floatformat:0|intcomma }}</td>
+                                    <td class="is-numeric px-5 py-3 text-right tabular-nums">{{ group.totals.volume_loss|floatformat:0|intcomma }}</td>
+                                    <td class="is-numeric px-5 py-3 text-right tabular-nums">{{ group.totals.value_loss|floatformat:0|intcomma }}</td>
+                                </tr>
+                                {% for incident in group.incidents %}
+                                    <tr
+                                        data-incident-row
+                                        data-incident-dashboard-url="{% url 'reports:dashboard' %}?hazard={{ incident.hazard_key|urlencode }}&incident={{ incident.incident_key|urlencode }}&embed=1"
+                                        tabindex="0"
+                                        aria-label="Open dashboard for {{ incident.incident_name }}"
+                                        aria-controls="incident-dashboard-modal"
+                                        aria-haspopup="dialog"
+                                        title="Click to view incident dashboard"
+                                        {% if incident.severity_rank %}
+                                            data-severity-rank="{{ incident.severity_rank }}"
+                                            data-row-emphasis="ranked"
+                                        {% endif %}
+                                        class="{% if incident.severity_rank %}incident-ranked-row{% endif %}"
+                                    >
+                                        <td class="text-zinc-500 tabular-nums">{{ forloop.counter }}</td>
+                                        <td class="whitespace-nowrap">{{ incident.analysis_date|date:"M" }}</td>
+                                        <th scope="row">
+                                            <span class="flex items-center gap-2">
+                                                <span>{{ incident.incident_name }}</span>
+                                                {% if incident.severity_rank %}
+                                                    <span
+                                                        class="incident-severity-badge inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-1 py-0 text-xs font-bold"
+                                                        title="Ranked by total value loss within {{ group.year }}"
+                                                        aria-label="Top {{ incident.severity_rank }} · {{ incident.value_loss_share_display }} of {{ group.year }} value loss"
+                                                    >
+                                                        Top {{ incident.severity_rank }} · {{ incident.value_loss_share_display }}
+                                                    </span>
+                                                {% endif %}
+                                            </span>
+                                        </th>
+                                        <td>{{ incident.hazard_type }}</td>
+                                        <td class="is-numeric">{% if incident.affected_farmers > 0 %}{{ incident.affected_farmers|intcomma }}{% else %}—{% endif %}</td>
+                                        <td class="is-numeric">{% if incident.area_affected > 0 %}{{ incident.area_affected|floatformat:0|intcomma }}{% else %}—{% endif %}</td>
+                                        <td class="is-numeric">{% if incident.volume_loss > 0 %}{{ incident.volume_loss|floatformat:0|intcomma }}{% else %}—{% endif %}</td>
+                                        <td class="is-numeric">{% if incident.value_loss > 0 %}{{ incident.value_loss|floatformat:0|intcomma }}{% else %}—{% endif %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+            {% endfor %}
+            <div data-incident-search-empty hidden class="overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-xs">
+                {% include 'partials/empty_state.html' with compact=True icon="fa-solid fa-magnifying-glass-minus" title="No incidents match your search." description="Try a different incident name or clear the search to see all incidents." %}
+            </div>
+        </div>
+    {% else %}
+        {% include 'partials/empty_state.html' with title="No dated incidents available" description="Incidents will appear here after active damage reports are linked to incidents with period dates." %}
+    {% endif %}
+</section>
+
+<dialog
+    id="incident-dashboard-modal"
+    data-incident-dashboard-modal
+    aria-labelledby="incident-dashboard-modal-title"
+    class="incident-dashboard-dialog fixed left-1/2 top-1/2 m-0 max-h-[90vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-0 shadow-2xl backdrop:bg-zinc-900/40"
+>
+    <div class="flex min-h-0 flex-col">
+        <header class="flex items-start justify-between gap-4 border-b border-zinc-200 px-5 py-4">
+            <div class="min-w-0">
+                <h2 id="incident-dashboard-modal-title" data-incident-dashboard-title class="truncate text-base font-bold text-zinc-900">Incident details</h2>
+            </div>
+            <button
+                type="button"
+                data-incident-dashboard-close
+                class="ui-icon-button shrink-0 cursor-pointer text-zinc-600"
+                aria-label="Close incident dashboard"
+                title="Close"
+            >
+                <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+            </button>
+        </header>
+        <div class="incident-dashboard-dialog__body min-h-0">
+            <div data-incident-dashboard-status class="sr-only" role="status" aria-live="polite"></div>
+            <iframe
+                data-incident-dashboard-frame
+                class="incident-dashboard-frame"
+                title="Incident dashboard"
+                loading="eager"
+            ></iframe>
+        </div>
+    </div>
+</dialog>
+{% endblock %}

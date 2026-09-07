@@ -1,37 +1,14 @@
 {
-  "rewrites": [
-    { "source": "/dashboard/", "destination": "/index.html" },
-    { "source": "/analytics/", "destination": "/index.html" },
-    { "source": "/incidents/", "destination": "/index.html" },
-    { "source": "/tropical-cyclone-tracks/", "destination": "/index.html" }
+  "version": 2,
+  "builds": [
+    { "src": "api/index.py", "use": "@vercel/python", "config": { "excludeFiles": "public/**" } },
+    { "src": "public/**", "use": "@vercel/static" }
   ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; base-uri 'none'; frame-ancestors 'none'"
-        }
-      ]
-    },
-    {
-      "source": "/data/releases/current.json",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, max-age=0" }
-      ]
-    },
-    {
-      "source": "/data/releases/(.*).json",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    }
+  "routes": [
+    { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
+    { "src": "/static/(.*)", "dest": "/public/assets/$1" },
+    { "src": "/data/releases/current.json", "headers": { "Cache-Control": "no-store, max-age=0" }, "dest": "/public/data/releases/current.json" },
+    { "src": "/data/releases/(.*).json", "headers": { "Cache-Control": "public, max-age=31536000, immutable" }, "dest": "/public/data/releases/$1.json" },
+    { "src": "/(.*)", "dest": "/api/index.py" }
   ]
 }

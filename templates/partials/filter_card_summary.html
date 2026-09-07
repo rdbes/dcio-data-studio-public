@@ -1,0 +1,78 @@
+{% load filter_tags %}
+<summary
+    data-analytics-filter-summary
+    {% if map_filter_summary %}data-map-filter-summary{% endif %}
+    {% if dashboard_filter_summary %}data-dashboard-filter-summary{% endif %}
+    {% if el_nino_filter_summary %}data-el-nino-filter-summary{% endif %}
+    class="{{ summary_class|default:'cursor-pointer select-none list-none px-5 py-3 flex flex-col gap-3 lg:flex-row lg:items-center hover:bg-zinc-50 rounded-xl group-open:rounded-b-none' }}"
+>
+    <div class="flex w-full items-center justify-between gap-3 lg:contents">
+        <div class="flex min-w-0 shrink-0 items-center gap-2">
+            {% if not hide_filter_icon %}
+                <i class="fa-solid fa-filter text-xs text-zinc-500" aria-hidden="true"></i>
+            {% endif %}
+            <h2 class="text-sm font-bold text-zinc-900">{{ filter_title|default:'Select Filters' }}</h2>
+            {% if notes_button_id %}
+                <div class="flex items-center">
+                    <button
+                        type="button"
+                        id="{{ notes_button_id }}"
+                        @click.stop
+                        class="ui-icon-button ui-icon-button--micro text-xs font-bold text-zinc-500"
+                        aria-label="{{ notes_button_label|default:'Open dataset notes' }}"
+                        title="{{ notes_button_title|default:'Dataset notes' }}"
+                    >
+                        <i class="fa-solid fa-circle-info text-xs" aria-hidden="true"></i>
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+        {% if not hide_filter_toggle %}
+            <svg class="h-6 w-6 shrink-0 rounded-full border border-zinc-200 bg-zinc-50 p-2 text-zinc-500 transition-transform group-open:rotate-180 group-hover:border-zinc-300 group-hover:bg-white lg:order-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"></path>
+            </svg>
+        {% endif %}
+    </div>
+
+    <div
+        {% if map_filter_chips %}data-map-filter-chips{% endif %}
+        {% if topbar_filter_chips %}data-topbar-filter-chips{% endif %}
+        class="{{ chips_class|default:'flex min-w-0 flex-wrap items-center gap-2 lg:order-2 lg:flex-1' }}"
+    >
+        <span class="sr-only">{{ chips_sr_label|default:'Active filters' }}</span>
+        {% if static_chip_start_year and static_chip_end_year %}
+            <span class="inline-flex max-w-full items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600{% if topbar_filter_chips %} filter-card-pill{% endif %}">
+                {{ static_chip_start_year }}–{{ static_chip_end_year }}
+            </span>
+        {% elif static_chip_label %}
+            <span class="inline-flex max-w-full items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600{% if topbar_filter_chips %} filter-card-pill{% endif %}">
+                <span class="truncate">{{ static_chip_label|title_case_label }}</span>
+            </span>
+        {% elif chips_placeholder %}
+            <span class="{{ chips_placeholder_class|default:'text-xs font-medium text-zinc-400' }}">{{ chips_placeholder }}</span>
+        {% endif %}
+        {% for chip in filter_chips %}
+            {% if chip.clear_url %}
+                <a
+                    {% if map_filter_chips or server_filter_chips %}data-server-filter-chip{% endif %}
+                    href="{{ chip.clear_url }}"
+                    aria-label="Clear filter {{ chip.label|title_case_label }}"
+                    class="inline-flex max-w-full items-center gap-1 rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-200{% if topbar_filter_chips %} filter-card-pill{% endif %}"
+                >
+                    <span class="truncate"{% if chip_marker_label and chip.label == chip_marker_label %} data-drought-product-label{% endif %}>{{ chip.label|title_case_label }}</span>
+                    <span class="text-zinc-400" aria-hidden="true">×</span>
+                </a>
+            {% else %}
+                <span
+                    {% if map_filter_chips or server_filter_chips %}data-server-filter-chip{% endif %}
+                    class="inline-flex max-w-full items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600{% if topbar_filter_chips %} filter-card-pill{% endif %}"
+                >
+                    <span class="truncate"{% if chip_marker_label and chip.label == chip_marker_label %} data-drought-product-label{% endif %}>{{ chip.label|title_case_label }}</span>
+                </span>
+            {% endif %}
+        {% endfor %}
+        {% if interaction_chips %}
+            <span data-dashboard-interaction-filter-chips class="contents"></span>
+        {% endif %}
+    </div>
+</summary>
