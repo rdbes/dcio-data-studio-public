@@ -6,10 +6,11 @@ Every serving connection opens the completed index in SQLite read-only mode.
 
 import json
 import os
+import tempfile
 from pathlib import Path
 
 from django.conf import settings
-from django.db import connections
+from django.db import connections, transaction
 
 from reports import models
 from scripts.validate_public_release import validate_manifest
@@ -46,14 +47,24 @@ def initialize_snapshot():
     path = Path(settings.DATABASES["default"]["NAME"])
     path = path.with_name(f"{path.stem}-{manifest['sha256'][:16]}{path.suffix}")
     if not path.exists():
-        temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+        # Serverless workers can reuse process IDs after an interrupted import.
+        # Never reopen a partial index left behind by a previous worker.
+        descriptor, temporary_name = tempfile.mkstemp(
+            prefix=f".{path.stem}-", suffix=".tmp", dir=path.parent,
+        )
+        os.close(descriptor)
+        temporary = Path(temporary_name)
         config = settings.DATABASES["default"].copy()
         config["NAME"] = str(temporary)
         connections.databases["snapshot_builder"] = config
         connection = connections["snapshot_builder"]
+        connection.close()
+        connection.settings_dict.update(config)
         quote = connection.ops.quote_name
         try:
-            with connection.cursor() as cursor:
+            # A single transaction avoids a disk sync for each release row on
+            # serverless cold starts. The index is published only when complete.
+            with transaction.atomic(using="snapshot_builder"), connection.cursor() as cursor:
                 for collection, model in COLLECTION_MODELS.items():
                     fields = list(model._meta.concrete_fields)
                     columns = []
