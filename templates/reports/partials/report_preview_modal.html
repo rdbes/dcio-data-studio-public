@@ -1,0 +1,345 @@
+{% load humanize %}
+
+<div
+    x-data="{
+        open: true,
+        activeSheet: 0,
+        previewTrigger: null,
+        trapFocus(event) {
+            const container = event.currentTarget;
+            const focusable = Array.from(
+                container.querySelectorAll(
+                    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
+                )
+            ).filter((element) => element.offsetParent !== null);
+
+            if (!focusable.length) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const active = document.activeElement;
+
+            if (event.shiftKey && (active === first || !container.contains(active))) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && (active === last || !container.contains(active))) {
+                event.preventDefault();
+                first.focus();
+            }
+        },
+        closePreview() {
+            this.open = false;
+            document.body.classList.remove('overflow-hidden');
+
+            const previewUrl = new URL(
+                window.location.href
+            );
+
+            previewUrl.searchParams.delete(
+                'preview'
+            );
+
+            window.history.replaceState(
+                {},
+                '',
+                previewUrl.toString()
+            );
+
+            this.$nextTick(() => this.previewTrigger?.focus());
+        }
+    }"
+    x-init="
+        previewTrigger = document.querySelector('[data-report-preview-trigger]');
+        document.body.classList.add('overflow-hidden');
+        $nextTick(() => $refs.closeButton.focus());
+    "
+    x-show="open"
+    x-cloak
+    x-transition.opacity
+    @keydown.escape.window="closePreview()"
+    @keydown.tab="trapFocus($event)"
+    @report-download-finished.window="closePreview()"
+    data-report-preview-modal
+    class="report-preview-modal fixed inset-0 flex items-center justify-center bg-zinc-950/65 p-3 backdrop-blur-xs sm:p-6"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="report-preview-title"
+    style="display: none;"
+>
+
+    <div
+        data-report-download-progress
+        class="report-download-progress-layer"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        hidden
+    >
+        <div class="report-download-progress-card">
+            <div
+                data-report-download-icon-wrap
+                class="report-download-progress-icon"
+                aria-hidden="true"
+            >
+                <i
+                    data-report-download-icon
+                    class="fa-solid fa-file-arrow-down"
+                ></i>
+            </div>
+
+            <p class="report-download-progress-eyebrow">
+                Excel Report
+            </p>
+
+            <h2
+                data-report-download-title
+                class="report-download-progress-title"
+            >
+                Preparing workbook
+            </h2>
+
+            <p
+                data-report-download-message
+                class="report-download-progress-message"
+            >
+                Building your Excel report.
+            </p>
+
+            <div
+                data-report-download-bar-track
+                class="report-download-progress-track"
+                aria-hidden="true"
+            >
+                <div
+                    data-report-download-bar
+                    class="report-download-progress-bar"
+                ></div>
+            </div>
+
+            <div class="report-download-progress-meta">
+                <span
+                    data-report-download-percent
+                >0%</span>
+
+                <span
+                    data-report-download-bytes
+                ></span>
+            </div>
+
+            <div
+                data-report-download-actions
+                class="report-download-progress-actions"
+                hidden
+            >
+                <button
+                    type="button"
+                    data-report-download-retry
+                    class="ui-button ui-button--primary ui-button--small report-download-progress-button report-download-progress-button--primary"
+                >
+                    <i
+                        class="fa-solid fa-rotate-right"
+                        aria-hidden="true"
+                    ></i>
+                    Retry
+                </button>
+
+                <button
+                    type="button"
+                    data-report-download-dismiss
+                    class="ui-button ui-button--secondary ui-button--small report-download-progress-button report-download-progress-button--secondary"
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="absolute inset-0"
+        aria-hidden="true"
+        @click="closePreview()"
+    ></div>
+
+    <div
+        x-ref="dialogPanel"
+        class="relative flex max-h-[94vh] w-full max-w-[96rem] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl"
+    >
+        <header class="relative flex shrink-0 flex-col gap-3 border-b border-zinc-200 bg-white px-4 py-4 pr-14 sm:flex-row sm:items-start sm:px-6 sm:pr-16">
+            <div class="min-w-0">
+                <h2
+                    id="report-preview-title"
+                    class="text-lg font-bold text-zinc-950"
+                >
+                    Excel Report Preview
+                </h2>
+            </div>
+
+            <button
+                x-ref="closeButton"
+                type="button"
+                @click="closePreview()"
+                class="ui-icon-button absolute right-3 top-3 shrink-0 cursor-pointer text-zinc-600 sm:right-5 sm:top-4"
+                aria-label="Close report preview"
+                title="Close"
+            >
+                <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+            </button>
+
+        </header>
+
+        <div class="shrink-0 border-b border-zinc-200 px-4 py-3 sm:px-6">
+            <p class="text-xs leading-5 text-zinc-600">
+                <span class="font-semibold text-zinc-900">
+                    {{ selected_labels.layout }}
+                </span>
+
+                <span aria-hidden="true"> · </span>
+                {{ selected_labels.consolidate_by }}
+
+                <span aria-hidden="true"> · </span>
+                {{ selected_labels.year }}
+                /
+                {{ selected_labels.month }}
+
+                <span aria-hidden="true"> · </span>
+                {{ selected_labels.region }}
+                /
+                {{ selected_labels.province }}
+
+                <span aria-hidden="true"> · </span>
+                {{ selected_labels.hazard }}
+            </p>
+        </div>
+
+        {% if workbook_preview.sheet_count > 1 %}
+            <div
+                class="flex shrink-0 gap-1 overflow-x-auto border-b border-zinc-200 bg-white px-4 pt-3 sm:px-6"
+                role="tablist"
+                aria-label="Workbook preview sheets"
+            >
+                {% for sheet in workbook_preview.sheets %}
+                    <button
+                        type="button"
+                        role="tab"
+                        @click="activeSheet = {{ forloop.counter0 }}"
+                        :aria-selected="activeSheet === {{ forloop.counter0 }}"
+                        :class="activeSheet === {{ forloop.counter0 }} ? 'border-emerald-600 bg-white text-emerald-800' : 'border-transparent bg-transparent text-zinc-500 hover:text-zinc-800'"
+                        class="shrink-0 rounded-t-lg border border-b-0 px-3 py-2 text-xs font-semibold"
+                    >
+                        {{ sheet.name }}
+                    </button>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="min-h-0 flex-1 overflow-hidden bg-zinc-100">
+            {% for sheet in workbook_preview.sheets %}
+                <section
+                    x-show="activeSheet === {{ forloop.counter0 }}"
+                    data-report-preview-sheet
+                    role="tabpanel"
+                    class="flex h-full min-h-0 flex-col"
+                    {% if not forloop.first %}style="display: none;"{% endif %}
+                >
+                    <div class="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-200 bg-white px-4 py-3 sm:px-6">
+                        <div>
+                            <h3 class="text-xs font-bold text-zinc-900">
+                                {{ sheet.name }}
+                            </h3>
+
+                            <p class="mt-1 text-xs text-zinc-500">
+                                Showing {{ sheet.shown_rows }} of {{ sheet.total_rows|intcomma }} rows
+                            </p>
+                        </div>
+
+                        <span class="rounded-md bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
+                            Preview only
+                        </span>
+                    </div>
+
+                    <div class="min-h-0 flex-1 overflow-auto">
+                        {% if sheet.rows %}
+                            <table class="min-w-max border-separate border-spacing-0 bg-white text-xs">
+                                <thead class="sticky top-0 z-10">
+                                    {% for header_row in sheet.header_rows %}
+                                        <tr class="report-preview-header-row report-preview-header-row--{{ forloop.counter0 }}">
+                                            {% for cell in header_row %}
+                                                <th
+                                                    scope="col"
+                                                    rowspan="{{ cell.rowspan }}"
+                                                    colspan="{{ cell.colspan }}"
+                                                    class="report-preview-column-header report-preview-column-header--{{ cell.level }} border-b border-r px-2 text-center align-middle font-bold"
+                                                    style="--report-preview-header-fill: {{ cell.header_fill }}; --report-preview-header-font: {{ cell.header_font }}; --report-preview-header-border: {{ cell.header_border|default:'#000000' }};"
+                                                >
+                                                    {{ cell.label }}
+                                                </th>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </thead>
+
+                                <tbody>
+                                    {% for row in sheet.rows %}
+                                        <tr
+                                            data-report-preview-row
+                                            class="odd:bg-white even:bg-zinc-50"
+                                        >
+                                            {% for cell in row.cells %}
+                                                <td
+                                                    class="max-w-72 whitespace-nowrap border-b border-r border-zinc-200 px-3 py-2 text-zinc-700 {% if cell.numeric %}text-right tabular-nums{% else %}text-left{% endif %}"
+                                                >
+                                                    {{ cell.value }}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="flex h-full min-h-48 items-center justify-center bg-white p-8 text-center">
+                                <div>
+                                    <i
+                                        class="fa-solid fa-table-list text-2xl text-zinc-300"
+                                        aria-hidden="true"
+                                    ></i>
+
+                                    <p class="mt-3 text-sm font-semibold text-zinc-700">
+                                        No report rows
+                                    </p>
+
+                                    <p class="mt-1 text-xs text-zinc-500">
+                                        Adjust the report filters and preview again.
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            {% endfor %}
+        </div>
+
+        <footer class="flex shrink-0 flex-col-reverse gap-2 border-t border-zinc-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <p class="text-xs leading-4 text-zinc-500">
+                Estimated full workbook size:
+                {{ preview.estimated_file_size_kb|intcomma }}
+                KB
+            </p>
+
+            <div class="flex items-center justify-end gap-2">
+                <button
+                    type="button"
+                    data-report-download-button
+                    aria-controls="report-download-progress"
+                    class="ui-button ui-button--primary disabled:cursor-not-allowed"
+                >
+                    <i
+                        class="fa-solid fa-file-arrow-down text-white"
+                        aria-hidden="true"
+                    ></i>
+
+                    Download Full Excel
+                </button>
+            </div>
+        </footer>
+    </div>
+</div>

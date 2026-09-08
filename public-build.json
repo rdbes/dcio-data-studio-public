@@ -21,6 +21,8 @@
     "reports/damage_losses.html",
     "reports/dashboard.html",
     "reports/hazard_incidents.html",
+    "reports/partials/report_preview_modal.html",
+    "reports/report_generation.html",
     "reports/tropical_cyclone_tracks.html"
   ],
   "assets": [
@@ -55,6 +57,8 @@
     "js/maps/map_overlay_legend.js",
     "js/overlay_scrollbars.js",
     "js/public_sidebar.js",
+    "js/report_generation_download.js",
+    "js/report_generation_filters.js",
     "js/toast.js",
     "js/tropical_cyclone_tracks.js",
     "vendor/chartjs/chart.umd.js",
@@ -112,11 +116,19 @@
     "reports/location_ordering.py",
     "reports/map_reporting_areas.py",
     "reports/models.py",
+    "reports/reporting/__init__.py",
+    "reports/reporting/consolidation.py",
+    "reports/reporting/dataset.py",
+    "reports/reporting/formatting.py",
+    "reports/reporting/options.py",
+    "reports/reporting/preview.py",
+    "reports/reporting/workbook.py",
     "reports/templatetags/batch_tags.py",
     "reports/templatetags/filter_tags.py",
     "reports/views/damage_losses.py",
     "reports/views/dashboard.py",
     "reports/views/incidents.py",
+    "reports/views/report_generation.py",
     "reports/views/tropical_cyclone_tracks.py",
     "scripts/validate_public_release.py"
   ]

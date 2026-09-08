@@ -1,0 +1,366 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load filter_tags %}
+
+{% block title %}Report Generation - DCIO Data Studio{% endblock %}
+
+{% block breadcrumbs %}
+<span class="truncate">Report Generation</span>
+{% endblock %}
+
+{% block page_body_spacing_class %}analytics-workspace-page-body report-generation-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none h-full{% endblock %}
+
+{% block content %}
+<h1 class="sr-only">Report Generation</h1>
+<div class="flex h-full w-full flex-col gap-0">
+    <section class="h-full overflow-visible rounded-xl border border-zinc-200/80 bg-white shadow-xs">
+        <header class="flex items-center justify-between gap-3 rounded-t-xl border-b border-zinc-200 bg-white px-5 py-4">
+            <h2 class="text-sm font-semibold text-zinc-950">
+                Report Generation
+            </h2>
+            {% if not PUBLIC_RELEASE_RENDERER %}
+                <a
+                    href="{% url 'reports:report_generation' %}?template=incident-upload"
+                    class="ui-button ui-button--primary ui-button--small shrink-0"
+                    aria-label="Download incident upload template"
+                >
+                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                    Download Template
+                </a>
+            {% endif %}
+        </header>
+
+        <form
+            id="report-generation-form"
+            method="get"
+            data-report-generation-form
+            class="space-y-5 px-5 pb-3 pt-5"
+        >
+            <div
+                data-report-filter-notice
+                class="hidden rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800"
+                role="status"
+                aria-live="polite"
+            ></div>
+
+            {% for warning in selection_warnings %}
+                <div class="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                    {{ warning }}
+                </div>
+            {% endfor %}
+
+            <div data-report-scope-grid class="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
+                <fieldset class="space-y-3 rounded-xl border border-zinc-200 p-4">
+                    <legend class="px-1 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                        Period
+                    </legend>
+
+                    <label class="block">
+                        <span class="ui-label">Year</span>
+                        <span class="ui-select-wrap block report-custom-select" data-report-custom-select>
+                            <select name="years" data-report-filter="years" multiple class="ui-control ui-select report-native-select">
+                                {% for year in filter_options.years %}
+                                    <option value="{{ year }}" {% if not selected_filters.years or year in selected_filters.years %}selected{% endif %}>{{ year }}</option>
+                                {% endfor %}
+                            </select>
+                            <details class="relative group/filter" data-filter-dropdown data-report-filter-dropdown data-filter-kind="year" data-report-filter-multi="true">
+                                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs">
+                                    <span class="truncate" data-filter-label></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                </summary>
+                                <div data-report-filter-options class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                    <div class="mb-1 flex items-center justify-between gap-2 border-b border-zinc-100 pb-1">
+                                        <button type="button" data-report-select-all class="rounded-md px-2 py-1 text-xs font-normal text-blue-700 hover:bg-blue-50">Select all</button>
+                                        <button type="button" data-report-clear class="rounded-md px-2 py-1 text-xs font-normal text-zinc-500 hover:bg-zinc-50">Clear</button>
+                                    </div>
+                                </div>
+                            </details>
+                        </span>
+                    </label>
+
+                    <label class="block">
+                        <span class="ui-label">Month</span>
+                        <span class="ui-select-wrap block report-custom-select" data-report-custom-select>
+                            <select name="months" data-report-filter="months" multiple class="ui-control ui-select report-native-select">
+                                {% for month in filter_options.months %}
+                                    <option
+                                        value="{{ month.value }}"
+                                        data-years="{{ month.years|join:'|' }}"
+                                        {% if not selected_filters.months or month.value in selected_filters.months %}selected{% endif %}
+                                    >{{ month.label|title_case_label }}</option>
+                                {% endfor %}
+                            </select>
+                            <details class="relative group/filter" data-filter-dropdown data-report-filter-dropdown data-filter-kind="month" data-report-filter-multi="true">
+                                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs">
+                                    <span class="truncate" data-filter-label></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                </summary>
+                                <div data-report-filter-options class="absolute left-0 right-0 z-50 mt-1 rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                    <div class="mb-1 flex items-center justify-between gap-2 border-b border-zinc-100 pb-1">
+                                        <button type="button" data-report-select-all class="rounded-md px-2 py-1 text-xs font-normal text-blue-700 hover:bg-blue-50">Select all</button>
+                                        <button type="button" data-report-clear class="rounded-md px-2 py-1 text-xs font-normal text-zinc-500 hover:bg-zinc-50">Clear</button>
+                                    </div>
+                                    <div data-report-multi-options class="grid max-h-56 grid-cols-2 gap-1 overflow-y-auto"></div>
+                                </div>
+                            </details>
+                        </span>
+                    </label>
+                </fieldset>
+
+                <fieldset class="space-y-3 rounded-xl border border-zinc-200 p-4">
+                    <legend class="px-1 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                        Location
+                    </legend>
+
+                    <label class="block">
+                        <span class="ui-label">Region</span>
+                        <span class="ui-select-wrap block report-custom-select" data-report-custom-select>
+                            <select name="region" data-report-filter="region" class="ui-control ui-select report-native-select">
+                                <option value="">All Regions</option>
+                                {% for region in filter_options.regions %}
+                                    <option value="{{ region }}" {% if selected_filters.region == region %}selected{% endif %}>{{ region|title_case_label }}</option>
+                                {% endfor %}
+                            </select>
+                            <details class="relative group/filter" data-filter-dropdown data-report-filter-dropdown data-filter-kind="region">
+                                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs">
+                                    <span class="truncate" data-filter-label></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                </summary>
+                                <div data-report-filter-options class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl"></div>
+                            </details>
+                        </span>
+                    </label>
+
+                    <label class="block">
+                        <span class="ui-label">Province</span>
+                        <span class="ui-select-wrap block report-custom-select" data-report-custom-select>
+                            <select name="province" data-report-filter="province" class="ui-control ui-select report-native-select">
+                                <option value="">All Provinces</option>
+                                {% for province in filter_options.provinces %}
+                                    <option
+                                        value="{{ province.value }}"
+                                        data-parent="{{ province.parent }}"
+                                        {% if selected_filters.province == province.value %}selected{% endif %}
+                                    >{{ province.label|title_case_label }}</option>
+                                {% endfor %}
+                            </select>
+                            <details class="relative group/filter" data-filter-dropdown data-report-filter-dropdown data-filter-kind="province" data-cascade-parent="region" data-disabled-label="Select a Region First">
+                                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs">
+                                    <span class="truncate" data-filter-label></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                </summary>
+                                <div data-report-filter-options class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl"></div>
+                            </details>
+                        </span>
+                    </label>
+                </fieldset>
+
+                <fieldset class="space-y-3 rounded-xl border border-zinc-200 p-4">
+                    <legend class="px-1 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                        Hazard
+                    </legend>
+
+                    <label class="block">
+                        <span class="ui-label">Hazard Type</span>
+                        <span class="ui-select-wrap block report-custom-select" data-report-custom-select>
+                            <select name="hazard" data-report-filter="hazard" multiple class="ui-control ui-select report-native-select">
+                                {% for hazard in filter_options.hazards %}
+                                    <option value="{{ hazard.value }}" {% if hazard.value in selected_filters.hazards %}selected{% endif %}>{{ hazard.label|title_case_label }}</option>
+                                {% endfor %}
+                            </select>
+                            <details class="relative group/filter" data-filter-dropdown data-report-filter-dropdown data-filter-kind="hazard" data-report-filter-multi="true">
+                                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs">
+                                    <span class="truncate" data-filter-label></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                </summary>
+                                <div data-report-filter-options class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                    <div class="mb-1 flex items-center justify-between gap-2 border-b border-zinc-100 pb-1">
+                                        <button type="button" data-report-select-all class="rounded-md px-2 py-1 text-xs font-normal text-blue-700 hover:bg-blue-50">Select all</button>
+                                        <button type="button" data-report-clear class="rounded-md px-2 py-1 text-xs font-normal text-zinc-500 hover:bg-zinc-50">Clear</button>
+                                    </div>
+                                </div>
+                            </details>
+                        </span>
+                    </label>
+
+                    <label class="block">
+                        <span class="ui-label">Incident</span>
+                        <span class="ui-select-wrap block report-custom-select" data-report-custom-select>
+                            <select name="incident" data-report-filter="incident" class="ui-control ui-select report-native-select">
+                                <option value="">All Incidents</option>
+                                {% for incident in filter_options.incidents %}
+                                    <option
+                                        value="{{ incident.value }}"
+                                        data-hazard="{{ incident.hazard }}"
+                                        data-years="{{ incident.years|join:'|' }}"
+                                        data-months="{{ incident.months|join:'|' }}"
+                                        data-regions="{{ incident.regions|join:'|' }}"
+                                        data-provinces="{{ incident.provinces|join:'|' }}"
+                                        {% if selected_filters.incident == incident.value %}selected{% endif %}
+                                    >{{ incident.label|title_case_label }}</option>
+                                {% endfor %}
+                            </select>
+                            <details class="relative group/filter" data-filter-dropdown data-report-filter-dropdown data-filter-kind="incident" data-cascade-parent="hazard" data-disabled-label="Select a Hazard Type First">
+                                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs">
+                                    <span class="truncate" data-filter-label></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                </summary>
+                                <div data-report-filter-options class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl"></div>
+                            </details>
+                        </span>
+                    </label>
+                </fieldset>
+
+                <fieldset class="space-y-3 rounded-xl border border-zinc-200 p-4">
+                    <legend class="px-1 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                        Commodity
+                    </legend>
+
+                    <label class="block">
+                        <span class="ui-label">Commodity Group</span>
+                        <span class="ui-select-wrap block report-custom-select" data-report-custom-select>
+                            <select name="commodity_group" data-report-filter="commodity-group" class="ui-control ui-select report-native-select">
+                                <option value="">All Commodity Groups</option>
+                                {% for group in commodity_group_options %}
+                                    <option
+                                        value="{{ group.value }}"
+                                        data-sector="{{ group.sector }}"
+                                        {% if selected_filters.commodity_group == group.value %}selected{% endif %}
+                                    >{{ group.label|title_case_label }}</option>
+                                {% endfor %}
+                            </select>
+                            <details class="relative group/filter" data-filter-dropdown data-report-filter-dropdown data-filter-kind="commodity_group">
+                                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs">
+                                    <span class="truncate" data-filter-label></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                </summary>
+                                <div data-report-filter-options class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl"></div>
+                            </details>
+                        </span>
+                    </label>
+
+                    <label class="block">
+                        <span class="ui-label">Commodity Subgroup</span>
+                        <span class="ui-select-wrap block report-custom-select" data-report-custom-select>
+                            <select name="commodity" data-report-filter="commodity" class="ui-control ui-select report-native-select">
+                                <option value="">All Subgroups</option>
+                                {% for commodity in commodity_options %}
+                                    <option
+                                        value="{{ commodity.value }}"
+                                        data-parent="{{ commodity.parent }}"
+                                        data-sector="{{ commodity.sector }}"
+                                        {% if selected_filters.commodity == commodity.value %}selected{% endif %}
+                                    >{{ commodity.label|title_case_label }}</option>
+                                {% endfor %}
+                            </select>
+                            <details class="relative group/filter" data-filter-dropdown data-report-filter-dropdown data-filter-kind="commodity" data-cascade-parent="commodity_group" data-disabled-label="Select a Commodity Group First">
+                                <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs">
+                                    <span class="truncate" data-filter-label></span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                </summary>
+                                <div data-report-filter-options class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl"></div>
+                            </details>
+                        </span>
+                    </label>
+                </fieldset>
+            </div>
+
+            <div
+                data-report-output-options
+                class="grid grid-cols-1 gap-4 lg:grid-cols-2"
+            >
+                <fieldset
+                    data-report-metrics-panel
+                    class="rounded-xl border border-zinc-200 p-4"
+                >
+                    <legend class="px-1 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                        Metrics
+                    </legend>
+
+                    <div class="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {% for metric in metric_options %}
+                            <label
+                                data-report-metric-option
+                                class="flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 px-3 py-3 hover:bg-zinc-50"
+                            >
+                                <input
+                                    type="checkbox"
+                                    name="metrics"
+                                    value="{{ metric.key }}"
+                                    data-sectors="{{ metric.sectors|join:'|' }}"
+                                    {% if metric.key in selected_filters.metrics %}checked{% endif %}
+                                    class="ui-choice shrink-0"
+                                >
+                                <span>
+                                    <span class="block text-xs font-semibold leading-4 text-zinc-800">
+                                        {{ metric.label }}
+                                        <span class="font-normal text-zinc-500">({{ metric.unit }})</span>
+                                    </span>
+                                </span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+
+                <fieldset
+                    data-report-layout-panel
+                    class="rounded-xl border border-zinc-200 p-4"
+                >
+                    <legend class="px-1 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                        Workbook Layout
+                    </legend>
+
+                    <div class="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 px-3 py-3 hover:bg-zinc-50">
+                            <input type="radio" name="layout" value="multi_sheet" {% if selected_filters.layout == "multi_sheet" %}checked{% endif %} class="ui-choice shrink-0">
+                            <span class="min-w-0">
+                                <span class="block text-xs font-semibold leading-4 text-zinc-800">Multi-sheet</span>
+                            </span>
+                        </label>
+
+                        <label class="flex cursor-pointer items-center gap-2 rounded-lg border border-zinc-200 px-3 py-3 hover:bg-zinc-50">
+                            <input type="radio" name="layout" value="consolidated" {% if selected_filters.layout == "consolidated" %}checked{% endif %} class="ui-choice shrink-0">
+                            <span class="min-w-0">
+                                <span class="block text-xs font-semibold leading-4 text-zinc-800">Consolidated report</span>
+                            </span>
+                        </label>
+                    </div>
+
+                </fieldset>
+            </div>
+
+            <div class="flex flex-col gap-3 border-t border-zinc-100 pt-2 sm:flex-row sm:items-center sm:justify-end">
+                <div class="flex w-full items-center justify-end gap-2">
+                    <a
+                        href="{% url 'reports:report_generation' %}"
+                        class="filter-card-reset ui-button ui-button--secondary ui-button--small"
+                        aria-label="Reset filters"
+                        title="Reset filters"
+                    ><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></a>
+
+                    <button
+                        type="submit"
+                        name="preview"
+                        value="1"
+                        data-report-preview-trigger
+                        class="filter-card-apply ui-button ui-button--primary"
+                    >
+                        <i class="fa-solid fa-eye" aria-hidden="true"></i>
+                        Preview Report
+                    </button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+</div>
+
+{% if workbook_preview %}
+    {% include "reports/partials/report_preview_modal.html" %}
+{% endif %}
+
+<script src="{% static 'js/report_generation_filters.js' %}?v=20260825-outside-dismiss-v6"></script>
+<script src="{% static 'js/report_generation_download.js' %}?v=20260825-generic-download-v1"></script>
+{% endblock %}
