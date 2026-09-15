@@ -208,6 +208,8 @@
     /* FARM Commodity Base Palette v2: stable categorical data colors. */
     --data-commodity-rice: var(--stalk-base);
     --data-commodity-corn: var(--grain-base);
+    --data-commodity-yellow-corn: var(--data-commodity-corn);
+    --data-commodity-white-corn: var(--grain-lighter);
     --data-commodity-cassava: #c56a46;
     --data-commodity-high-value-crops: #8657a6;
     --data-commodity-fiber-crops: #9a5a48;

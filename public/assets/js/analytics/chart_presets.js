@@ -17,6 +17,8 @@
     const COMMODITY_COLORS = Object.freeze({
         rice: themeColor("--data-commodity-rice", "#006633"),
         corn: themeColor("--data-commodity-corn", "#FFAD00"),
+        "yellow corn": themeColor("--data-commodity-yellow-corn", "#FFAD00"),
+        "white corn": themeColor("--data-commodity-white-corn", "#FFF5DD"),
         cassava: themeColor("--data-commodity-cassava", "#C56A46"),
         "high value crops": themeColor("--data-commodity-high-value-crops", "#8657A6"),
         "fiber crops": themeColor("--data-commodity-fiber-crops", "#9A5A48"),

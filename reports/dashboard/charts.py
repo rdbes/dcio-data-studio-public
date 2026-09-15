@@ -142,7 +142,10 @@ def composition_series(rows):
             "comparison_metric_value": row[f"comparison_{chart_metric}"],
             "comparison_years": row[f"comparison_{chart_metric}_years"],
             "comparison_year_count": row[f"comparison_{chart_metric}_year_count"],
-        } for row in rows]
+        } for row in rows if row[chart_metric] is not None]
+        # A subgroup can exist in the historical comparison scope without
+        # having a value in the selected period. Do not expose that empty
+        # subgroup as a legend entry or selectable pie slice.
         metric_rows.sort(key=lambda row: row["metric_value"] if row["metric_value"] is not None else Decimal("-1"), reverse=True)
         selected_total = nullable_sum(row["metric_value"] for row in metric_rows)
         comparison_total = nullable_sum(row["comparison_metric_value"] for row in metric_rows)
