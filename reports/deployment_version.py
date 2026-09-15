@@ -5,10 +5,16 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+from datetime import datetime
 from functools import lru_cache
+import logging
 from pathlib import Path
 
 from django.conf import settings
+from django.db.models import Max
+
+
+logger = logging.getLogger(__name__)
 
 
 # Semantic version for the application interface and workflow. Keep this
@@ -56,8 +62,27 @@ def _local_revision(base_dir: str) -> tuple[str, bool]:
     return _short_revision(revision), bool(dirty)
 
 
-@lru_cache(maxsize=1)
-def deployment_identity() -> dict[str, str]:
+def _local_data_is_newer_than_release(release: dict) -> bool:
+    """Flag local database changes that are newer than the exported release."""
+    generated_at = str(release.get("generated_at") or "").strip()
+    if not generated_at:
+        return False
+    try:
+        generated_timestamp = datetime.fromisoformat(generated_at)
+        from reports.models import ImportBatch
+
+        latest_update = ImportBatch.objects.aggregate(
+            latest=Max("updated_at")
+        )["latest"]
+    except (TypeError, ValueError, OSError):
+        return False
+    except Exception:
+        logger.debug("Unable to compare local database release freshness.", exc_info=True)
+        return False
+    return bool(latest_update and latest_update > generated_timestamp)
+
+
+def deployment_identity() -> dict[str, object]:
     """Return the stable labels rendered in the sidebar footer."""
     public = bool(getattr(settings, "PUBLIC_RELEASE_RENDERER", False))
     base_dir = Path(settings.BASE_DIR)
@@ -69,8 +94,9 @@ def deployment_identity() -> dict[str, str]:
         data_version = str(release.get("release_version") or "unknown")
         environment = "Vercel public deployment"
         is_dirty = False
+        dirty_reason = ""
     else:
-        revision, is_dirty = _local_revision(str(base_dir))
+        revision, code_is_dirty = _local_revision(str(base_dir))
         configured_data_version = os.environ.get("APP_DATA_VERSION")
         release = _read_json(
             base_dir / "public_release" / "data" / "releases" / "current.json"
@@ -81,6 +107,14 @@ def deployment_identity() -> dict[str, str]:
             or "local-db"
         )
         environment = "Local Django deployment"
+        data_is_dirty = _local_data_is_newer_than_release(release)
+        dirty_reasons = []
+        if code_is_dirty:
+            dirty_reasons.append("uncommitted local code changes")
+        if data_is_dirty:
+            dirty_reasons.append("local database is newer than exported release")
+        is_dirty = bool(dirty_reasons)
+        dirty_reason = "; ".join(dirty_reasons)
 
     return {
         "app_version": APP_VERSION,
@@ -88,4 +122,5 @@ def deployment_identity() -> dict[str, str]:
         "deployment_data_version": data_version,
         "deployment_environment": environment,
         "deployment_is_dirty": is_dirty,
+        "deployment_dirty_reason": dirty_reason,
     }
