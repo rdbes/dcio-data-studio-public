@@ -68,7 +68,8 @@
             title="{{ deployment_environment }} · application v{{ app_version }} · code {{ deployment_code_version }} · data {{ deployment_data_version }}"
             aria-label="Application version v{{ app_version }}, code {{ deployment_code_version }}, data {{ deployment_data_version }}"
         >
-            v{{ app_version }} · {{ deployment_code_version }} · data {{ deployment_data_version }}
+            <span>v{{ app_version }} · {{ deployment_code_version }}</span>
+            <span>data as of {{ deployment_data_version }}</span>
         </div>
 
         {% if request.user.is_authenticated %}

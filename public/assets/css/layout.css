@@ -344,6 +344,10 @@
     white-space: nowrap;
 }
 
+[data-sidebar-shell] .sidebar-build-version span {
+    display: block;
+}
+
 [data-sidebar-shell] [aria-label="Signed-in user profile"] {
     border-color: var(--color-danger-hover);
     background-color: var(--color-danger-hover);
