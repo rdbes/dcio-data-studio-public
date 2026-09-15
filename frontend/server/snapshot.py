@@ -4,6 +4,7 @@ The local database, user records and import lineage are never accessed here.
 Every serving connection opens the completed index in SQLite read-only mode.
 """
 
+import hashlib
 import json
 import os
 import tempfile
@@ -41,11 +42,12 @@ def initialize_snapshot():
     # Full schema and relationship validation runs when packaging. Verify the
     # exact packaged bytes here without revalidating every row on cold starts.
     validate_manifest(manifest, release, release_bytes)
-    if release["schema_version"] != "1.2.0" or release.get("read_only") is not True:
-        raise RuntimeError("The shared public renderer requires a schema 1.2.0 release.")
+    if release["schema_version"] not in {"1.0.0", "1.1.0", "1.2.0"} or release.get("read_only") is not True:
+        raise RuntimeError("The shared public renderer requires a supported read-only release.")
     # Content-addressed paths keep different deployments isolated on warm hosts.
     path = Path(settings.DATABASES["default"]["NAME"])
-    path = path.with_name(f"{path.stem}-{manifest['sha256'][:16]}{path.suffix}")
+    digest = manifest.get("sha256") or hashlib.sha256(release_bytes).hexdigest()
+    path = path.with_name(f"{path.stem}-{digest[:16]}{path.suffix}")
     if not path.exists():
         # Serverless workers can reuse process IDs after an interrupted import.
         # Never reopen a partial index left behind by a previous worker.
@@ -65,7 +67,14 @@ def initialize_snapshot():
             # A single transaction avoids a disk sync for each release row on
             # serverless cold starts. The index is published only when complete.
             with transaction.atomic(using="snapshot_builder"), connection.cursor() as cursor:
-                for collection, model in COLLECTION_MODELS.items():
+                collections = COLLECTION_MODELS
+                if "incident_cyclone_links" not in release:
+                    collections = {
+                        name: model
+                        for name, model in COLLECTION_MODELS.items()
+                        if name != "incident_cyclone_links"
+                    }
+                for collection, model in collections.items():
                     fields = list(model._meta.concrete_fields)
                     columns = []
                     for field in fields:

@@ -20,16 +20,6 @@
             <h2 class="text-sm font-semibold text-zinc-950">
                 Report Generation
             </h2>
-            {% if not PUBLIC_RELEASE_RENDERER %}
-                <a
-                    href="{% url 'reports:report_generation' %}?template=incident-upload"
-                    class="ui-button ui-button--primary ui-button--small shrink-0"
-                    aria-label="Download incident upload template"
-                >
-                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
-                    Download Template
-                </a>
-            {% endif %}
         </header>
 
         <form

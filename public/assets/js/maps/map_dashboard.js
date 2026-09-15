@@ -562,7 +562,10 @@
         }
 
         legendControl.onAdd = function () {
-            const container = L.DomUtil.create("div", "add-map-legend");
+            const container = L.DomUtil.create(
+                "div",
+                "add-map-legend map-studio-legend-host"
+            );
             const title = document.createElement("div");
             const unitLabel = document.createElement("div");
             const list = document.createElement("div");
@@ -596,6 +599,9 @@
             }
 
             container.append(title, unitLabel, list);
+            container.dataset.mapLegendEmpty = (
+                legendScale.maximum > 0 ? "false" : "true"
+            );
             syncHistoricalTcOverlayLegend();
             return container;
         };

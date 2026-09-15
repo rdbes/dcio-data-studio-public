@@ -44,6 +44,7 @@
         "plant pests and diseases": themeColor("--data-hazard-plant-pests-diseases", "#4CA626"),
         "animal pests and diseases": themeColor("--data-hazard-animal-pests-diseases", "#FFBD59"),
         "volcanic eruption": themeColor("--data-hazard-volcanic-eruption", "#CC7A00"),
+        earthquake: themeColor("--data-hazard-earthquake", "#8B6F8E"),
         geologicOthers: themeColor("--data-hazard-geologic-others", "#73736B")
     });
 
@@ -65,7 +66,7 @@
         HZD_PLANT_PEST_DISEASE: HAZARD_COLORS["plant pests and diseases"],
         HZD_ANIMAL_PEST_DISEASE: HAZARD_COLORS["animal pests and diseases"],
         HZD_VOLCANIC_ACTIVITY: HAZARD_COLORS["volcanic eruption"],
-        HZD_EARTHQUAKE: HAZARD_COLORS.geologicOthers,
+        HZD_EARTHQUAKE: HAZARD_COLORS.earthquake,
         HZD_GEOLOGIC_OTHERS: HAZARD_COLORS.geologicOthers
     });
 
@@ -295,6 +296,9 @@
         if (normalized.includes("el nino")) {
             return HAZARD_COLORS["el nino"];
         }
+        if (normalized.includes("earthquake")) {
+            return HAZARD_COLORS.earthquake;
+        }
         if (
             normalized.includes("animal")
             && (
@@ -388,13 +392,17 @@
 
             const formatter = chartValueFormatter(chart);
             const { ctx, chartArea } = chart;
+            let largestIndex = -1;
+            let largestValue = 0;
 
-            ctx.save();
-            // Numeric bar labels use the compact data-font treatment from
-            // FARM so the full regional list remains readable in a short card.
-            ctx.font = chart.$addValueLabelFont
-                || '400 8px "IBM Plex Mono", monospace';
-            ctx.fillStyle = themeColor(
+            dataset.data.forEach(function (rawValue, index) {
+                const value = number(rawValue);
+                if (value > largestValue) {
+                    largestValue = value;
+                    largestIndex = index;
+                }
+            });
+            const outsideLabelColor = themeColor(
                 chart.$addOutsideValueLabels
                     ? "--chart-text-strong"
                     : "--chart-text-muted",
@@ -402,6 +410,13 @@
                     ? "#27272a"
                     : "#71717a"
             );
+
+            ctx.save();
+            // Numeric bar labels use the compact data-font treatment from
+            // FARM so the full regional list remains readable in a short card.
+            ctx.font = chart.$addValueLabelFont
+                || '400 8px "IBM Plex Mono", monospace';
+            ctx.fillStyle = outsideLabelColor;
             ctx.textAlign = "left";
             ctx.textBaseline = "middle";
 
@@ -416,6 +431,23 @@
                     chart.$addMetricKey || "value"
                 );
                 const textWidth = ctx.measureText(label).width;
+                const isLargestBar = index === largestIndex;
+
+                // Keep the largest value inside its bar. Its endpoint is
+                // intentionally close to the final x-axis tick, so placing
+                // the label after the bar can push it past that boundary.
+                if (
+                    isLargestBar
+                    && bar.x - chartArea.left >= textWidth + 12
+                ) {
+                    ctx.fillStyle = "#FFFFFF";
+                    ctx.textAlign = "right";
+                    ctx.fillText(label, bar.x - 6, bar.y);
+                    return;
+                }
+
+                ctx.fillStyle = outsideLabelColor;
+                ctx.textAlign = "left";
                 const labelX = chart.$addOutsideValueLabels
                     ? bar.x + 6
                     : Math.min(
@@ -453,7 +485,7 @@
 
             ctx.save();
             ctx.font = (
-                "700 14px system-ui, -apple-system, "
+                "600 12px system-ui, -apple-system, "
                 + "BlinkMacSystemFont, 'Segoe UI', sans-serif"
             );
             ctx.textAlign = "center";
@@ -727,7 +759,9 @@
                         ),
                         right: settings.outsideValueLabels
                             ? (settings.valueLabelRightPadding ?? 68)
-                            : 36
+                            : settings.compactValueScale
+                                ? (settings.compactValueScaleRightPadding ?? 20)
+                                : 36
                     }
                 },
                 onHover: settings.onHover,
@@ -750,6 +784,13 @@
                         beginAtZero: true,
                         title: {
                             ...(baseXScale.title || {}),
+                            display: baseXScale.title?.display
+                                ?? Boolean(
+                                    settings.xAxisTitle
+                                    || baseXScale.title?.text
+                                ),
+                            text: settings.xAxisTitle
+                                || baseXScale.title?.text,
                             color: themeColor(
                                 "--chart-text-muted",
                                 "#71717a"
@@ -772,7 +813,12 @@
                                 weight: 400
                             },
                             callback: function (value) {
-                                return settings.formatValue
+                                return settings.formatTick
+                                    ? settings.formatTick(
+                                        value,
+                                        settings.metricKey || "value"
+                                    )
+                                    : settings.formatValue
                                     ? settings.formatValue(
                                         value,
                                         settings.metricKey || "value"

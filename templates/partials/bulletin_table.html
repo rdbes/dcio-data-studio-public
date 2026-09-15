@@ -1,0 +1,9 @@
+<table class="bulletin-data-table" aria-label="{{ table.title }} damage and loss table">
+    <caption>{{ table.title }}</caption>
+    <thead>
+        {% for header_row in table.header_rows %}<tr>{% for cell in header_row %}<th{% if cell.rowspan %} rowspan="{{ cell.rowspan }}"{% endif %}{% if cell.colspan %} colspan="{{ cell.colspan }}"{% endif %}>{% if cell.label %}{{ cell.label|linebreaksbr }}{% endif %}{% if cell.subtitle %}<small>{{ cell.subtitle|linebreaksbr }}</small>{% endif %}</th>{% endfor %}</tr>{% endfor %}
+    </thead>
+    <tbody>
+        {% for row in table.rows %}{% if table.kind == "summary" and row.kind == "section" %}<tr class="bulletin-table-row--section"><th colspan="7">{{ row.label }}</th></tr>{% else %}<tr class="bulletin-table-row--{{ row.kind }}"><th scope="row">{% if table.kind == "summary" %}{{ row.label }}{% elif row.kind == "total" %}{% if table.label == "TOTAL" %}ALL COMMODITY{% else %}TOTAL{% endif %}{% elif row.kind == "region" %}{{ row.region }}{% else %}{{ row.province }}{% endif %}</th>{% for value in row.display_cells %}<td{% if table.kind == "summary" and not value %} class="bulletin-table-cell--muted"{% endif %}>{{ value }}</td>{% endfor %}</tr>{% endif %}{% endfor %}
+    </tbody>
+</table>

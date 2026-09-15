@@ -1,4 +1,5 @@
-Django~=5.2.15
+# Shared public renderer runtime. Dependabot keeps the Django security pin current.
+Django==5.2.17
 psycopg[binary]>=3.2,<4
 jsonschema[format]>=4.23,<5
 XlsxWriter>=3,<4

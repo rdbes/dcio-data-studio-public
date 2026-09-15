@@ -1,10 +1,4 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
+"""Canonical schema for damage reports, import review, references, and tracks."""
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
@@ -152,7 +146,7 @@ class ImportValidationIssue(models.Model):
     field_name = models.TextField(blank=True, null=True)
     expected_value = models.TextField(blank=True, null=True)
     actual_value = models.TextField(blank=True, null=True, db_comment='Raw uploaded value associated with the issue, preserved as text.')
-    difference_value = models.DecimalField(max_digits=10, decimal_places=5, blank=True, null=True)  # max_digits and decimal_places have been guessed, as this database handles decimal fields as float
+    difference_value = models.DecimalField(max_digits=10, decimal_places=5, blank=True, null=True)
     issue_message = models.TextField()
     is_resolved = models.BooleanField()
     created_at = models.DateTimeField()
@@ -492,6 +486,7 @@ class StgDamageReportRaw(models.Model):
     raw_year = models.TextField(blank=True, null=True)
     raw_region = models.TextField(blank=True, null=True)
     raw_province = models.TextField(blank=True, null=True)
+    raw_psgc_key = models.TextField(blank=True, null=True)
     raw_category = models.TextField(blank=True, null=True)
     raw_calamity = models.TextField(blank=True, null=True, db_comment='Unmodified calamity text used later for incident extraction and confirmation.')
     raw_month = models.TextField(blank=True, null=True)

@@ -240,6 +240,7 @@
     --data-hazard-plant-pests-diseases: #4ca626;
     --data-hazard-animal-pests-diseases: #ffbd59;
     --data-hazard-volcanic-eruption: #cc7a00;
+    --data-hazard-earthquake: #8b6f8e;
     --data-hazard-geologic-others: var(--charcoal-lighter);
     --data-climate-type-1: #d65f45;
     --data-climate-type-2: var(--drop-base);
@@ -293,6 +294,9 @@
     --data-hazard-volcanic-eruption-subtle: #fff1dc;
     --data-hazard-volcanic-eruption-border: #a86a00;
     --data-hazard-volcanic-eruption-on: #4b3000;
+    --data-hazard-earthquake-subtle: #f3edef;
+    --data-hazard-earthquake-border: #a17f9f;
+    --data-hazard-earthquake-on: #422d43;
     --data-hazard-geologic-others-subtle: var(--ash-light);
     --data-hazard-geologic-others-border: var(--ash-darker);
     --data-hazard-geologic-others-on: var(--charcoal-darker);
@@ -1086,8 +1090,9 @@ textarea {
 
 /* FARM analytical metric cards: each KPI uses its dedicated visualization
  * metric color rather than borrowing a UI state color. */
-.farm-kpi-value {
-    color: var(--color-primary);
+.farm-kpi-value,
+.analytics-kpi-value {
+    color: var(--color-brand);
     font-family: var(--font-family-data);
     font-size: var(--type-kpi-size);
     font-weight: var(--type-kpi-weight);
@@ -1104,11 +1109,12 @@ textarea {
 .analytics-kpi-label {
     position: relative;
     padding-left: 1rem;
+    color: var(--color-text);
 }
 
 .analytics-kpi-indicator {
-    width: 0.5rem;
-    height: 0.5rem;
+    width: 0.625rem;
+    height: 0.625rem;
     position: absolute;
     top: 50%;
     left: 0;
@@ -1135,7 +1141,6 @@ textarea {
 .analytics-kpi-value {
     margin-left: 1rem;
     overflow-wrap: anywhere;
-    font-variant-numeric: lining-nums tabular-nums;
 }
 
 .analytics-kpi-context {
@@ -1861,6 +1866,46 @@ input[type="radio"]:focus-visible {
     overflow-x: auto;
 }
 
+/* Keep the incident year accordion in its own viewport below the search
+ * controls so expanded rows never scroll underneath the sticky search card. */
+[data-incident-page] [data-incident-year-groups] {
+    --incident-year-summary-height: 3rem;
+    max-height: calc(100dvh - 10rem);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+/* Keep the active year visible while its incident rows move through the
+ * accordion viewport. The card itself must not establish a competing
+ * overflow context or the sticky summary would stop at its own top edge. */
+[data-incident-page] [data-incident-year-groups] > details {
+    overflow: visible;
+}
+
+[data-incident-page] [data-incident-year-groups] > details > .incident-year-summary {
+    min-height: var(--incident-year-summary-height);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    box-shadow: 0 1px 0 var(--color-brand-active);
+}
+
+/* Keep each table's column labels directly below the sticky year row while
+ * incident rows move through the accordion viewport. The accordion owns both
+ * scroll axes so the horizontal table wrapper cannot become a competing
+ * sticky container. */
+[data-incident-page] [data-incident-year-groups] .report-table-wrap {
+    overflow: visible;
+}
+
+[data-incident-page] [data-incident-year-groups] .incident-table thead th {
+    position: sticky;
+    top: var(--incident-year-summary-height);
+    z-index: 1;
+    box-shadow: 0 1px 0 var(--color-brand-active);
+}
+
 /* Keep Upload's card and actions fixed while only the batch rows scroll. */
 .upload-report-page-body-spacing {
     padding-inline: 0;
@@ -2029,6 +2074,11 @@ table thead th:not(.report-preview-column-header) {
     color: var(--color-text-inverse);
 }
 
+[data-incident-year-groups] .incident-table.report-table--blue-header thead th:not(.report-preview-column-header) {
+    background-color: color-mix(in srgb, var(--color-brand) 82%, var(--utility-white));
+    color: var(--color-text-inverse);
+}
+
 .report-table td,
 .report-table tbody th[scope="row"] {
     padding: var(--table-cell-padding-standard);
@@ -2158,6 +2208,12 @@ table tbody > tr[class]:hover,
 
 [data-incident-year-groups] .report-table tbody > tr[data-incident-total] > td,
 [data-incident-year-groups] .report-table tbody > tr[data-incident-total] > th[scope="row"] {
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Annual Summary aggregate rows keep their emphasis across every cell. */
+#annual-summary .report-table tbody > tr[data-annual-summary-aggregate-row] > td,
+#annual-summary .report-table tbody > tr[data-annual-summary-aggregate-row] > th[scope="row"] {
     font-weight: var(--font-weight-semibold);
 }
 
@@ -3914,7 +3970,7 @@ dialog.chart-table-dialog:not([open]) {
     padding: 0.55rem 0.6rem;
     border: 0;
     border-radius: 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
     box-shadow: none;
     color: #27272a;
     font-size: var(--type-caption-size);
@@ -5871,9 +5927,9 @@ section[aria-label="Selected scope distributions"] {
 [data-damage-losses-dashboard]
 [data-dashboard-analysis-metrics]
 [data-kpi-content-group] .farm-kpi-indicator {
-    width: 0.5rem;
-    height: 0.5rem;
-    flex: 0 0 0.5rem;
+    width: 0.625rem;
+    height: 0.625rem;
+    flex: 0 0 0.625rem;
     border-radius: 999px;
 }
 
@@ -5937,13 +5993,13 @@ section[aria-label="Selected scope distributions"] {
 }
 
 [data-damage-losses-dashboard] #dashboard-analysis-value {
-    color: var(--color-primary) !important;
+    color: var(--color-brand) !important;
 }
 
 [data-damage-losses-dashboard] #dashboard-analysis-volume,
 [data-damage-losses-dashboard] #dashboard-analysis-area,
 [data-damage-losses-dashboard] #dashboard-analysis-farmers {
-    color: var(--color-primary) !important;
+    color: var(--color-brand) !important;
 }
 
 /* Damage & Losses KPI composition — END */
@@ -6316,15 +6372,13 @@ section[aria-label="Selected scope distributions"] {
 
 [data-map-canvas-card] :is(#ph-map, [id^="drought-map-"]) .add-map-legend {
     border: 0;
-    background: var(
-        --map-legend-surface,
-        transparent
-    );
+    background: transparent;
     color: var(--map-ui-text);
     font-family: var(--font-family-interface);
+    border-radius: 0.75rem;
     box-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+    -webkit-backdrop-filter: blur(6px) saturate(1.04);
+    backdrop-filter: blur(6px) saturate(1.04);
 }
 
 [data-map-canvas-card] .add-map-style-panel__heading,
@@ -6509,6 +6563,51 @@ section[aria-label="Selected scope distributions"] {
 .add-map-legend {
     margin-left: 0.625rem;
     margin-bottom: 0.5rem;
+}
+
+/* Map Studio legends are floating glass overlays: the selected map surface
+ * remains visible behind text and swatches. */
+[data-map-canvas-card] :is(.add-map-legend, .add-map-overlay-legend) {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-radius: 0.75rem;
+    border: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: blur(6px) saturate(1.04) !important;
+    backdrop-filter: blur(6px) saturate(1.04) !important;
+}
+
+[data-map-canvas-card] .add-map-legend .add-map-overlay-legend {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+[data-map-canvas-card]
+.map-studio-legend-host[data-map-legend-empty="true"]:not(:has(.add-map-overlay-legend:not([hidden]))) {
+    display: none;
+    border-radius: 0;
+    padding: 0;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+@media (max-width: 30rem) {
+    [data-map-canvas-card] .map-studio-legend-host {
+        max-width: min(13rem, calc(100vw - 2rem));
+        max-height: min(40dvh, 13rem);
+        overflow: auto;
+        padding: 0.45rem 0.5rem;
+        scrollbar-width: thin;
+    }
+
+    [data-map-canvas-card] .map-studio-legend-host .add-map-legend__list,
+    [data-map-canvas-card] .map-studio-legend-host .add-map-overlay-legend__list {
+        max-width: 100%;
+    }
 }
 
 [data-map-canvas-card] .add-map-coordinate-label {

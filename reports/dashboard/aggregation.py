@@ -82,31 +82,16 @@ def annual_selection(filters):
 
 
 def annual_reference(rows, excluded_years, starts, expected_years=None):
-    """Return full-year averages with an optional calendar-year denominator."""
+    """Average reported metric years within the requested calendar window."""
+    if expected_years is not None:
+        expected_years = set(expected_years)
+        rows = [row for row in rows if row["analysis_date"].year in expected_years]
     stats = summarize_observations(rows, excluded_years, starts)
-    expected_years = set(expected_years or [])
     result = {}
     for metric, stat in stats.items():
-        eligible_rows = [
-            row
-            for row in rows
-            if row["analysis_date"].year not in excluded_years
-            and row["analysis_date"].year >= starts.get(metric, 1)
-            and row[metric] is not None
-        ]
-        observed_year_count = len({row["analysis_date"].year for row in eligible_rows})
-        expected_year_count = len(
-            [
-                year for year in expected_years
-                if year not in excluded_years
-                and year >= starts.get(metric, 1)
-            ]
-        )
-        denominator = expected_year_count or observed_year_count
-        total = nullable_sum(row[metric] for row in eligible_rows)
         result[metric] = {
-            "average": total / denominator if total is not None and denominator else None,
-            "year_count": expected_year_count or stat["year_count"],
+            "average": stat["average"],
+            "year_count": stat["year_count"],
             "years": stat["years"],
             "label": year_label(stat["years"]),
         }

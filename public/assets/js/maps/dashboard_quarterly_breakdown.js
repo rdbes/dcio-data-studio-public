@@ -126,7 +126,7 @@
             borderColor: () => cssColor("--data-metric-farmers", "#7c6bb0")
         });
         const saved = new URL(window.location.href).searchParams.get("quarterly_metric");
-        selectedMetric = ["all", ...METRIC_DEFINITIONS.map(metric => metric.key)].includes(saved) ? saved : "value_loss";
+        selectedMetric = ["all", ...METRIC_DEFINITIONS.map(metric => metric.key)].includes(saved) ? saved : "all";
         if (metricSelect) metricSelect.value = selectedMetric;
         const field = document.querySelector('[name="quarterly_metric"]');
         if (field) field.value = selectedMetric;

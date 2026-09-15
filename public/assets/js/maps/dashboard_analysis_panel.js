@@ -1030,6 +1030,44 @@
         );
     }
 
+    function regionChartScaleOptions(rows, metricKey) {
+        const maximum = (Array.isArray(rows) ? rows : []).reduce(
+            function (currentMaximum, row) {
+                return Math.max(
+                    currentMaximum,
+                    number(row?.[metricKey])
+                );
+            },
+            0
+        );
+
+        if (maximum <= 0) {
+            return {
+                max: undefined,
+                tickStep: undefined
+            };
+        }
+
+        // Use a rounded step so the final interval is the same width as
+        // every other interval while keeping the scale close to the data.
+        const rawStep = maximum / 7;
+        const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+        const normalizedStep = rawStep / magnitude;
+        const niceStep = normalizedStep <= 1
+            ? 1
+            : normalizedStep <= 2
+                ? 2
+                : normalizedStep <= 5
+                    ? 5
+                    : 10;
+        const tickStep = niceStep * magnitude;
+
+        return {
+            max: Math.ceil(maximum / tickStep) * tickStep,
+            tickStep
+        };
+    }
+
     function formatExactMetricValue(value, metricKey) {
         const numericValue = number(value);
         if (metricKey === "value") {
@@ -1610,6 +1648,11 @@
             return;
         }
 
+        const regionScale = regionChartScaleOptions(
+            rows,
+            currentMetric
+        );
+
         regionChart = (
             chartPresets.createRegionalBarChart({
                 canvas: elements.regionCanvas,
@@ -1620,6 +1663,10 @@
                 baseOptions: {
                     scales: {
                         x: {
+                            max: regionScale.max,
+                            ticks: {
+                                stepSize: regionScale.tickStep
+                            },
                             title: {
                                 display: true,
                                 text: details.axisUnit
@@ -1648,7 +1695,7 @@
                 },
                 outsideValueLabels: true,
                 valueLabelFont: '500 9px "IBM Plex Mono", monospace',
-                valueLabelRightPadding: 68,
+                valueLabelRightPadding: 8,
                 tooltipLabel: function (context) {
                     return (
                         " "

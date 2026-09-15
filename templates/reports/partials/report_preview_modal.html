@@ -1,65 +1,8 @@
 {% load humanize %}
 
 <div
-    x-data="{
-        open: true,
-        activeSheet: 0,
-        previewTrigger: null,
-        trapFocus(event) {
-            const container = event.currentTarget;
-            const focusable = Array.from(
-                container.querySelectorAll(
-                    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])'
-                )
-            ).filter((element) => element.offsetParent !== null);
-
-            if (!focusable.length) return;
-
-            const first = focusable[0];
-            const last = focusable[focusable.length - 1];
-            const active = document.activeElement;
-
-            if (event.shiftKey && (active === first || !container.contains(active))) {
-                event.preventDefault();
-                last.focus();
-            } else if (!event.shiftKey && (active === last || !container.contains(active))) {
-                event.preventDefault();
-                first.focus();
-            }
-        },
-        closePreview() {
-            this.open = false;
-            document.body.classList.remove('overflow-hidden');
-
-            const previewUrl = new URL(
-                window.location.href
-            );
-
-            previewUrl.searchParams.delete(
-                'preview'
-            );
-
-            window.history.replaceState(
-                {},
-                '',
-                previewUrl.toString()
-            );
-
-            this.$nextTick(() => this.previewTrigger?.focus());
-        }
-    }"
-    x-init="
-        previewTrigger = document.querySelector('[data-report-preview-trigger]');
-        document.body.classList.add('overflow-hidden');
-        $nextTick(() => $refs.closeButton.focus());
-    "
-    x-show="open"
-    x-cloak
-    x-transition.opacity
-    @keydown.escape.window="closePreview()"
-    @keydown.tab="trapFocus($event)"
-    @report-download-finished.window="closePreview()"
     data-report-preview-modal
+    data-report-preview-open
     class="report-preview-modal fixed inset-0 flex items-center justify-center bg-zinc-950/65 p-3 backdrop-blur-xs sm:p-6"
     role="dialog"
     aria-modal="true"
@@ -157,11 +100,11 @@
     <div
         class="absolute inset-0"
         aria-hidden="true"
-        @click="closePreview()"
+        data-report-preview-backdrop
     ></div>
 
     <div
-        x-ref="dialogPanel"
+        data-report-preview-panel
         class="relative flex max-h-[94vh] w-full max-w-[96rem] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl"
     >
         <header class="relative flex shrink-0 flex-col gap-3 border-b border-zinc-200 bg-white px-4 py-4 pr-14 sm:flex-row sm:items-start sm:px-6 sm:pr-16">
@@ -175,9 +118,8 @@
             </div>
 
             <button
-                x-ref="closeButton"
                 type="button"
-                @click="closePreview()"
+                data-report-preview-close
                 class="ui-icon-button absolute right-3 top-3 shrink-0 cursor-pointer text-zinc-600 sm:right-5 sm:top-4"
                 aria-label="Close report preview"
                 title="Close"
@@ -221,9 +163,8 @@
                     <button
                         type="button"
                         role="tab"
-                        @click="activeSheet = {{ forloop.counter0 }}"
-                        :aria-selected="activeSheet === {{ forloop.counter0 }}"
-                        :class="activeSheet === {{ forloop.counter0 }} ? 'border-emerald-600 bg-white text-emerald-800' : 'border-transparent bg-transparent text-zinc-500 hover:text-zinc-800'"
+                        data-report-preview-tab="{{ forloop.counter0 }}"
+                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
                         class="shrink-0 rounded-t-lg border border-b-0 px-3 py-2 text-xs font-semibold"
                     >
                         {{ sheet.name }}
@@ -235,7 +176,7 @@
         <div class="min-h-0 flex-1 overflow-hidden bg-zinc-100">
             {% for sheet in workbook_preview.sheets %}
                 <section
-                    x-show="activeSheet === {{ forloop.counter0 }}"
+                    data-report-preview-sheet="{{ forloop.counter0 }}"
                     data-report-preview-sheet
                     role="tabpanel"
                     class="flex h-full min-h-0 flex-col"

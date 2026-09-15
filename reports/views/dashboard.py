@@ -112,7 +112,6 @@ _build_active_filter_chips = build_active_filter_chips
 def analytics(request):
     """Show a visual analytics dashboard from normalized damage_report records."""
     current_year = timezone.now().year
-    excluded_years = annual_analysis_excluded_years(current_year)
     active_reports = DamageReport.objects.filter(is_active=True)
 
     active_hazards = list(
@@ -140,6 +139,10 @@ def analytics(request):
         if key in active_hazards_by_key
     ]
     selected_hazard_keys = [hazard.hazard_key for hazard in selected_hazards]
+    excluded_years = annual_analysis_excluded_years(
+        current_year,
+        include_el_nino_1998=set(selected_hazard_keys) == {"HZD_EL_NINO"},
+    )
     selected_hazard_label = (
         ", ".join(hazard.display_label for hazard in selected_hazards)
         if selected_hazards and len(selected_hazards) < len(active_hazards)
@@ -299,7 +302,10 @@ def analytics(request):
     # years from the historical record. Charts and KPIs continue to use the
     # selected years above.
     annual_summary_rows, annual_trends = _build_annual_summary(observations, excluded_years)
-    historical_summary_rows = annual_summary_rows
+    historical_summary_rows = [
+        row for row in annual_summary_rows
+        if row["year"] not in excluded_years
+    ]
     summary_stats = summarize_observations(observations, excluded_years, starts)
     annual_summary_total = {metric: stat["total"] for metric, stat in summary_stats.items()}
     annual_summary_average = {metric: stat["average"] for metric, stat in summary_stats.items()}
@@ -309,7 +315,11 @@ def analytics(request):
     for chart_metric, rows in annual_trends.items():
         for row in rows:
             row["average_value"] = annual_summary_average[CHART_METRICS[chart_metric]]
-    annual_five_year_periods = five_year_periods(historical_summary_rows, excluded_years, starts)
+    # Historical period averages use only complete historical years, matching
+    # the shared current-year and El Niño-only exclusions.
+    annual_five_year_periods = five_year_periods(
+        historical_summary_rows, excluded_years, starts,
+    )
     comparison_window_cards = rolling_window_metric_cards(
         historical_summary_rows, available_years, filters["effective_date_to"].year,
         excluded_years, starts,
@@ -431,7 +441,12 @@ def analytics(request):
                 else f"previous {KPI_COMPARISON_WINDOW}-year"
             ),
             "period_label": annual_filters["period_label"] + (" year-to-date" if current_year in windows and not is_multi_year else ""),
-            "comparison_basis_label": "annual avg" if comparison["enabled"] else "",
+            "comparison_basis_label": "avg" if comparison["enabled"] else "",
+            "comparison_window_years": (
+                int(KPI_COMPARISON_WINDOW)
+                if comparison["enabled"]
+                else ""
+            ),
             "comparison_note": (
                 "Comparison off" if comparison["window"] == "none"
                 else f"{baseline['year_count']} prior reporting years; same months/dates" if comparable
@@ -524,7 +539,7 @@ def analytics(request):
         "Farmer counts and affected hectares may recur across incidents or commodities. PHP values are nominal. Months refer to incident end dates, falling back to start dates.",
     ]
     if current_year in windows:
-        quality_notes.append(f"{current_year} is provisional through {today:%d %b %Y}; it is excluded from multi-year averages but retained in period totals.")
+        quality_notes.append(f"{current_year} is provisional through {today:%d %b %Y}; it is excluded from Historical Period Averages and KPI comparison baselines.")
     if lumped_years:
         quality_notes.append(f"Subgroup comparisons exclude years with unspecified parent detail: {year_label(lumped_years)}.")
     unspecified_value = nullable_sum(row["value_loss"] for row in selected_observations if not row["location_psgc_key__province_huc_name"])
@@ -554,6 +569,7 @@ def analytics(request):
             "selected_filters": {
                 **filters,
             },
+            "filter_context": filter_context,
             "selected_metric": metric_config,
             "kpi_cards": kpi_cards,
             "record_count": _zero(totals["record_count"]),

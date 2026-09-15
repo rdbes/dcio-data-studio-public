@@ -87,7 +87,10 @@ def comparison_period(
         start_year = first_available_year
         end_year = last_available_year
     else:
-        end_year = selected_end_year
+        # The requested endpoint may itself be excluded (the current year is
+        # provisional), so anchor the window to the latest eligible year.
+        # This keeps both the displayed range and the averaged rows aligned.
+        end_year = last_available_year
         start_year = max(first_available_year, end_year - int(window) + 1)
 
     label = (
@@ -238,7 +241,7 @@ def rolling_window_metric_cards(annual_rows, available_years, selected_end_year,
     excluded = annual_analysis_excluded_years() if excluded_years is None else excluded_years
     starts = start_years or {"affected_farmers": FARMERS_AVERAGE_START_YEAR}
     cards = []
-    for window, title in (("5", "5 Years"), ("10", "10 Years"), ("15", "15 Years"), ("all", "All History")):
+    for window, title in (("5", "5-year avg"), ("10", "10-year avg"), ("15", "15-year avg"), ("all", "All-history avg")):
         period = comparison_period(window, available_years, selected_end_year, excluded)
         if not period["enabled"]:
             continue

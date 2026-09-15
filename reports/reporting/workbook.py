@@ -163,6 +163,13 @@ def _write_wide_sheet(
     worksheet = workbook.add_worksheet(
         sheet_name
     )
+    # Array-formula strings bypass strings_to_formulas=False in XlsxWriter.
+    worksheet.add_write_handler(
+        str,
+        lambda sheet, row, col, value, cell_format=None: sheet.write_string(
+            row, col, value, cell_format,
+        ),
+    )
 
     resolved_identity_fields = (
         identity_fields
@@ -531,6 +538,9 @@ def build_report_workbook(
         output,
         {
             "in_memory": True,
+            # Imported identities and reference labels must remain literal data.
+            "strings_to_formulas": False,
+            "strings_to_urls": False,
         },
     )
 

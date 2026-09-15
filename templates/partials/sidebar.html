@@ -1,9 +1,10 @@
 {% load static %}
 
 <aside
+    id="dcio-sidebar"
     data-sidebar-shell
     class="fixed inset-y-0 left-0 z-50 flex h-screen shrink-0 transition-transform duration-300 ease-out xl:relative xl:inset-auto xl:h-full"
-    :class="sidebarOpen ? 'w-full translate-x-0 p-3 xl:p-0' : 'w-0 -translate-x-full overflow-hidden p-0 xl:translate-x-0'"
+    inert
     aria-label="DCIO Data Studio navigation"
 >
     <div class="relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 text-zinc-400 shadow-2xl shadow-zinc-950/20">
@@ -14,7 +15,7 @@
                     <h1>DCIO <span>Data Studio</span></h1>
                 </div>
             </a>
-            <button type="button" @click="setSidebarOpen(false)" class="absolute right-4 cursor-pointer rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-900 hover:text-zinc-200 focus:outline-none xl:hidden" aria-label="Close Sidebar">
+            <button type="button" data-sidebar-close class="absolute right-4 cursor-pointer rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-900 hover:text-zinc-200 focus:outline-none xl:hidden" aria-label="Close Sidebar">
                 <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
             </button>
         </div>
@@ -37,16 +38,17 @@
                     <i class="fa-solid fa-route sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
                     <span>TC Tracks</span>
                 </a>
-                {% if PUBLIC_RELEASE_RENDERER or LOCAL_MODE and can_manage_reports %}
-                    <div class="sidebar-bottom-nav">
+                <div class="sidebar-bottom-nav">
+                    <a href="{% url 'reports:bulletin_checker' %}" {% if current_view == 'bulletin_checker' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'bulletin_checker' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-file-lines sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
+                        <span>Bulletin Checker</span>
+                    </a>
+                    {% if PUBLIC_RELEASE_RENDERER or LOCAL_MODE and can_manage_reports %}
                         <a href="{% url 'reports:report_generation' %}" {% if current_view == 'report_generation' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'report_generation' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
                             <i class="fa-solid fa-file-export sidebar-nav-icon sidebar-nav-icon--green" aria-hidden="true"></i>
                             <span>Report Generation</span>
                         </a>
-                    </div>
-                {% endif %}
-                {% if LOCAL_MODE and can_manage_reports %}
-                    <div class="sidebar-bottom-nav">
+                        {% if LOCAL_MODE and can_manage_reports %}
                         <a href="{% url 'reports:upload_report' %}" {% if current_view == 'upload_report' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'upload_report' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
                             <i class="fa-solid fa-upload sidebar-nav-icon sidebar-nav-icon--green" aria-hidden="true"></i>
                             <span>Upload Damage Report</span>
@@ -55,8 +57,9 @@
                             <i class="fa-solid fa-book-open sidebar-nav-icon sidebar-nav-icon--violet" aria-hidden="true"></i>
                             <span>Libraries</span>
                         </a>
-                    </div>
-                {% endif %}
+                        {% endif %}
+                    {% endif %}
+                </div>
             </nav>
         {% endwith %}
 

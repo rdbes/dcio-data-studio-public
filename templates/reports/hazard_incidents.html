@@ -3,7 +3,7 @@
 
 {% block extra_head %}
     {{ block.super }}
-    <script defer src="{% static 'js/hazard_incidents.js' %}?v=20260831-incident-dashboard-iframe-v3"></script>
+    <script defer src="{% static 'js/hazard_incidents.js' %}?v=20260915-incident-native-scroll-v1"></script>
 {% endblock %}
 
 {% block title %}Incidents - DCIO Data Studio{% endblock %}
@@ -77,7 +77,7 @@
                         Swipe horizontally to view all columns.
                     </p>
                     <div class="report-table-wrap max-w-full" tabindex="0" aria-label="Scrollable incident metrics table for {{ group.year }}">
-                        <table class="report-table report-table--blue-header ui-table--compact min-w-[920px]">
+                        <table class="report-table report-table--blue-header incident-table ui-table--compact min-w-[920px]">
                             <caption class="sr-only">Damage and loss metrics for incidents in {{ group.year }}</caption>
                             <thead>
                                 <tr>

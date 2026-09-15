@@ -452,7 +452,7 @@
             }
             const { ctx, chartArea } = chart;
             ctx.save();
-            ctx.font = "700 14px Inter, sans-serif";
+            ctx.font = "600 12px Inter, sans-serif";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             meta.data.forEach((arc, index) => {
@@ -602,6 +602,48 @@
         }
     };
 
+    function compactRegionScale(rows, metric) {
+        const maximum = (Array.isArray(rows) ? rows : []).reduce(
+            (currentMaximum, row) => Math.max(
+                currentMaximum,
+                Number(row?.[metric] || 0),
+                Number(row?.[`comparison_${metric}`] || 0)
+            ),
+            0
+        );
+        if (!(maximum > 0)) {
+            return { max: undefined, stepSize: undefined };
+        }
+
+        // Use a clean interval so the final tick is aligned with all of the
+        // preceding ticks (for example, 6.49B becomes a 7B axis with 1B steps).
+        const targetIntervals = 6;
+        const roughStep = maximum / targetIntervals;
+        const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+        const normalizedStep = roughStep / magnitude;
+        const multiplier = normalizedStep <= 1
+            ? 1
+            : normalizedStep <= 2
+                ? 2
+                : normalizedStep <= 5
+                    ? 5
+                    : 10;
+        const stepSize = multiplier * magnitude;
+
+        return {
+            max: Math.ceil(maximum / stepSize) * stepSize,
+            stepSize
+        };
+    }
+
+    function compactRegionScaleMax(rows, metric) {
+        return compactRegionScale(rows, metric).max;
+    }
+
+    function compactRegionScaleStep(rows, metric) {
+        return compactRegionScale(rows, metric).stepSize;
+    }
+
     const filterCtx = dashboardData.filter_context || {};
     const locationMode = filterCtx.location_mode || "national";
     const commodityMode = filterCtx.commodity_mode || "all";
@@ -653,6 +695,12 @@
             "rgba(100, 116, 139, 0.45)"
         ),
         comparisonBorderColor: "#64748b",
+        compactValueScale: true,
+        compactValueScaleRightPadding: 4,
+        xAxisTitle: METRIC_DETAILS.value.unit,
+        formatTick: function (value) {
+            return numberFormatter.format(Number(value || 0));
+        },
         formatValue: function (value) {
             return formatValueForMetric(value, chartInstances.regionBarChart?.activeMetric || "value");
         },
@@ -674,6 +722,15 @@
     if (regionChart) {
         regionChart.activeRegionData = initialRegionData;
         regionChart.activeMetric = "value";
+        regionChart.options.scales.x.max = compactRegionScaleMax(
+            initialRegionData,
+            "value"
+        );
+        regionChart.options.scales.x.ticks.stepSize = compactRegionScaleStep(
+            initialRegionData,
+            "value"
+        );
+        regionChart.update("none");
         regionChart.options.plugins.tooltip.callbacks.afterLabel = context => {
             const row = regionChart.activeRegionData[context.dataIndex];
             const metric = regionChart.activeMetric;
@@ -1311,6 +1368,16 @@
             chart.data.datasets[0].borderColor = chartStrokeColor(
                 METRIC_DETAILS[metric].color
             );
+            chart.options.scales.x.max = compactRegionScaleMax(
+                sortedData,
+                metric
+            );
+            chart.options.scales.x.ticks.stepSize = compactRegionScaleStep(
+                sortedData,
+                metric
+            );
+            chart.options.scales.x.title.text = METRIC_DETAILS[metric].unit;
+            chart.options.scales.x.title.display = true;
             chart.data.datasets[1].data = sortedData.map(
                 row => nullableNumber(row[`comparison_${metric}`])
             );

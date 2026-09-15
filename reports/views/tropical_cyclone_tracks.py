@@ -143,7 +143,9 @@ def _serialize_damage_loss_records(cyclone_keys):
         .order_by()
     )
 
-    records_by_cyclone = defaultdict(list)
+    # Keep the same reporting-area grain as the dashboard map. In particular,
+    # NCR can have several source rows that all resolve to one map feature.
+    records_by_cyclone = defaultdict(dict)
     for row in rows:
         province_code = str(
             row["location_psgc_key__province_huc_key__psgc_code"] or ""
@@ -162,9 +164,11 @@ def _serialize_damage_loss_records(cyclone_keys):
             or row["location_psgc_key__province_huc_key__location_name"]
             or "Unspecified Reporting Area"
         )
-        records_by_cyclone[
+        cyclone_records = records_by_cyclone[
             str(row["incident_key__tropical_cyclone_links__cyclone_key_id"])
-        ].append(
+        ]
+        record = cyclone_records.setdefault(
+            reporting_code,
             {
                 "province_name": reporting_area_display_name(
                     reporting_code,
@@ -172,22 +176,39 @@ def _serialize_damage_loss_records(cyclone_keys):
                 ),
                 "region_name": row["location_psgc_key__region_name"]
                 or "Unspecified Region",
+                "psgc_key": f"PH{reporting_code}",
                 "psgc_code": reporting_code,
                 "correspondence_code": (
                     row[
                         "location_psgc_key__province_huc_key__correspondence_code"
                     ]
-                    or ""
-                ),
-                "record_count": int(row["record_count"] or 0),
-                "affected_farmers": float(row["affected_farmers"] or 0),
-                "area_affected": float(row["area_affected"] or 0),
-                "volume_loss": float(row["volume_loss"] or 0),
-                "value_loss": float(row["value_loss"] or 0),
-            }
+                    if reporting_code == province_code
+                    else ""
+                )
+                or "",
+                "record_count": 0,
+                "affected_farmers": 0.0,
+                "area_affected": 0.0,
+                "volume_loss": 0.0,
+                "value_loss": 0.0,
+            },
         )
+        record["record_count"] += int(row["record_count"] or 0)
+        record["affected_farmers"] += float(row["affected_farmers"] or 0)
+        record["area_affected"] += float(row["area_affected"] or 0)
+        record["volume_loss"] += float(row["volume_loss"] or 0)
+        record["value_loss"] += float(row["value_loss"] or 0)
 
-    return dict(records_by_cyclone)
+    return {
+        cyclone_key: sorted(
+            records.values(),
+            key=lambda record: (
+                -record["value_loss"],
+                record["province_name"].casefold(),
+            ),
+        )
+        for cyclone_key, records in records_by_cyclone.items()
+    }
 
 
 def _serialize_tracks(cyclones):

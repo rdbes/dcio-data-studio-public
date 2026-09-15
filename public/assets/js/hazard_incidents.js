@@ -4,6 +4,20 @@ document.addEventListener("DOMContentLoaded", () => {
             accordion.querySelectorAll("details[data-incident-year]")
         );
 
+        const scrollOpenedYearToTop = (yearGroup) => {
+            if (accordion.dataset.searchActive === "true") return;
+
+            window.requestAnimationFrame(() => {
+                if (!yearGroup.open) return;
+                const maxScroll = accordion.scrollHeight - accordion.clientHeight;
+                const target = Math.max(0, Math.min(maxScroll, yearGroup.offsetTop));
+                accordion.scrollTo?.({
+                    top: target,
+                    behavior: "auto",
+                });
+            });
+        };
+
         yearGroups.forEach((yearGroup) => {
             yearGroup.addEventListener("toggle", () => {
                 if (!yearGroup.open || accordion.dataset.searchActive === "true") return;
@@ -11,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 yearGroups.forEach((otherGroup) => {
                     if (otherGroup !== yearGroup) otherGroup.open = false;
                 });
+                scrollOpenedYearToTop(yearGroup);
             });
         });
     });

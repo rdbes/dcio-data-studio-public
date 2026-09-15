@@ -4,14 +4,15 @@
 {% block extra_head %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
-    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-tracks.css' %}?v=20260906-consistent-form-fields-v3">
+    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-tracks.css' %}?v=20260909-map-legend-glass-v4">
     <script defer src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
-    <script defer src="{% static 'js/maps/map_appearance.js' %}?v=20260810-ash-boundary-v1"></script>
+    <script defer src="{% static 'js/maps/map_appearance.js' %}?v=20260909-map-legend-glass-v3"></script>
+    <script defer src="{% static 'js/maps/map_administrative_base.js' %}?v=20260810-ash-boundary-v1"></script>
     <script defer src="{% static 'js/maps/map_legend_scale.js' %}?v=20260803-low-bound-v1"></script>
     <script defer src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
     <script defer src="{% static 'js/maps/map_keyboard_navigation.js' %}?v=20260725a"></script>
     <script defer src="{% static 'js/map_browser_fullscreen.js' %}?v=20260825-map-control-popovers-v1"></script>
-<script defer src="{% static 'js/tropical_cyclone_tracks.js' %}?v=20260906-white-location-boundaries-v1"></script>
+<script defer src="{% static 'js/tropical_cyclone_tracks.js' %}?v=20260915-dashboard-map-style-v1"></script>
 {% endblock %}
 
 {% block title %}Tropical Cyclone Tracks - DCIO Data Studio{% endblock %}
@@ -226,9 +227,9 @@
 </section>
 
 {{ track_payload|json_script:"tc-track-data" }}
-<script>
-    window.DATA_STUDIO_PHILIPPINES_GEOJSON_URL = "{% static 'geo/ph/provinces.geojson' %}";
-    window.DATA_STUDIO_PHILIPPINES_OUTLINE_URL = "{% static 'geo/ph/philippines_outline.geojson' %}";
-</script>
+<div hidden data-tc-map-config
+    data-provinces-url="{% static 'geo/ph/provinces.geojson' %}"
+    data-outline-url="{% static 'geo/ph/philippines_outline.geojson' %}"></div>
+<script src="{% static 'js/page_config.js' %}?v=20260912-csp-v2"></script>
 <script src="{% static 'js/analytics_filters.js' %}?v=20260825-outside-dismiss-v4"></script>
 {% endblock %}

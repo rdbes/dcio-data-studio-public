@@ -93,6 +93,11 @@ def build_dimension_chart(selected_rows, historical_rows, dimension, *, windows,
         selected_groups[_dimension_key(row, dimension)].append(row)
     for row in historical_rows:
         historical_groups[_dimension_key(row, dimension)].append(row)
+    lumped_years_by_group = defaultdict(set)
+    if dimension == "commodity_subgroup":
+        for row in historical_rows:
+            if not row["commodity_key__level_3_group"]:
+                lumped_years_by_group[commodity_group_from_row(row)].add(row["analysis_date"].year)
     chart = []
     for key, label in sorted(selected_groups.keys() | historical_groups.keys()):
         selected = selected_groups[(key, label)]
@@ -100,12 +105,14 @@ def build_dimension_chart(selected_rows, historical_rows, dimension, *, windows,
         group_filters = dict(filters)
         if dimension.startswith("commodity") and key:
             group_filters[dimension] = key
-        starts = metric_start_years(group_filters)
         if dimension == "commodity_subgroup" and key:
+            parent_groups = {commodity_group_from_row(row) for row in selected + historical}
+            if len(parent_groups) == 1:
+                group_filters["commodity_group"] = next(iter(parent_groups))
             # Parent totals cannot be assigned to one detailed subgroup.
-            lumped_years = {row["analysis_date"].year for row in historical_rows
-                            if not row["commodity_key__level_3_group"]}
-            historical = [row for row in historical if row["analysis_date"].year not in lumped_years]
+            historical = [row for row in historical if row["analysis_date"].year not in
+                          lumped_years_by_group[commodity_group_from_row(row)]]
+        starts = metric_start_years(group_filters)
         stats = summarize_observations(selected, excluded_years, starts)
         is_composition = dimension in {"commodity_group", "commodity_subgroup", "hazard"}
         baseline = annual_reference(historical, excluded_years, starts)

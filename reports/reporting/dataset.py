@@ -49,14 +49,15 @@ def _rows_for_group_sheet(
     return [
         row_data
         for row_data in dataset["rows"]
-        if (
+        if any(
             row_data["group_values"]
             .get(
                 group_value,
                 {},
             )
-            .get("value_loss")
+            .get(metric["key"])
             is not None
+            for metric in dataset["selected_metrics"]
         )
     ]
 

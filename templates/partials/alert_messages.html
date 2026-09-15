@@ -1,16 +1,10 @@
 {% if messages %}
     <div id="alert-container"
-         x-data="{ hasVisibleChildren: true }"
-         x-show="hasVisibleChildren"
-         x-init="hasVisibleChildren = $el.querySelector('[x-data]') !== null"
+         data-alert-container
          class="{{ wrapper_class|default:'mb-6 space-y-2' }}">
         {% for message in messages %}
             {% if message.tags == 'error' or message.tags == 'warning' %}
-                <div x-data="{ show: true }"
-                     x-show="show"
-                     x-transition:leave="transition ease-in duration-300"
-                     x-transition:leave-start="opacity-100 scale-100"
-                     x-transition:leave-end="opacity-0 scale-95"
+                <div data-dismissible-message role="alert"
                      class="flex items-center justify-between p-4 rounded-lg border text-sm shadow-sm transition-all duration-200 text-left
                             {% if message.tags == 'error' %}bg-red-50/80 text-red-900 border-red-200/60
                             {% else %}bg-amber-50 text-amber-900 border-amber-200{% endif %}">
@@ -22,7 +16,7 @@
                         {% endif %}
                         <span class="font-medium">{{ message }}</span>
                     </div>
-                    <button type="button" @click="show = false" aria-label="Dismiss message" class="p-1 rounded-md hover:bg-zinc-200/60 text-zinc-400 hover:text-zinc-500 transition-colors">
+                    <button type="button" data-dismiss-message aria-label="Dismiss message" class="p-1 rounded-md hover:bg-zinc-200/60 text-zinc-400 hover:text-zinc-500 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>

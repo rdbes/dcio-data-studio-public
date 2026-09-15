@@ -289,25 +289,24 @@
 
 {{ map_data|json_script:"map-spatial-data" }}
 {{ map_config|json_script:"map-spatial-config" }}
-
-<script>
-    window.ADD_DAMAGE_LOSSES_INCIDENT_OPTIONS_URL = "{% url 'reports:damage_losses_incidents' %}";
-    window.ADD_PROVINCES_GEOJSON_URL = "{% static 'geo/ph/provinces.geojson' %}?v=a44a7309-adm3-3pct-sga";
-    window.ADD_PHILIPPINES_OUTLINE_GEOJSON_URL = "{% static 'geo/ph/philippines_outline.geojson' %}?v=a44a7309-adm3-3pct-sga-hd";
-</script>
+<div hidden data-damage-losses-config
+    data-incident-options-url="{% url 'reports:damage_losses_incidents' %}"
+    data-provinces-url="{% static 'geo/ph/provinces.geojson' %}?v=a44a7309-adm3-3pct-sga"
+    data-outline-url="{% static 'geo/ph/philippines_outline.geojson' %}?v=a44a7309-adm3-3pct-sga-hd"></div>
+<script src="{% static 'js/page_config.js' %}?v=20260912-csp-v2"></script>
 <script src="{% static 'js/analytics/dynamic_incident_options.js' %}?v=20260731-node-v1"></script>
 <script src="{% static 'js/analytics_filters.js' %}?v=20260825-outside-dismiss-v4"></script>
 <script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
 <script src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
 <script src="{% static 'js/map_browser_fullscreen.js' %}?v=20260825-map-control-popovers-v1" defer></script>
 <script src="{% static 'vendor/chartjs/chart.umd.js' %}" defer></script>
-<script src="{% static 'js/analytics/chart_presets.js' %}?v=20260906-bar-radius-v1" defer></script>
-<script src="{% static 'js/maps/map_appearance.js' %}?v=20260810-ash-boundary-v1" defer></script>
+<script src="{% static 'js/analytics/chart_presets.js' %}?v=20260915-region-axis-ticks-v1" defer></script>
+<script src="{% static 'js/maps/map_appearance.js' %}?v=20260909-map-legend-glass-v3" defer></script>
 <script src="{% static 'js/maps/map_administrative_base.js' %}?v=20260810-ash-boundary-v1" defer></script>
 <script src="{% static 'js/maps/map_legend_scale.js' %}?v=20260803-low-bound-v1" defer></script>
 <script src="{% static 'js/maps/map_overlay_legend.js' %}?v=20260810-tc-legend-v1" defer></script>
 <script src="{% static 'js/maps/map_export.js' %}?v=20260810-canvas-export-v2" defer></script>
 <script src="{% static 'js/maps/map_keyboard_navigation.js' %}?v=20260725a" defer></script>
 <script src="{% static 'js/maps/map_dashboard.js' %}?v=20260825-map-control-popovers-v1" defer></script>
-<script src="{% static 'js/maps/dashboard_analysis_panel.js' %}?v=20260906-bar-radius-v1" defer></script>
+<script src="{% static 'js/maps/dashboard_analysis_panel.js' %}?v=20260910-region-chart-spacing-v3" defer></script>
 {% endblock %}

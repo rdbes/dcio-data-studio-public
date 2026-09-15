@@ -26,6 +26,7 @@
         page.querySelectorAll("[data-map-background-option]")
     );
     const mapAppearance = window.ADDMapAppearance;
+    const administrativeBaseMap = window.ADDAdministrativeBaseMap;
     const mapLegendScale = window.ADDMapLegendScale;
     const mapBackgrounds = mapAppearance?.backgrounds || {};
     const trackRows = Array.from(page.querySelectorAll("[data-tc-track-row]"));
@@ -159,6 +160,7 @@
     let damageLossLegendControl = null;
     let damageLossLegendScale = null;
     let selectedDamageLossRecords = new Map();
+    let selectedDamageLossRecordsByName = new Map();
     const legendClassCount = 5;
 
     function saveMapAppearancePreferences() {
@@ -279,6 +281,12 @@
             .replace(/[^A-Z0-9]/g, "");
     }
 
+    function normalizeMapName(value) {
+        return String(value || "")
+            .trim()
+            .toLocaleUpperCase();
+    }
+
     function featureMapCodes(feature) {
         const properties = feature?.properties || {};
         return [
@@ -292,11 +300,33 @@
         ];
     }
 
+    function featureMapNames(feature) {
+        const properties = feature?.properties || {};
+        return [
+            properties.psgc_name,
+            properties.ADM2_EN,
+            properties.name,
+            properties.province,
+            properties.prov_name,
+            properties.NAME_1
+        ];
+    }
+
     function damageLossRecordForFeature(feature) {
-        return featureMapCodes(feature)
+        const codeMatch = featureMapCodes(feature)
             .map(normalizeMapCode)
             .map(function (code) {
                 return selectedDamageLossRecords.get(code);
+            })
+            .find(Boolean);
+        if (codeMatch) {
+            return codeMatch;
+        }
+
+        return featureMapNames(feature)
+            .map(normalizeMapName)
+            .map(function (name) {
+                return selectedDamageLossRecordsByName.get(name);
             })
             .find(Boolean) || null;
     }
@@ -309,6 +339,26 @@
             "#DE2D26",
             "#A50F15"
         ];
+    }
+
+    function dashboardProvinceStyle(fillColor, hasMetricData) {
+        const boundaryColor = (
+            mapAppearance?.boundaryOutlineColor
+            || "#fcfcfa"
+        );
+        const noDataColor = mapAppearance?.noDataColor || "transparent";
+
+        return {
+            className: "add-map-boundary-path",
+            color: boundaryColor,
+            weight: 0.25,
+            opacity: 0.85,
+            lineCap: "round",
+            lineJoin: "round",
+            smoothFactor: 0.25,
+            fillOpacity: hasMetricData ? 1 : 0,
+            fillColor: hasMetricData ? fillColor : noDataColor
+        };
     }
 
     function damageLossColor(valueLoss) {
@@ -449,7 +499,10 @@
 
         legendControl.onAdd = function () {
             const scale = damageLossLegendScale;
-            const container = L.DomUtil.create("div", "add-map-legend");
+            const container = L.DomUtil.create(
+                "div",
+                "add-map-legend map-studio-legend-host"
+            );
             const title = document.createElement("div");
             const unitLabel = document.createElement("div");
             const list = document.createElement("div");
@@ -480,6 +533,9 @@
             }
 
             container.append(title, unitLabel, list);
+            container.dataset.mapLegendEmpty = (
+                scale.maximum > 0 && classCount ? "false" : "true"
+            );
             return container;
         };
 
@@ -532,13 +588,10 @@
                 pane: "tc-damage-losses",
                 style: function (feature) {
                     const record = damageLossRecordForFeature(feature);
-                    return {
-                        color: "#ffffff",
-                        fillColor: damageLossColor(record?.value_loss),
-                        fillOpacity: 0.7,
-                        opacity: 0.95,
-                        weight: 1
-                    };
+                    return dashboardProvinceStyle(
+                        damageLossColor(record?.value_loss),
+                        Boolean(record)
+                    );
                 },
                 onEachFeature: function (feature, layer) {
                     const record = damageLossRecordForFeature(feature);
@@ -559,13 +612,18 @@
             ? track.damage_loss_records
             : [];
         selectedDamageLossRecords = new Map();
+        selectedDamageLossRecordsByName = new Map();
         records.forEach(function (record) {
-            [record.psgc_code, record.correspondence_code]
+            [record.psgc_key, record.psgc_code, record.correspondence_code]
                 .map(normalizeMapCode)
                 .filter(Boolean)
                 .forEach(function (code) {
                     selectedDamageLossRecords.set(code, record);
                 });
+            const name = normalizeMapName(record.province_name);
+            if (name) {
+                selectedDamageLossRecordsByName.set(name, record);
+            }
         });
         damageLossLegendScale = createDamageLossLegendScale(records);
         refreshDamageLossLayer();
@@ -573,6 +631,7 @@
 
     function clearDamageLossRecords() {
         selectedDamageLossRecords = new Map();
+        selectedDamageLossRecordsByName = new Map();
         damageLossLegendScale = null;
         removeDamageLossLayer();
         removeDamageLossLegend();
@@ -1006,27 +1065,37 @@
     ])
         .then(function ([outlineGeojson, provinceGeojson]) {
             if (outlineGeojson) {
-                L.geoJSON(outlineGeojson, {
-                    interactive: false,
-                    pane: "tc-outline",
-                    style: {
-                        color: "#94a3b8",
-                        fillColor: "#ffffff",
-                        fillOpacity: 1,
-                        weight: 1
-                    }
-                }).addTo(map);
+                const sharedLandmassLayer = (
+                    administrativeBaseMap?.createLandmassLayer?.({
+                        map: map,
+                        geojson: outlineGeojson
+                    })
+                );
+                if (!sharedLandmassLayer) {
+                    L.geoJSON(outlineGeojson, {
+                        interactive: false,
+                        pane: "tc-outline",
+                        style: function () {
+                            return {
+                                color: mapAppearance?.boundaryOutlineColor || "#fcfcfa",
+                                fill: true,
+                                fillColor: "#ffffff",
+                                fillOpacity: 1,
+                                opacity: 0.72,
+                                weight: 0.65,
+                                smoothFactor: 0.25
+                            };
+                        }
+                    }).addTo(map);
+                }
             }
             if (provinceGeojson) {
                 damageLossGeojson = provinceGeojson;
                 const provinceLayer = L.geoJSON(provinceGeojson, {
                     interactive: false,
                     pane: "tc-boundaries",
-                    style: {
-                        color: "#ffffff",
-                        fillColor: "#eff6f7",
-                        fillOpacity: 0.72,
-                        weight: 0.7
+                    style: function () {
+                        return dashboardProvinceStyle(null, false);
                     }
                 }).addTo(map);
                 philippinesBounds = provinceLayer.getBounds();

@@ -83,10 +83,6 @@ html, body {
     outline-offset: var(--focus-ring-offset);
 }
 
-[x-cloak] {
-    display: none !important;
-}
-
 [data-page-body] {
     scrollbar-gutter: auto;
 }
@@ -635,3 +631,31 @@ label, .important-label, strong {
 }
 
 /* Global toast stacking layer — END */
+
+/* Shared native confirmation dialog. Keep destructive prompts compact and
+   centered instead of allowing long messages to expand the dialog edge to
+   edge. */
+.confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 5000;
+    box-sizing: border-box;
+    width: min(calc(100% - 2rem), 32rem);
+    max-width: 32rem;
+    max-height: calc(100vh - 2rem);
+    margin: 0;
+    transform: translate(-50%, -50%);
+    overflow: auto;
+}
+
+.confirm-dialog::backdrop {
+    background: rgb(24 24 27 / 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.confirm-dialog:not([open]) {
+    display: none;
+}
+
+/* Shared native confirmation dialog — END */

@@ -25,12 +25,24 @@ DATE_MODES = {
 ANNUAL_ANALYSIS_FIXED_EXCLUDED_YEARS = frozenset({1998})
 
 
-def annual_analysis_excluded_years(current_year: int | None = None) -> frozenset[int]:
-    """Return years omitted from complete-year averages for this request."""
+def annual_analysis_excluded_years(
+    current_year: int | None = None,
+    *,
+    include_el_nino_1998: bool = False,
+) -> frozenset[int]:
+    """Return years omitted from complete-year averages for this request.
+
+    The retained 1998 record is available to El Niño-specific analyses while
+    remaining excluded from general historical averages.
+    """
     resolved_year = (
         timezone.now().year if current_year is None else int(current_year)
     )
-    return frozenset((*ANNUAL_ANALYSIS_FIXED_EXCLUDED_YEARS, resolved_year))
+    excluded = set(ANNUAL_ANALYSIS_FIXED_EXCLUDED_YEARS)
+    if include_el_nino_1998:
+        excluded.discard(1998)
+    excluded.add(resolved_year)
+    return frozenset(excluded)
 
 
 # Backwards-compatible snapshot for callers that still import the old name.

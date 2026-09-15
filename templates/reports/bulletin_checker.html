@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Bulletin Checker | DCIO Data Studio{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/bulletin_checker.css' %}?v=20260914-tables-v14">
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+{% endblock %}
+{% block page_body_spacing_class %}analytics-workspace-page-body p-0{% endblock %}
+{% block page_body_inner_class %}max-w-none h-full{% endblock %}
+{% block breadcrumbs %}<span>Bulletin Checker</span>{% endblock %}
+{% block content %}
+<div class="bulletin-workspace">
+    <header class="bulletin-toolbar ui-main-card">
+        <div><h1 class="module-page-title">Bulletin Checker</h1></div>
+        <form method="post" enctype="multipart/form-data" data-bulletin-source-form>
+            {% csrf_token %}
+            <input type="hidden" id="bulletin-source-mode" name="source_mode" value="{{ form.source_mode.value|default:'existing' }}">
+            <div class="bulletin-source-grid">
+                <fieldset class="bulletin-source-card" data-bulletin-source-card="existing">
+                    <legend class="ui-label">Existing incident</legend>
+                    <span class="ui-select-wrap block">
+                        <select id="id_incident" name="incident" aria-label="Select an existing incident" class="ui-control ui-select">
+                            <option value="">Select an incident</option>
+                            {% for incident in incidents %}<option value="{{ incident.pk }}" data-incident-name="{{ incident.incident_name }}" {% if selected_incident.pk == incident.pk %}selected{% endif %}>{{ incident.incident_name }} · {{ incident.incident_start_date|date:'Y'|default:'Undated' }}</option>{% endfor %}
+                        </select>
+                        <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                    </span>
+                    {% if form.incident.errors %}<p class="bulletin-form-error">{{ form.incident.errors.0 }}</p>{% endif %}
+                </fieldset>
+                <fieldset class="bulletin-source-card" data-bulletin-source-card="external">
+                    <legend class="ui-label">Temporary external CSV</legend>
+                    <input type="file" id="id_csv_file" name="csv_file" accept=".csv,text/csv" aria-label="Upload a temporary damage report CSV" class="ui-control">
+                    {% if form.csv_file.errors %}<p class="bulletin-form-error">{{ form.csv_file.errors.0 }}</p>{% endif %}
+                </fieldset>
+            </div>
+            <div class="bulletin-metadata-grid">
+                <label><span class="ui-label">Bulletin title</span><input class="ui-control" type="text" name="bulletin_title" maxlength="200" value="{{ bulletin_title }}" placeholder="Bulletin title" autocomplete="off"></label>
+                <div class="bulletin-number-field">
+                    <div class="bulletin-number-label-row">
+                        <span class="ui-label">Bulletin No.</span>
+                        <label class="bulletin-final-toggle">
+                            <span>Final</span>
+                            <input type="checkbox" name="bulletin_final" value="1" {% if bulletin_final %}checked{% endif %} aria-controls="id_bulletin_number">
+                            <span class="bulletin-final-toggle__track" aria-hidden="true"></span>
+                        </label>
+                    </div>
+                    <input id="id_bulletin_number" class="ui-control" type="text" name="bulletin_number" maxlength="30" value="{{ bulletin_number|default:'01' }}" placeholder="01" autocomplete="off" {% if bulletin_final %}disabled{% endif %}>
+                </div>
+                <label><span class="ui-label">Bulletin as of</span><input class="ui-control" type="text" name="bulletin_as_of" maxlength="120" value="{{ bulletin_as_of }}" placeholder="September 05, 2026" autocomplete="off"></label>
+                <label><span class="ui-label">Bulletin time</span><input class="ui-control" type="time" name="bulletin_time" value="{{ bulletin_time }}" min="00:00" max="23:00" step="3600"></label>
+            </div>
+            <div class="bulletin-actions"><button type="submit" class="ui-button ui-button--primary">Preview selected source</button></div>
+        </form>
+        {% if selection_error %}<p role="alert">{{ selection_error }}</p>{% endif %}
+    </header>
+    <div class="bulletin-preview-column">
+    {% if bulletin and bulletin.has_reports %}
+    <div class="bulletin-preview-stage">
+        <details class="bulletin-page-menu">
+            <summary><span class="bulletin-page-menu__icon" aria-hidden="true">☰</span><span>Pages</span></summary>
+            <nav class="bulletin-page-menu__panel" aria-label="Bulletin pages">
+                <div class="bulletin-page-menu__group">
+                    <span class="bulletin-page-menu__heading">Bulletin</span>
+                    <a href="#bulletin-cover"><span>Cover</span></a>
+                    <a href="#bulletin-summary"><span>Overview</span></a>
+                    {% for page in bulletin.pages %}<a href="#bulletin-page-{{ forloop.counter }}"><span>{{ page.label }}</span></a>{% endfor %}
+                </div>
+                {% if bulletin.table_pages %}
+                <div class="bulletin-page-menu__group">
+                    <span class="bulletin-page-menu__heading">Commodity tables</span>
+                    {% for table in bulletin.table_pages %}{% if not table.region_tables %}<a href="#bulletin-table-{{ forloop.counter }}"><span>{{ table.nav_label }}</span></a>{% endif %}{% endfor %}
+                </div>
+                <div class="bulletin-page-menu__group">
+                    <span class="bulletin-page-menu__heading">Location tables</span>
+                    {% for table in bulletin.table_pages %}{% if table.region_tables %}<a href="#bulletin-table-{{ forloop.counter }}"><span>{{ table.nav_label }}</span></a>{% endif %}{% endfor %}
+                </div>
+                {% endif %}
+            </nav>
+        </details>
+        <div class="bulletin-scroll" tabindex="0" role="region" aria-label="Scrollable square bulletin previews">
+        <article class="bulletin-sheet bulletin-cover" id="bulletin-cover">
+            <div class="bulletin-brand">
+                <div class="bulletin-brand-logos">
+                    <img class="bulletin-brand-logo bulletin-brand-logo--bagong" src="{% static 'images/bagong-pilipinas.jpeg' %}" alt="Bagong Pilipinas logo">
+                    <img class="bulletin-brand-logo bulletin-brand-logo--da" src="{% static 'images/da-seal.png' %}" alt="Department of Agriculture seal">
+                </div>
+                <div class="bulletin-brand-title"><strong>DEPARTMENT OF AGRICULTURE</strong><span>Disaster Risk Reduction and Management Section</span></div>
+            </div>
+            <p class="bulletin-cover-edition">DA DRRM Operations Center<br>{% if bulletin_final %}Final Bulletin{% else %}Bulletin No. {{ bulletin_number }}{% endif %}</p>
+            <h2>{{ bulletin_title }}</h2>
+            <p class="bulletin-cover-as-of">{{ bulletin_display_as_of }}</p>
+            <address class="bulletin-contact">Elliptical Road, Quezon City<br>@dadrrmopcen<br>drrmopcen@mail.da.gov.ph<br>(02) 8929-0140</address>
+        </article>
+        <article class="bulletin-sheet bulletin-summary" id="bulletin-summary">
+            <header class="bulletin-sheet-header"><div class="bulletin-sheet-masthead"><img src="{% static 'images/bagong-pilipinas.jpeg' %}" alt="Bagong Pilipinas logo"><strong>DEPARTMENT OF AGRICULTURE<span>DRRM OPERATIONS CENTER</span></strong><img src="{% static 'images/da-seal.png' %}" alt="Department of Agriculture seal"></div><div class="bulletin-incident-line"><div class="bulletin-incident-label{% if bulletin_final %} bulletin-incident-label--final{% endif %}">{% if bulletin_final %}<b>FINAL</b><strong>BULLETIN</strong>{% else %}<b>BULLETIN</b><strong>NO. {{ bulletin_number }}</strong>{% endif %}</div><div class="bulletin-incident-details"><span>{{ bulletin_title }}</span><small>{{ bulletin_display_as_of }}</small></div></div></header>
+            <h2>DAMAGE AND LOSSES</h2><p class="bulletin-subtitle">Total Value Loss (PHP) by Commodity</p>
+            <div class="bulletin-doughnut"><canvas id="bulletin-composition" aria-label="Commodity value loss distribution" role="img"></canvas></div>
+            <div class="bulletin-shares">{% for page in bulletin.pages %}<span>{{ page.label }} <b>{% if page.share != None %}{{ page.share|floatformat:2 }}%{% else %}Not available{% endif %}</b></span>{% endfor %}</div>
+            <div class="bulletin-kpis">{% for card in bulletin.cards %}<div class="bulletin-metric" data-metric="{{ card.key }}" title="{{ card.display }}{% if card.incomplete %} · Some reports have no value{% endif %}"><span class="bulletin-metric-icon" aria-hidden="true"></span><strong><span class="bulletin-number">{{ card.number }}</span> <span class="bulletin-unit">{{ card.unit }}</span></strong><span class="bulletin-metric-label">{{ card.label }}</span></div>{% endfor %}</div>
+            {% if bulletin.breakdown %}<div class="bulletin-damage-breakdown bulletin-overview-breakdown">{% for item in bulletin.breakdown %}<div title="{{ item.display }}"><strong>{{ item.number }} <span>ha{% if item.percentage != None %} ({{ item.percentage|floatformat:2 }}%){% endif %}</span></strong><span>{% if item.key == "partial" %}Partially Damaged{% else %}Totally Damaged{% endif %}</span></div>{% endfor %}</div>{% endif %}
+        </article>
+        {% for page in bulletin.pages %}
+        <article class="bulletin-sheet" id="bulletin-page-{{ forloop.counter }}">
+            <header class="bulletin-sheet-header"><div class="bulletin-sheet-masthead"><img src="{% static 'images/bagong-pilipinas.jpeg' %}" alt="Bagong Pilipinas logo"><strong>DEPARTMENT OF AGRICULTURE<span>DRRM OPERATIONS CENTER</span></strong><img src="{% static 'images/da-seal.png' %}" alt="Department of Agriculture seal"></div><div class="bulletin-incident-line"><div class="bulletin-incident-label{% if bulletin_final %} bulletin-incident-label--final{% endif %}">{% if bulletin_final %}<b>FINAL</b><strong>BULLETIN</strong>{% else %}<b>BULLETIN</b><strong>NO. {{ bulletin_number }}</strong>{% endif %}</div><div class="bulletin-incident-details"><span>{{ bulletin_title }}</span><small>{{ bulletin_display_as_of }}</small></div></div></header>
+            <h2>DAMAGE AND LOSSES</h2>
+            <div class="bulletin-detail">
+                <div class="bulletin-map-panel">
+                    <div class="bulletin-map-frame">
+                        <div class="bulletin-affected-areas"><b>Affected Areas</b><ul>{% for area in page.map.provinces %}{% if area.value_loss > 0 %}<li>{{ area.province_name }}</li>{% endif %}{% endfor %}</ul></div>
+                        <div id="bulletin-map-{{ forloop.counter0 }}" class="bulletin-map" data-map-root aria-label="{{ page.label }} reported value loss by province or HUC"></div>
+                        <div data-map-coordinate-labels class="add-map-coordinate-labels" aria-hidden="true"></div>
+                        <div data-map-cartography class="bulletin-map-cartography" aria-label="Map orientation and scale">
+                            <div data-map-north-arrow class="bulletin-map-north-arrow" role="img" aria-label="North arrow">
+                                <span>N</span>
+                                <svg viewBox="0 0 64 76" fill="none" aria-hidden="true">
+                                    <circle cx="32" cy="43" r="23" stroke="#ffffff" stroke-width="3"></circle>
+                                    <path d="M32 5 53 68 32 53 11 68 32 5Z" fill="currentColor" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"></path>
+                                    <path d="M32 5V53L11 68 32 5Z" fill="#ffffff"></path>
+                                </svg>
+                            </div>
+                            <div class="add-map-scale-host bulletin-map-scale-host" aria-label="Metric map scale">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bulletin-commodity" data-commodity="{{ page.label }}"><h3>{{ page.heading }}</h3>{% if page.amef_breakdown %}<div class="bulletin-amef-breakdown">{% for item in page.amef_breakdown %}<section class="bulletin-amef-mini"><h4>{{ item.label }}</h4><div class="bulletin-metric" data-metric="value_loss" title="{{ item.card.display }}{% if item.card.incomplete %} · Some reports have no value{% endif %}"><span class="bulletin-metric-icon" aria-hidden="true"></span><strong><span class="bulletin-number">{{ item.card.number }}</span> <span class="bulletin-unit">{{ item.card.unit }}</span></strong><span class="bulletin-metric-label">{{ item.card.label }}</span></div></section>{% endfor %}</div>{% else %}<div class="bulletin-commodity-cards">{% for card in page.cards %}<div class="bulletin-card-group"><div class="bulletin-metric" data-metric="{{ card.key }}" title="{{ card.display }}{% if card.incomplete %} · Some reports have no value{% endif %}"><span class="bulletin-metric-icon" aria-hidden="true"></span><strong><span class="bulletin-number">{{ card.number }}</span> <span class="bulletin-unit">{{ card.unit }}</span></strong><span class="bulletin-metric-label">{{ card.label }}</span></div>{% if card.key == "area_affected" and page.breakdown %}<div class="bulletin-damage-breakdown">{% for item in page.breakdown %}<div title="{{ item.display }}"><strong>{{ item.number }} <span>ha{% if item.percentage != None %} ({{ item.percentage|floatformat:2 }}%){% endif %}</span></strong><span>{% if item.key == "partial" %}Partially Damaged{% else %}Totally Damaged{% endif %}</span></div>{% endfor %}</div>{% endif %}</div>{% endfor %}</div>{% endif %}</div>
+            </div>
+        </article>
+        {% endfor %}
+        {% for table in bulletin.table_pages %}
+        <article class="bulletin-sheet bulletin-table-page bulletin-table-page--{{ table.accent_key }}" id="bulletin-table-{{ forloop.counter }}">
+            {% if table.region_tables %}<div class="bulletin-region-table-stack">{% for region_table in table.region_tables %}{% include "partials/bulletin_table.html" with table=region_table only %}{% endfor %}</div>{% else %}{% include "partials/bulletin_table.html" with table=table only %}{% endif %}
+        </article>
+        {% endfor %}
+        </div>
+    </div>
+    {{ bulletin|json_script:'bulletin-data' }}
+    <div id="bulletin-assets" data-provinces-url="{% static 'geo/ph/provinces.geojson' %}" data-outline-url="{% static 'geo/ph/philippines_outline.geojson' %}"></div>
+    <script src="{% static 'vendor/chartjs/chart.umd.js' %}" defer></script>
+    <script src="{% static 'js/analytics/chart_presets.js' %}" defer></script>
+    <script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
+    <script src="{% static 'js/maps/map_legend_scale.js' %}" defer></script>
+    <script src="{% static 'js/maps/map_appearance.js' %}" defer></script>
+    <script src="{% static 'js/maps/map_administrative_base.js' %}" defer></script>
+    <script src="{% static 'js/map_coordinate_grid.js' %}" defer></script>
+    <script src="{% static 'js/analytics/bulletin_checker.js' %}?v=20260914-bulletin-v27" defer></script>
+    {% elif selected_incident %}<p class="bulletin-empty"><span>This incident has no active damage reports to preview.</span></p>
+    {% else %}<p class="bulletin-empty"><span>Select one incident or upload a validated temporary CSV to generate the cover, overview, and commodity map pages.</span></p>{% endif %}
+    </div>
+</div>
+<script src="{% static 'js/analytics/bulletin_checker_form.js' %}?v=20260914-final-toggle-v3" defer></script>
+{% endblock %}

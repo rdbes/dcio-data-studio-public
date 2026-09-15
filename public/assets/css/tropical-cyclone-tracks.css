@@ -181,14 +181,15 @@
     padding: 0.55rem 0.6rem;
     border: 0;
     border-radius: 0.75rem;
-    background: var(--map-ui-surface, rgba(255, 255, 255, 0.84));
+    /* Match Map Studio's transparent, blurred legend surface. */
+    background: transparent;
     box-shadow: none;
     color: var(--map-ui-text, #27272a);
     font-size: var(--type-caption-size);
     line-height: 1.15;
     pointer-events: none;
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(6px) saturate(1.04);
+    backdrop-filter: blur(6px) saturate(1.04);
 }
 
 .tc-tracks-map .add-map-legend__title,
