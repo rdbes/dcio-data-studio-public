@@ -7,6 +7,8 @@ from django.conf import settings
 from django.core.exceptions import DisallowedHost
 from django.http import HttpResponse, HttpResponseNotAllowed
 
+from reports.deployment_version import deployment_identity
+
 
 def public_context(request):
     return {
@@ -15,6 +17,7 @@ def public_context(request):
         "is_embedded": request.GET.get("embed") == "1",
         "can_manage_reports": False,
         "can_access_admin_link": False,
+        **deployment_identity(),
     }
 
 

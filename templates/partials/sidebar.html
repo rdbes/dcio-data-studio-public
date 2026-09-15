@@ -63,6 +63,14 @@
             </nav>
         {% endwith %}
 
+        <div
+            class="sidebar-build-version"
+            title="{{ deployment_environment }} · application v{{ app_version }} · code {{ deployment_code_version }} · data {{ deployment_data_version }}"
+            aria-label="Application version v{{ app_version }}, code {{ deployment_code_version }}, data {{ deployment_data_version }}"
+        >
+            v{{ app_version }} · {{ deployment_code_version }} · data {{ deployment_data_version }}
+        </div>
+
         {% if request.user.is_authenticated %}
             <div class="flex shrink-0 items-center gap-2 border-t border-zinc-800 px-3 py-3">
                 <span class="min-w-0 flex-1 truncate text-xs font-medium text-zinc-300" title="{{ request.user.get_username }}">
