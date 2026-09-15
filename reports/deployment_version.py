@@ -12,6 +12,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.db.models import Max
+from django.utils import timezone
 
 
 logger = logging.getLogger(__name__)
@@ -62,24 +63,33 @@ def _local_revision(base_dir: str) -> tuple[str, bool]:
     return _short_revision(revision), bool(dirty)
 
 
-def _local_data_is_newer_than_release(release: dict) -> bool:
+def _latest_local_data_update() -> datetime | None:
+    """Return the newest import update timestamp from the local database."""
+    try:
+        from reports.models import ImportBatch
+
+        return ImportBatch.objects.aggregate(
+            latest=Max("updated_at")
+        )["latest"]
+    except Exception:
+        logger.debug("Unable to read local database freshness.", exc_info=True)
+        return None
+
+
+def _local_data_is_newer_than_release(
+    release: dict, latest_update: datetime | None
+) -> bool:
     """Flag local database changes that are newer than the exported release."""
     generated_at = str(release.get("generated_at") or "").strip()
-    if not generated_at:
+    if not generated_at or latest_update is None:
         return False
     try:
         generated_timestamp = datetime.fromisoformat(generated_at)
-        from reports.models import ImportBatch
-
-        latest_update = ImportBatch.objects.aggregate(
-            latest=Max("updated_at")
-        )["latest"]
-    except (TypeError, ValueError, OSError):
+    except (TypeError, ValueError):
         return False
-    except Exception:
-        logger.debug("Unable to compare local database release freshness.", exc_info=True)
-        return False
-    return bool(latest_update and latest_update > generated_timestamp)
+    if generated_timestamp.tzinfo is None and latest_update.tzinfo is not None:
+        generated_timestamp = generated_timestamp.replace(tzinfo=latest_update.tzinfo)
+    return latest_update > generated_timestamp
 
 
 def deployment_identity() -> dict[str, object]:
@@ -107,7 +117,10 @@ def deployment_identity() -> dict[str, object]:
             or "local-db"
         )
         environment = "Local Django deployment"
-        data_is_dirty = _local_data_is_newer_than_release(release)
+        latest_update = _latest_local_data_update()
+        if latest_update:
+            data_version = timezone.localtime(latest_update).date().isoformat()
+        data_is_dirty = _local_data_is_newer_than_release(release, latest_update)
         dirty_reasons = []
         if code_is_dirty:
             dirty_reasons.append("uncommitted local code changes")
@@ -120,6 +133,9 @@ def deployment_identity() -> dict[str, object]:
         "app_version": APP_VERSION,
         "deployment_code_version": revision,
         "deployment_data_version": data_version,
+        "deployment_exported_data_version": str(
+            release.get("release_version") or data_version
+        ),
         "deployment_environment": environment,
         "deployment_is_dirty": is_dirty,
         "deployment_dirty_reason": dirty_reason,
