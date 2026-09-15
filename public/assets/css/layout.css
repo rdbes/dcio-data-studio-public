@@ -337,7 +337,7 @@
     flex: 0 0 auto;
     padding: 0.15rem 0.75rem 0.35rem;
     overflow: hidden;
-    color: #a1a1aa;
+    color: #c0c4cc;
     font-family: Inter, ui-sans-serif, system-ui, sans-serif;
     font-size: 0.58rem;
     font-weight: 500;
@@ -355,6 +355,10 @@
 [data-sidebar-shell] .sidebar-build-version span:last-child {
     flex: 0 0 auto;
     text-align: right;
+}
+
+[data-sidebar-shell] .sidebar-build-version--dirty {
+    color: #fca5a5;
 }
 
 [data-sidebar-shell] [aria-label="Signed-in user profile"] {

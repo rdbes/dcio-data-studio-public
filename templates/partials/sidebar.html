@@ -64,9 +64,9 @@
         {% endwith %}
 
         <div
-            class="sidebar-build-version"
-            title="{{ deployment_environment }} · application v{{ app_version }} · code {{ deployment_code_version }} · data {{ deployment_data_version }}"
-            aria-label="Application version v{{ app_version }}, code {{ deployment_code_version }}, data {{ deployment_data_version }}"
+            class="sidebar-build-version{% if deployment_is_dirty %} sidebar-build-version--dirty{% endif %}"
+            title="{{ deployment_environment }} · application v{{ app_version }} · code {{ deployment_code_version }} · data {{ deployment_data_version }}{% if deployment_is_dirty %} · uncommitted local changes{% endif %}"
+            aria-label="Application version v{{ app_version }}, code {{ deployment_code_version }}, data {{ deployment_data_version }}{% if deployment_is_dirty %}, uncommitted local changes{% endif %}"
         >
             <span>v{{ app_version }} · {{ deployment_code_version }}</span>
             <span>data as of {{ deployment_data_version }}</span>

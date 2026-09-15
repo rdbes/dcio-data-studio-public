@@ -30,10 +30,10 @@ def _read_json(path: Path) -> dict:
 
 
 @lru_cache(maxsize=1)
-def _local_revision(base_dir: str) -> str:
+def _local_revision(base_dir: str) -> tuple[str, bool]:
     configured = os.environ.get("APP_SOURCE_REVISION")
     if configured:
-        return _short_revision(configured)
+        return _short_revision(configured), False
 
     root = Path(base_dir)
     try:
@@ -52,8 +52,8 @@ def _local_revision(base_dir: str) -> str:
             text=True,
         ).stdout.strip()
     except (OSError, subprocess.SubprocessError):
-        return "unknown"
-    return f"{_short_revision(revision)}{'+dirty' if dirty else ''}"
+        return "unknown", False
+    return _short_revision(revision), bool(dirty)
 
 
 @lru_cache(maxsize=1)
@@ -68,8 +68,9 @@ def deployment_identity() -> dict[str, str]:
         revision = _short_revision(deployment.get("source_revision"))
         data_version = str(release.get("release_version") or "unknown")
         environment = "Vercel public deployment"
+        is_dirty = False
     else:
-        revision = _local_revision(str(base_dir))
+        revision, is_dirty = _local_revision(str(base_dir))
         configured_data_version = os.environ.get("APP_DATA_VERSION")
         release = _read_json(
             base_dir / "public_release" / "data" / "releases" / "current.json"
@@ -86,4 +87,5 @@ def deployment_identity() -> dict[str, str]:
         "deployment_code_version": revision,
         "deployment_data_version": data_version,
         "deployment_environment": environment,
+        "deployment_is_dirty": is_dirty,
     }
