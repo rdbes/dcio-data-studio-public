@@ -65,10 +65,10 @@
 
         <div
             class="sidebar-build-version{% if deployment_is_dirty %} sidebar-build-version--dirty{% endif %}"
-            title="{{ deployment_environment }} · application v{{ app_version }} · code {{ deployment_code_version }} · data as of {{ deployment_data_version }}{% if deployment_exported_data_version != deployment_data_version %} · exported release {{ deployment_exported_data_version }}{% endif %}{% if deployment_dirty_reason %} · {{ deployment_dirty_reason }}{% endif %}"
-            aria-label="Application version v{{ app_version }}, code {{ deployment_code_version }}, data {{ deployment_data_version }}{% if deployment_dirty_reason %}, {{ deployment_dirty_reason }}{% endif %}"
+            title="{{ deployment_environment }} · application v{{ app_version }}{% if not PUBLIC_RELEASE_RENDERER %} · code {{ deployment_code_version }}{% endif %} · data as of {{ deployment_data_version }}{% if deployment_exported_data_version != deployment_data_version %} · exported release {{ deployment_exported_data_version }}{% endif %}{% if deployment_dirty_reason %} · {{ deployment_dirty_reason }}{% endif %}"
+            aria-label="Application version v{{ app_version }}{% if not PUBLIC_RELEASE_RENDERER %}, code {{ deployment_code_version }}{% endif %}, data {{ deployment_data_version }}{% if deployment_dirty_reason %}, {{ deployment_dirty_reason }}{% endif %}"
         >
-            <span>v{{ app_version }} · {{ deployment_code_version }}</span>
+            <span>v{{ app_version }}{% if not PUBLIC_RELEASE_RENDERER %} · {{ deployment_code_version }}{% endif %}</span>
             <span>data as of {{ deployment_data_version }}</span>
         </div>
 
