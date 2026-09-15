@@ -330,6 +330,10 @@
 
 /* Small deployment identity sits above the optional signed-in user card. */
 [data-sidebar-shell] .sidebar-build-version {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
     flex: 0 0 auto;
     padding: 0.15rem 0.75rem 0.35rem;
     overflow: hidden;
@@ -339,13 +343,18 @@
     font-weight: 500;
     letter-spacing: 0.01em;
     line-height: 1.2;
-    text-align: right;
-    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 [data-sidebar-shell] .sidebar-build-version span {
-    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+[data-sidebar-shell] .sidebar-build-version span:last-child {
+    flex: 0 0 auto;
+    text-align: right;
 }
 
 [data-sidebar-shell] [aria-label="Signed-in user profile"] {

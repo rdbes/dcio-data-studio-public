@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_revision": "cdfef77e51897bebacd4aaaeae356a82d701ff2c",
+  "source_revision": "a5c4be305e325c438f6c2c3cf8e98021f0b87f44",
   "release_sha256": "9e3cb0410d2341c59b05f45fbefd89a25e961a7076ea435da5626a473aa3805b",
   "files": {
     "api/index.py": "a198d56d84d7918e7321014149cb50d868644c43cf6bb038f295b1ebb9bc2835",
@@ -17,7 +17,7 @@
     "public/assets/css/auth.css": "dbfe3e0e1c5d74661a7c8cd72ea3971ff88d152e22c344409c2c5ae5022b566e",
     "public/assets/css/base.css": "f76eee37db74890ad2aeecc0c4535830865d78e681dba88358be9a5959caca21",
     "public/assets/css/bulletin_checker.css": "4c2c5e464cbd9d0e6f4e2f56e0d73246410707dc85b22ea33d6c29aa94a46875",
-    "public/assets/css/layout.css": "c8523b27200ce333465f833a63cd40cd8bab9f9a6d180be824ef47260f9c5e47",
+    "public/assets/css/layout.css": "4e0218284b983e24b26736eeff3034c0ecbb3e551dc3f168db136b6f1ae25f8b",
     "public/assets/css/reports.css": "a6e479f2f4f039621a0a211dc87a61734f55f86f9f8c6af151c77f4671a97a5b",
     "public/assets/css/tailwind.css": "bc8b9f6043f31311992593c0ae110621a8816ec0702f36fdd4fc23e15b0c64c4",
     "public/assets/css/tropical-cyclone-tracks.css": "9105e6a02808695ad7170045a57e08f788ddba025688610b6155b30dce7078c1",
@@ -87,7 +87,7 @@
     "public/assets/vendor/leaflet/leaflet.js": "db49d009c841f5ca34a888c96511ae936fd9f5533e90d8b2c4d57596f4e5641a",
     "public/data/releases/2026-09-13.json": "9e3cb0410d2341c59b05f45fbefd89a25e961a7076ea435da5626a473aa3805b",
     "public/data/releases/current.json": "f314ea1392eb5f3d7f9210ec71ccc497cfcffa53e43158ddd6dee174274d53b5",
-    "public-build.json": "a05240e2cffda3532589c42723c0d55d5f805ebed10ce87758fa080266e5b961",
+    "public-build.json": "087ac209d155c81e1de8a57b9c289d62427f934ce405d735b06b05a30a6bc6f3",
     "reports/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "reports/analytics/__init__.py": "8871e6621b7e7a83b8ed9e28676f9d367cb9ee84262ad7a9acd8d5bd6d13427b",
     "reports/analytics/filters.py": "367b2240de6ed0c7a68bc92d0b3342e2345120185161f8b9982b9c5e726d5403",
