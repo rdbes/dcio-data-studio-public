@@ -67,6 +67,7 @@ from reports.dashboard.aggregation import (
     report_observations,
     select_observations,
     summarize_observations,
+    subgroups_complete_for_selection,
     year_label,
 )
 from reports.dashboard.kpis import comparison_delta, previous_period_references
@@ -521,6 +522,18 @@ def analytics(request):
         "windows": windows, "filters": filters, "excluded_years": excluded_years,
         "multi_year": is_multi_year, "comparison_enabled": comparison["enabled"],
     }
+    selected_subgroup_rows = [
+        row for row in selected_observations
+        if row["commodity_key__level_3_group"]
+    ]
+    subgroup_completeness_by_metric = {
+        metric: subgroups_complete_for_selection(
+            selected_observations,
+            sorted(windows),
+            metric,
+        )
+        for metric in CHART_METRICS.values()
+    }
     chart_data = {
         "comparison": comparison,
         **build_chart_breakdowns(selected_observations, historical_observations, **chart_context),
@@ -531,7 +544,9 @@ def analytics(request):
         "is_multi_year": is_multi_year,
         "filter_context": filter_context,
         "selected_years": sorted(windows),
-        "has_subgroups": any(row["commodity_key__level_3_group"] for row in selected_observations),
+        "has_subgroups": bool(selected_subgroup_rows),
+        "subgroups_complete": subgroup_completeness_by_metric["value_loss"],
+        "subgroups_complete_by_metric": subgroup_completeness_by_metric,
     }
     quality_notes = [
         "Averages use years with reported values. Missing records and unavailable metrics are not zero; field presence does not establish complete reporting.",

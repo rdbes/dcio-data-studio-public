@@ -126,6 +126,43 @@ def nullable_sum(values):
     return sum(present, Decimal("0")) if present else None
 
 
+def subgroups_complete_for_selection(rows, selected_years=None, metric=None):
+    """Return whether every selected year is fully subgroup-disaggregated.
+
+    A parent commodity record without a level-3 subgroup means that the
+    selected period mixes detail levels. In that case a subgroup chart would
+    suggest a precision the source data does not provide, so callers should
+    render the parent commodity as one slice instead. When ``metric`` is
+    supplied, rows with no value for that metric are ignored because they do
+    not contribute to that chart.
+    """
+    if metric:
+        rows = [row for row in rows if row.get(metric) is not None]
+    if not rows:
+        return False
+
+    rows_by_year = defaultdict(list)
+    for row in rows:
+        analysis_date = row.get("analysis_date")
+        year = getattr(analysis_date, "year", None)
+        if year is not None:
+            rows_by_year[year].append(row)
+
+    expected_years = set(selected_years or rows_by_year)
+    if not expected_years:
+        return False
+
+    return all(
+        year in rows_by_year
+        and rows_by_year[year]
+        and all(
+            str(row.get("commodity_key__level_3_group") or "").strip()
+            for row in rows_by_year[year]
+        )
+        for year in expected_years
+    )
+
+
 def summarize_observations(rows, excluded_years=(), start_years=None):
     """Average only observed metric years; absence is never a zero year."""
     start_years = start_years or {}

@@ -275,17 +275,62 @@
             return null;
         }
 
-        return (
-            (province?.commodities || []).find(
-                function (commodity) {
-                    return String(
-                        commodity.label || ""
-                    ).trim().toLocaleLowerCase()
-                        === requested;
-                }
-            )
-            || null
+        const commodities = Array.isArray(province?.commodities)
+            ? province.commodities
+            : [];
+        const parent = commodities.find(function (commodity) {
+            return normalizeScopeName(commodity.label) === requested;
+        });
+        if (parent) {
+            return parent;
+        }
+
+        for (const commodity of commodities) {
+            const subgroup = (
+                Array.isArray(commodity.subgroups)
+                    ? commodity.subgroups
+                    : []
+            ).find(function (candidate) {
+                return normalizeScopeName(candidate.label) === requested;
+            });
+            if (subgroup) {
+                return {
+                    ...subgroup,
+                    label: subgroup.label,
+                    parentLabel: commodity.label
+                };
+            }
+        }
+
+        return null;
+    }
+
+    function hazardRowsForCommodity(area, commodityLabel) {
+        const selectedCommodity = String(commodityLabel || "").trim();
+        if (!selectedCommodity) {
+            return Array.isArray(area?.all) ? area.all : [];
+        }
+
+        const requested = normalizeScopeName(selectedCommodity);
+        const entry = Object.entries(area?.commodities || {}).find(
+            function ([label, rows]) {
+                return normalizeScopeName(label) === requested
+                    || (Array.isArray(rows) && rows.some(function (row) {
+                        return normalizeScopeName(row.subgroup) === requested;
+                    }));
+            }
         );
+        if (!entry) {
+            return [];
+        }
+
+        const rows = Array.isArray(entry[1]) ? entry[1] : [];
+        if (normalizeScopeName(entry[0]) === requested) {
+            return rows;
+        }
+        return rows.filter(function (row) {
+            return normalizeScopeName(row.subgroup) === requested;
+        });
     }
 
     function hazardForProvince(
@@ -310,22 +355,10 @@
             return null;
         }
 
-        const selectedCommodity = String(
-            commodityLabel || ""
-        ).trim();
-        let rows = area.all || [];
-        if (selectedCommodity) {
-            const commodityRows = Object.entries(
-                area.commodities || {}
-            ).find(function ([label]) {
-                return normalizeScopeName(label)
-                    === normalizeScopeName(selectedCommodity);
-            });
-            rows = commodityRows ? commodityRows[1] : [];
-        }
+        const rows = hazardRowsForCommodity(area, commodityLabel);
 
         return (
-            (Array.isArray(rows) ? rows : []).find(function (row) {
+            rows.find(function (row) {
                 return String(row.hazard_key || "").trim()
                     === requestedHazard;
             })
@@ -353,26 +386,75 @@
         const rows = [];
         Object.entries(area.commodities || {}).forEach(
             function ([label, hazardRows]) {
-                const hazardRow = (
+                const matchingRows = (
                     Array.isArray(hazardRows)
                         ? hazardRows
                         : []
-                ).find(function (row) {
+                ).filter(function (row) {
                     return String(row.hazard_key || "").trim()
                         === interactionState.hazardKey;
                 });
-                if (!hazardRow) {
+                if (!matchingRows.length) {
                     return;
                 }
-                rows.push({
+
+                const groupRow = {
                     label,
-                    value_loss: number(hazardRow.value_loss),
-                    volume_loss: number(hazardRow.volume_loss),
-                    area_affected: number(hazardRow.area_affected),
-                    affected_farmers: number(
-                        hazardRow.affected_farmers
-                    )
+                    value_loss: 0,
+                    volume_loss: 0,
+                    area_affected: 0,
+                    affected_farmers: 0,
+                    subgroups: [],
+                    subgroups_complete: false
+                };
+                const subgroupRows = matchingRows.filter(function (row) {
+                    return String(row.subgroup || "").trim();
                 });
+                const localSubgroupsComplete = (
+                    subgroupRows.length > 0
+                    && subgroupRows.length === matchingRows.length
+                );
+                const scopedCompleteness = (
+                    mapData.commodity_subgroups_complete
+                    && Object.prototype.hasOwnProperty.call(
+                        mapData.commodity_subgroups_complete,
+                        label
+                    )
+                )
+                    ? Boolean(mapData.commodity_subgroups_complete[label])
+                    : null;
+                groupRow.subgroups_complete = scopedCompleteness === null
+                    ? localSubgroupsComplete
+                    : scopedCompleteness && localSubgroupsComplete;
+                matchingRows.forEach(function (hazardRow) {
+                    groupRow.value_loss += number(hazardRow.value_loss);
+                    groupRow.volume_loss += number(hazardRow.volume_loss);
+                    groupRow.area_affected += number(hazardRow.area_affected);
+                    groupRow.affected_farmers += number(
+                        hazardRow.affected_farmers
+                    );
+                    const subgroup = String(
+                        hazardRow.subgroup || ""
+                    ).trim();
+                    if (!subgroup) {
+                        return;
+                    }
+                    groupRow.subgroups.push({
+                        label: subgroup,
+                        value_loss: number(hazardRow.value_loss),
+                        volume_loss: number(hazardRow.volume_loss),
+                        area_affected: number(hazardRow.area_affected),
+                        affected_farmers: number(
+                            hazardRow.affected_farmers
+                        )
+                    });
+                });
+                groupRow.subgroups.sort(function (left, right) {
+                    return number(right.value_loss)
+                        - number(left.value_loss)
+                        || left.label.localeCompare(right.label);
+                });
+                rows.push(groupRow);
             }
         );
         return rows;
@@ -946,17 +1028,19 @@
             const selectedCommodity = selectedCommodityLabel();
             unmappedCommodityRowsForScope()
                 .filter(function (row) {
-                    return (
-                        !selectedCommodity
-                        || normalizeScopeName(row.label)
-                            === normalizeScopeName(selectedCommodity)
+                    return Boolean(
+                        commodityMetricsForSelection(row, selectedCommodity)
                     );
                 })
                 .forEach(function (row) {
-                    summary.value += number(row.value_loss);
-                    summary.volume += number(row.volume_loss);
-                    summary.area += number(row.area_affected);
-                    summary.farmers += number(row.affected_farmers);
+                    const metrics = commodityMetricsForSelection(
+                        row,
+                        selectedCommodity
+                    );
+                    summary.value += number(metrics?.value_loss);
+                    summary.volume += number(metrics?.volume_loss);
+                    summary.area += number(metrics?.area_affected);
+                    summary.farmers += number(metrics?.affected_farmers);
                 });
         }
 
@@ -1279,6 +1363,20 @@
         });
     }
 
+    function commodityMetricsForSelection(row, selectedLabel) {
+        const requested = normalizeScopeName(selectedLabel);
+        if (!requested || normalizeScopeName(row?.label) === requested) {
+            return row;
+        }
+        return (
+            Array.isArray(row?.subgroups)
+                ? row.subgroups
+                : []
+        ).find(function (subgroup) {
+            return normalizeScopeName(subgroup.label) === requested;
+        }) || null;
+    }
+
     function accumulateCommodityRows(totals, commodities) {
         (commodities || []).forEach(function (commodity) {
             const label = String(
@@ -1291,8 +1389,14 @@
                 volume: 0,
                 area: 0,
                 members: [label],
-                interactive: true
+                interactive: true,
+                subgroups: [],
+                subgroups_complete: commodity.subgroups_complete !== false
             };
+            current.subgroups_complete = (
+                current.subgroups_complete
+                && commodity.subgroups_complete !== false
+            );
             current.value += number(
                 commodity.value_loss
             );
@@ -1302,7 +1406,132 @@
             current.area += number(
                 commodity.area_affected
             );
+            (Array.isArray(commodity.subgroups)
+                ? commodity.subgroups
+                : []
+            ).forEach(function (subgroup) {
+                const subgroupLabel = String(
+                    subgroup.label || ""
+                ).trim();
+                if (!subgroupLabel) {
+                    return;
+                }
+                let subgroupTotal = current.subgroups.find(
+                    function (existing) {
+                        return normalizeScopeName(existing.label)
+                            === normalizeScopeName(subgroupLabel);
+                    }
+                );
+                if (!subgroupTotal) {
+                    subgroupTotal = {
+                        label: subgroupLabel,
+                        value_loss: 0,
+                        volume_loss: 0,
+                        area_affected: 0,
+                        affected_farmers: 0
+                    };
+                    current.subgroups.push(subgroupTotal);
+                }
+                subgroupTotal.value_loss += number(subgroup.value_loss);
+                subgroupTotal.volume_loss += number(subgroup.volume_loss);
+                subgroupTotal.area_affected += number(subgroup.area_affected);
+                subgroupTotal.affected_farmers += number(
+                    subgroup.affected_farmers
+                );
+            });
             totals.set(label, current);
+        });
+    }
+
+    function subgroupChartRow(subgroup, parentLabel) {
+        return {
+            label: subgroup.label,
+            fullLabel: parentLabel + " · " + subgroup.label,
+            value: number(subgroup.value_loss),
+            volume: number(subgroup.volume_loss),
+            area: number(subgroup.area_affected),
+            members: [subgroup.label],
+            interactive: true,
+            parentLabel
+        };
+    }
+
+    function expandCommodityRow(row, metricKey) {
+        // A parent row can combine detailed subgroup records with legacy
+        // records that have no subgroup attribution. Keep it as one parent
+        // slice so the chart never invents an "Unspecified subgroup" slice.
+        const metricCompleteness = (
+            mapData.commodity_subgroups_complete_by_metric
+            && mapData.commodity_subgroups_complete_by_metric[metricKey]
+        );
+        const hasMetricCompleteness = (
+            metricCompleteness
+            && Object.prototype.hasOwnProperty.call(
+                metricCompleteness,
+                row.label
+            )
+        );
+        if (
+            hasMetricCompleteness
+                ? !metricCompleteness[row.label]
+                : row.subgroups_complete === false
+        ) {
+            return [row];
+        }
+
+        const metricField = {
+            value: "value_loss",
+            volume: "volume_loss",
+            area: "area_affected"
+        }[metricKey] || "value_loss";
+        const subgroups = (
+            Array.isArray(row.subgroups)
+                ? row.subgroups
+                : []
+        ).filter(function (subgroup) {
+            return number(subgroup[metricField]) > 0;
+        }).sort(function (left, right) {
+            return number(right[metricField])
+                - number(left[metricField])
+                || left.label.localeCompare(right.label);
+        });
+
+        if (!subgroups.length) {
+            return [row];
+        }
+
+        return subgroups.map(function (subgroup) {
+            return subgroupChartRow(subgroup, row.label);
+        });
+    }
+
+    function selectedCommodityRows(rows, metricKey, selectedLabel) {
+        const normalizedSelectedLabel = normalizeScopeName(selectedLabel);
+        const parent = rows.find(function (row) {
+            return normalizeScopeName(row.label)
+                === normalizedSelectedLabel;
+        });
+        if (parent) {
+            return expandCommodityRow(parent, metricKey);
+        }
+
+        for (const row of rows) {
+            const subgroup = (
+                Array.isArray(row.subgroups)
+                    ? row.subgroups
+                    : []
+            ).find(function (candidate) {
+                return normalizeScopeName(candidate.label)
+                    === normalizedSelectedLabel;
+            });
+            if (subgroup) {
+                return [subgroupChartRow(subgroup, row.label)];
+            }
+        }
+
+        return rows.filter(function (row) {
+            return normalizeScopeName(row.label)
+                === normalizedSelectedLabel;
         });
     }
 
@@ -1337,16 +1566,7 @@
         const selectedLabel = selectedCommodityLabel();
 
         if (selectedLabel) {
-            const normalizedSelectedLabel = (
-                normalizeScopeName(selectedLabel)
-            );
-
-            return rows.filter(function (row) {
-                return (
-                    normalizeScopeName(row.label)
-                    === normalizedSelectedLabel
-                );
-            });
+            return selectedCommodityRows(rows, metricKey, selectedLabel);
         }
 
         if (rows.length <= 6) {
@@ -1369,7 +1589,8 @@
                 volume: 0,
                 area: 0,
                 members: [],
-                interactive: false
+                interactive: false,
+                subgroups: []
             }
         );
 
@@ -1420,26 +1641,9 @@
             }
         }
 
-        const normalizedSelectedLabel = (
-            normalizeScopeName(selectedLabel)
-        );
-
-        return Array.from(totals.values())
+        const rows = Array.from(totals.values())
             .filter(function (row) {
-                if (
-                    number(row[metricKey]) <= 0
-                ) {
-                    return false;
-                }
-
-                if (!normalizedSelectedLabel) {
-                    return true;
-                }
-
-                return (
-                    normalizeScopeName(row.label)
-                    === normalizedSelectedLabel
-                );
+                return number(row[metricKey]) > 0;
             })
             .sort(function (left, right) {
                 return (
@@ -1450,6 +1654,10 @@
                     )
                 );
             });
+
+        return selectedLabel
+            ? selectedCommodityRows(rows, metricKey, selectedLabel)
+            : rows;
     }
 
     function hazardRows(metricKey) {
@@ -1510,15 +1718,9 @@
                 }
 
                 if (selectedCommodity) {
-                    const commodityRows = Object.entries(
-                        area.commodities || {}
-                    ).find(function ([label]) {
-                        return normalizeScopeName(label)
-                            === normalizeScopeName(selectedCommodity);
-                    });
                     appendRows(
                         scopedRows,
-                        commodityRows ? commodityRows[1] : []
+                        hazardRowsForCommodity(area, selectedCommodity)
                     );
                     return;
                 }
@@ -1529,10 +1731,17 @@
             if (!activeProvince()) {
                 let fallbackRows = unmappedCommodityRowsForScope();
                 if (selectedCommodity) {
-                    fallbackRows = fallbackRows.filter(function (row) {
-                        return normalizeScopeName(row.label)
-                            === normalizeScopeName(selectedCommodity);
-                    });
+                    fallbackRows = fallbackRows.reduce(function (rows, row) {
+                        const metrics = commodityMetricsForSelection(
+                            row,
+                            selectedCommodity
+                        );
+                        if (!metrics) {
+                            return rows;
+                        }
+                        rows.push(metrics === row ? row : {...row, ...metrics});
+                        return rows;
+                    }, []);
                 }
                 appendRows(scopedRows, fallbackRows);
             }
@@ -1760,7 +1969,15 @@
 
         text(
             elements.commodityTitle,
-            details.title + " by Commodity"
+            details.title
+                + " by "
+                + (
+                    rows.some(function (row) {
+                        return Boolean(row.parentLabel);
+                    })
+                        ? "Commodity Subgroup"
+                        : "Commodity"
+                )
         );
         text(
             elements.commoditySubtitle,

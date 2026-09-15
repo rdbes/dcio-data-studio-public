@@ -18,13 +18,22 @@
         return url.toString();
     }
 
-    function drillDown(href, dimension, value, years) {
+    function drillDown(href, dimension, value, years, parentValue) {
         if (!value) return href;
         if (dimension === "months") {
             return filterUrl(href, { date_mode: "month", years, months: [value] }, periodKeys);
         }
         if (dimension === "years") {
             return filterUrl(href, { date_mode: "month", years: [value], months: Array.from({length: 12}, (_, i) => i + 1) }, periodKeys);
+        }
+        if (dimension === "commodity_subgroup") {
+            const currentUrl = new URL(href);
+            const parent = parentValue || currentUrl.searchParams.get("commodity_group") || "";
+            const updates = {[dimension]: value};
+            if (parent) {
+                updates.commodity_group = parent;
+            }
+            return filterUrl(href, updates, ["commodity_subgroup"]);
         }
         const children = {region: ["province"], commodity_group: ["commodity_subgroup"]};
         return filterUrl(href, {[dimension]: value}, children[dimension] || []);

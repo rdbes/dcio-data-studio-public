@@ -34,10 +34,23 @@
                     <i class="fa-solid fa-triangle-exclamation sidebar-nav-icon sidebar-nav-icon--red" aria-hidden="true"></i>
                     <span>Incidents</span>
                 </a>
-                <a href="{% url 'reports:tropical_cyclone_tracks' %}" {% if current_view == 'tropical_cyclone_tracks' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'tropical_cyclone_tracks' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
-                    <i class="fa-solid fa-route sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
-                    <span>TC Tracks</span>
-                </a>
+                <details class="group" {% if current_view == 'tropical_cyclone_tracks' or current_view == 'tropical_cyclone_frequency' %}open{% endif %}>
+                    <summary class="flex cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150">
+                        <i class="fa-solid fa-hurricane sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
+                        <span>Tropical Cyclone</span>
+                        <i data-sidebar-chevron class="fa-solid fa-caret-right text-xs transition-transform" aria-hidden="true"></i>
+                    </summary>
+                    <div class="ml-5 border-l pl-2">
+                        <a href="{% url 'reports:tropical_cyclone_tracks' %}" {% if current_view == 'tropical_cyclone_tracks' %}aria-current="page"{% endif %} class="sidebar-submodule-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'tropical_cyclone_tracks' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                            <i class="fa-solid fa-route sidebar-submodule-icon" aria-hidden="true"></i>
+                            <span>TC Tracks</span>
+                        </a>
+                        <a href="{% url 'reports:tropical_cyclone_frequency' %}" {% if current_view == 'tropical_cyclone_frequency' %}aria-current="page"{% endif %} class="sidebar-submodule-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'tropical_cyclone_frequency' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                            <i class="fa-solid fa-chart-column sidebar-submodule-icon" aria-hidden="true"></i>
+                            <span>Frequency</span>
+                        </a>
+                    </div>
+                </details>
                 <div class="sidebar-bottom-nav">
                     <a href="{% url 'reports:bulletin_checker' %}" {% if current_view == 'bulletin_checker' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'bulletin_checker' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
                         <i class="fa-solid fa-file-lines sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>

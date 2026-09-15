@@ -14,6 +14,10 @@ from reports.models import (
 )
 
 TROPICAL_CYCLONE_HAZARD_KEY = "HZD_TROPICAL_CYCLONE"
+# Damage reporting and the public tropical-cyclone views share a 2001 start
+# year.  Older catalogue rows remain stored for provenance, but are outside
+# the reporting series shown to users.
+MIN_TROPICAL_CYCLONE_YEAR = 2001
 
 CYCLONE_NAME_ALIASES = {
     "Buchoy": "Butchoy",

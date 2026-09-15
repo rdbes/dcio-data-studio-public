@@ -12,12 +12,14 @@
     <script defer src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
     <script defer src="{% static 'js/maps/map_keyboard_navigation.js' %}?v=20260725a"></script>
     <script defer src="{% static 'js/map_browser_fullscreen.js' %}?v=20260825-map-control-popovers-v1"></script>
-<script defer src="{% static 'js/tropical_cyclone_tracks.js' %}?v=20260915-dashboard-map-style-v1"></script>
+<script defer src="{% static 'js/tropical_cyclone_tracks.js' %}?v=20260915-track-month-source-v2"></script>
 {% endblock %}
 
 {% block title %}Tropical Cyclone Tracks - DCIO Data Studio{% endblock %}
 
 {% block breadcrumbs %}
+<span>Tropical Cyclone</span>
+<span aria-hidden="true">/</span>
 <span class="text-zinc-900 font-semibold">TC Tracks</span>
 {% endblock %}
 
@@ -181,15 +183,15 @@
                                     class="tc-track-row{% if not track.point_count %} tc-track-row--unavailable{% endif %}"
                                     data-tc-track-row
                                     data-track-key="{{ track.track_key }}"
-                                    data-search-text="{{ track.cyclone_name }} {{ track.international_name }} {{ track.source_label }} {{ track.source_agency }} {{ track.occurrence_year }} {{ track.highest_strength }}{% if not track.point_count %} no track data{% endif %}{% if track.has_damage_report %} paired damage and losses report{% endif %}"
-                                    aria-label="{% if track.point_count %}Toggle {% if track.cyclone_name %}{{ track.cyclone_name }}{% else %}{{ track.international_name }}{% endif %} {{ track.occurrence_year }} track on map{% else %}{% if track.cyclone_name %}{{ track.cyclone_name }}{% else %}{{ track.international_name }}{% endif %} {{ track.occurrence_year }} has no track data{% endif %}"
+                                    data-search-text="{{ track.cyclone_name }} {{ track.international_name }} {{ track.source_short_label }} {{ track.occurrence_year }} {{ track.occurrence_month_label }} {{ track.highest_strength }}{% if not track.point_count %} no track data{% endif %}{% if track.has_combined_damage_report %} combined damage report{% elif track.has_damage_report %} paired damage and losses report{% endif %}"
+                                    aria-label="{% if track.point_count %}Toggle {% if track.cyclone_name %}{{ track.cyclone_name }}{% elif track.international_name %}&#123;{{ track.international_name }}&#125;{% else %}Unnamed Tropical Cyclone{% endif %} {{ track.occurrence_month_label }} {{ track.occurrence_year }} track from {{ track.source_short_label }} on map{% else %}{% if track.cyclone_name %}{{ track.cyclone_name }}{% elif track.international_name %}&#123;{{ track.international_name }}&#125;{% else %}Unnamed Tropical Cyclone{% endif %} {{ track.occurrence_month_label }} {{ track.occurrence_year }} has no track data{% endif %}"
                                     {% if not track.point_count %}disabled aria-disabled="true"{% endif %}
                                     aria-pressed="false"
                                 >
                                     <span class="tc-track-row__body">
                                         <strong class="tc-track-row__name">
                                             <span class="tc-track-row__swatch" data-intensity-level="{{ track.highest_strength_code }}" aria-hidden="true"></span>
-                                            <span>{% if track.cyclone_name %}{{ track.cyclone_name }}{% if track.international_name %} &#123;{{ track.international_name }}&#125;{% endif %}{% else %}{{ track.international_name|default:"Unnamed Tropical Cyclone" }}{% endif %}</span>
+                                            <span>{% if track.cyclone_name %}{{ track.cyclone_name }}{% if track.international_name %} &#123;{{ track.international_name }}&#125;{% endif %}{% elif track.international_name %}&#123;{{ track.international_name }}&#125;{% else %}Unnamed Tropical Cyclone{% endif %}</span>
                                         </strong>
                                         <span class="tc-track-row__badges">
                                             {% if track.point_count %}
@@ -198,16 +200,12 @@
                                                 <span class="tc-track-row__badge tc-track-row__badge--unlinked">No Track Data</span>
                                             {% endif %}
                                             {% if track.has_damage_report %}
-                                                <span class="tc-track-row__badge tc-track-row__badge--linked">With Damage Report</span>
+                                                <span class="tc-track-row__badge tc-track-row__badge--linked">{% if track.has_combined_damage_report %}With Combined Damage Report{% else %}With Damage Report{% endif %}</span>
                                             {% else %}
                                                 <span class="tc-track-row__badge tc-track-row__badge--unlinked">No Damage Report</span>
                                             {% endif %}
                                         </span>
-                                        {% if track.point_count %}
-                                            <span>{{ track.source_label }} · {{ track.source_agency }}</span>
-                                        {% else %}
-                                            <span>{{ track.catalog_source }} · No track points available</span>
-                                        {% endif %}
+                                        <span>{{ track.occurrence_month_label|default:"Unknown month" }} · {{ track.source_short_label }}</span>
                                     </span>
                                     {% if track.point_count %}
                                         <i class="fa-solid fa-eye-slash tc-track-row__visibility-icon" data-tc-track-visibility-icon aria-hidden="true" title="Show track on map"></i>

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tropical Cyclone Frequency - DCIO Data Studio{% endblock %}
+
+{% block breadcrumbs %}
+<span>Tropical Cyclone</span>
+<span aria-hidden="true">/</span>
+<span class="text-zinc-900 font-semibold">Frequency</span>
+{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-frequency.css' %}?v=20260916-frequency-v13">
+{% endblock %}
+
+{% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none h-full min-h-0{% endblock %}
+
+{% block content %}
+<section class="tc-frequency-page mx-auto flex w-full flex-col gap-4" data-tc-frequency-page aria-labelledby="tc-frequency-title">
+    <div class="tc-frequency-charts grid gap-4">
+        {% for key, option in frequency_modes.items %}
+            <section class="tc-frequency-chart-card tc-frequency-chart-card--{{ key }} rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6" aria-labelledby="{% if key == 'annual' %}tc-frequency-title{% else %}tc-frequency-{{ key }}-title{% endif %}">
+                <div class="tc-frequency-chart-card__heading mb-3 flex items-start justify-between gap-3">
+                    <div>
+                        {% if key == 'annual' %}
+                            <h1 id="tc-frequency-title" class="text-base font-semibold text-zinc-900 leading-tight">{{ option.title }}</h1>
+                        {% else %}
+                            <h2 id="tc-frequency-{{ key }}-title" class="text-base font-semibold text-zinc-900 leading-tight">{{ option.title }}</h2>
+                        {% endif %}
+                    </div>
+                    {% if key == 'annual' %}
+                        <button
+                            type="button"
+                            class="tc-frequency-switch"
+                            role="switch"
+                            aria-checked="false"
+                            aria-label="With Damage Reports"
+                            data-tc-frequency-toggle
+                        >
+                            <i data-tc-frequency-toggle-icon class="fa-solid fa-toggle-off tc-frequency-switch__icon" aria-hidden="true"></i>
+                            <span>With Damage Reports</span>
+                        </button>
+                    {% endif %}
+                </div>
+                <div class="tc-frequency-chart-wrap">
+                    <canvas id="tc-frequency-{{ key }}-chart" class="block h-full w-full" data-tc-frequency-chart="{{ key }}" aria-label="{{ option.title }} bar chart"></canvas>
+                </div>
+                {% if unknown_month_count and key != 'annual' %}
+                    <p class="mt-3 text-xs text-zinc-500">{{ unknown_month_count }} cyclone{{ unknown_month_count|pluralize }} without a resolvable occurrence month {{ unknown_month_count|pluralize:"was,were" }} omitted from the {{ option.label|lower }} counts.</p>
+                {% endif %}
+            </section>
+        {% endfor %}
+    </div>
+
+    <section class="tc-frequency-heatmap-card rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6" aria-labelledby="tc-frequency-heatmap-title">
+        <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
+            <h2 id="tc-frequency-heatmap-title" class="text-base font-semibold leading-tight text-zinc-900">Tropical Cyclone Heatmap</h2>
+            <div class="tc-frequency-heatmap-period" role="group" aria-label="Heatmap period">
+                <span class="ui-select-wrap block">
+                    <select id="tc-frequency-heatmap-period" name="heatmap_period" aria-label="Heatmap period" class="ui-control ui-select ui-select--compact" data-tc-frequency-heatmap-period>
+                        {% for option in damage_heatmap.period_options %}
+                            <option value="{{ option.value }}"{% if option.selected %} selected{% endif %}>{{ option.label }}</option>
+                        {% endfor %}
+                    </select>
+                    <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                </span>
+            </div>
+        </div>
+        <div class="tc-frequency-heatmap-legend" role="img" aria-label="Heatmap intensity legend">
+            <span class="tc-frequency-heatmap-legend__title">Average Annual Frequency</span>
+            <div class="tc-frequency-heatmap-legend__items">
+                {% for item in damage_heatmap.legend_levels %}
+                    <span class="tc-frequency-heatmap-legend__item" data-heatmap-legend-level="{{ item.level }}">
+                        <span class="tc-frequency-heatmap-legend__swatch" data-level="{{ item.level }}" data-heatmap-legend-label>{{ item.label }}</span>
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="tc-frequency-heatmap-wrap" tabindex="0" aria-label="Tropical Cyclone Heatmap by region and month">
+            <table class="tc-frequency-heatmap" data-tc-frequency-heatmap>
+                <caption class="sr-only">Tropical Cyclone Heatmap showing the historical annual average of tropical cyclones with damage reports by region and month.</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Region</th>
+                        {% for month in damage_heatmap.months %}
+                            <th scope="col">{{ month.label }}</th>
+                        {% endfor %}
+                        <th scope="col">Annual Avg.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in damage_heatmap.rows %}
+                        <tr data-heatmap-region="{{ row.region_name }}">
+                            <th scope="row">{{ row.region_name }}</th>
+                            {% for cell in row.cells %}
+                                <td data-heatmap-cell data-level="{{ cell.level }}" data-value="{{ cell.value|floatformat:1 }}">{% if cell.value %}{{ cell.value|floatformat:1 }}{% else %}-{% endif %}</td>
+                            {% endfor %}
+                            <td class="tc-frequency-heatmap__annual" data-value="{{ row.annual_average|floatformat:1 }}">{% if row.annual_average %}{{ row.annual_average|floatformat:1 }}{% else %}-{% endif %}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="14" class="tc-frequency-heatmap__empty">No damage-report cyclone data available.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="tc-frequency-climatology-card rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6" aria-labelledby="tc-frequency-climatology-title">
+        <div class="mb-3">
+            <h2 id="tc-frequency-climatology-title" class="text-base font-semibold leading-tight text-zinc-900">Tropical Cyclone Track Climatology</h2>
+            <p class="mt-1 text-xs font-medium text-zinc-400">Monthly climatology with actual tracks from 1948–2015</p>
+        </div>
+        <div class="tc-frequency-climatology-wrap">
+            <img
+                src="{% static 'images/tropical-cyclone-climatology/tropical-cyclone-climatology-4x3.png' %}?v=20260916-tc-climatology-composite-v1"
+                alt="Tropical Cyclone track climatology maps for January through December with actual tracks from 1948 to 2015"
+                class="tc-frequency-climatology-image"
+                loading="lazy"
+            >
+        </div>
+    </section>
+</section>
+
+{{ frequency_metric_charts|json_script:"tc-frequency-data" }}
+{{ damage_heatmap.periods|json_script:"tc-frequency-heatmap-data" }}
+<script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+<script src="{% static 'js/tropical_cyclone_frequency.js' %}?v=20260916-frequency-v35"></script>
+{% endblock %}

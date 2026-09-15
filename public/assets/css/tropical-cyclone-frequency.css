@@ -1,0 +1,290 @@
+.tc-frequency-page {
+    max-width: none;
+}
+
+.tc-frequency-chart-wrap {
+    position: relative;
+    height: 20rem;
+}
+
+.tc-frequency-chart-wrap canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.tc-frequency-chart-card--annual .tc-frequency-chart-wrap {
+    height: 27rem;
+}
+
+.tc-frequency-chart-card__heading {
+    flex-wrap: wrap;
+}
+
+.tc-frequency-switch {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0;
+    border: 0;
+    color: var(--chart-text-muted, #71717a);
+    background: transparent;
+    cursor: pointer;
+    font: 600 0.6875rem/1.1 Inter, sans-serif;
+    white-space: nowrap;
+}
+
+.tc-frequency-switch:hover,
+.tc-frequency-switch.is-active {
+    color: var(--color-text-strong, #27272a);
+}
+
+.tc-frequency-switch__icon {
+    color: var(--color-zinc-400, #a1a1aa);
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.tc-frequency-switch.is-active .tc-frequency-switch__icon {
+    color: var(--color-brand, #1f6f95);
+}
+
+.tc-frequency-switch:focus-visible {
+    outline: 2px solid var(--focus-ring-color, #1f6f95);
+    outline-offset: 1px;
+}
+
+.tc-frequency-heatmap-card {
+    min-width: 0;
+    --tc-frequency-heatmap-color: var(--data-hazard-tropical-cyclone, #68bbe3);
+}
+
+.tc-frequency-heatmap-period {
+    display: flex;
+    flex: 0 0 auto;
+    min-width: 8rem;
+    flex-direction: column;
+}
+
+.tc-frequency-heatmap-period .ui-select-wrap {
+    min-width: 8rem;
+}
+
+.tc-frequency-heatmap-legend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.875rem;
+    margin: -0.25rem 0 0.75rem;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.6875rem;
+}
+
+.tc-frequency-heatmap-legend__title {
+    color: var(--color-zinc-600, #52525b);
+    font-weight: 700;
+}
+
+.tc-frequency-heatmap-legend__items {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.375rem 0.75rem;
+}
+
+.tc-frequency-heatmap-legend__item {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.tc-frequency-heatmap-legend__swatch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.25rem;
+    min-width: 4.25rem;
+    height: 1.35rem;
+    padding: 0 0.25rem;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 0.3rem;
+    color: var(--data-hazard-tropical-cyclone-on, #10334a);
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+}
+
+.tc-frequency-heatmap-legend__swatch[data-level="0"] {
+    background: #fff;
+}
+
+.tc-frequency-heatmap-legend__swatch[data-level="1"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 12%, #fff);
+}
+
+.tc-frequency-heatmap-legend__swatch[data-level="2"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 28%, #fff);
+}
+
+.tc-frequency-heatmap-legend__swatch[data-level="3"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 45%, #fff);
+}
+
+.tc-frequency-heatmap-legend__swatch[data-level="4"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 62%, #fff);
+}
+
+.tc-frequency-heatmap-legend__swatch[data-level="5"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 80%, #fff);
+}
+
+.tc-frequency-heatmap-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 0.75rem;
+    outline: none;
+}
+
+.tc-frequency-heatmap-wrap:focus-visible {
+    outline: 2px solid var(--focus-ring-color, #1f6f95);
+    outline-offset: 2px;
+}
+
+.tc-frequency-heatmap {
+    --tc-frequency-heatmap-color: var(--data-hazard-tropical-cyclone, #68bbe3);
+    width: 100%;
+    min-width: 72rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--color-zinc-700, #3f3f46);
+    font-size: 0.75rem;
+}
+
+.tc-frequency-heatmap th,
+.tc-frequency-heatmap td {
+    height: 2.5rem;
+    padding: 0.5rem 0.625rem;
+    border-right: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-bottom: 1px solid var(--color-zinc-200, #e4e4e7);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.tc-frequency-heatmap tr > :last-child {
+    border-right: 0;
+}
+
+.tc-frequency-heatmap tbody tr:last-child > * {
+    border-bottom: 0;
+}
+
+.tc-frequency-heatmap thead th {
+    background: var(--color-zinc-50, #fafafa);
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tc-frequency-heatmap thead th:first-child,
+.tc-frequency-heatmap tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 9rem;
+    text-align: left;
+}
+
+.tc-frequency-heatmap thead th:first-child {
+    z-index: 3;
+    background: var(--color-zinc-50, #fafafa);
+}
+
+.tc-frequency-heatmap tbody th {
+    background: #fff;
+    color: var(--color-zinc-800, #27272a);
+    font-weight: 600;
+}
+
+.tc-frequency-heatmap tbody td {
+    color: var(--data-hazard-tropical-cyclone-on, #10334a);
+    font-variant-numeric: tabular-nums;
+}
+
+.tc-frequency-heatmap tbody td[data-level="0"] {
+    background: #fff;
+    color: var(--color-zinc-300, #d4d4d8);
+}
+
+.tc-frequency-heatmap tbody td[data-level="1"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 12%, #fff);
+}
+
+.tc-frequency-heatmap tbody td[data-level="2"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 28%, #fff);
+}
+
+.tc-frequency-heatmap tbody td[data-level="3"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 45%, #fff);
+}
+
+.tc-frequency-heatmap tbody td[data-level="4"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 62%, #fff);
+}
+
+.tc-frequency-heatmap tbody td[data-level="5"] {
+    background: color-mix(in srgb, var(--tc-frequency-heatmap-color) 80%, #fff);
+}
+
+.tc-frequency-heatmap__annual {
+    min-width: 6.5rem;
+    background: var(--color-stone-50, #fafaf9) !important;
+    color: var(--color-zinc-800, #27272a) !important;
+    font-weight: 700;
+}
+
+.tc-frequency-heatmap__empty {
+    height: 5rem !important;
+    color: var(--color-zinc-500, #71717a);
+    text-align: center !important;
+}
+
+.tc-frequency-climatology-card {
+    min-width: 0;
+}
+
+.tc-frequency-climatology-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 0.75rem;
+    background: #fff;
+}
+
+.tc-frequency-climatology-image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+@media (min-width: 64rem) {
+    .tc-frequency-charts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tc-frequency-chart-card--annual {
+        grid-column: 1 / -1;
+    }
+
+    .tc-frequency-chart-wrap {
+        height: 22rem;
+    }
+
+    .tc-frequency-chart-card--annual .tc-frequency-chart-wrap {
+        height: 30rem;
+    }
+}

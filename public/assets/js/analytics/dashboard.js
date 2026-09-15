@@ -382,7 +382,11 @@
     function drillDown(row) {
         if (!row?.filter_value) return;
         window.location.href = interactions.drillDown(
-            window.location.href, row.filter_key, row.filter_value, dashboardData.selected_years
+            window.location.href,
+            row.filter_key,
+            row.filter_value,
+            dashboardData.selected_years,
+            row.parent_filter_value
         );
     }
 
@@ -649,6 +653,22 @@
     const commodityMode = filterCtx.commodity_mode || "all";
 
     const hasSubgroups = Boolean(dashboardData.has_subgroups);
+    const subgroupsComplete = Boolean(dashboardData.subgroups_complete);
+    const subgroupCompletenessByMetric = (
+        dashboardData.subgroups_complete_by_metric || {}
+    );
+
+    function useCommoditySubgroupData(metric) {
+        const complete = Object.prototype.hasOwnProperty.call(
+            subgroupCompletenessByMetric,
+            metric
+        )
+            ? subgroupCompletenessByMetric[metric]
+            : subgroupsComplete;
+        return hasSubgroups
+            && Boolean(complete)
+            && (commodityMode === "group" || commodityMode === "subgroup");
+    }
 
     function pieComparisonTooltip(rows, context) {
         if (!comparisonEnabled) return [];
@@ -741,9 +761,7 @@
         };
     }
 
-    const useCommoditySubgroupData =
-        hasSubgroups && (commodityMode === "group" || commodityMode === "subgroup");
-    const initialCommoditySource = useCommoditySubgroupData
+    const initialCommoditySource = useCommoditySubgroupData("value")
         ? (dashboardData.subgroup_pie.value || [])
         : (dashboardData.commodity_pie.value || []);
     const commodityChart = chartPresets.createCommodityDoughnutChart({
@@ -1003,7 +1021,7 @@
             region: useProvinceData
                 ? (locationMode === "province" ? "Province" : "Province")
                 : "Region",
-            commodity: useCommoditySubgroupData ? "Commodity Subgroup" : "Commodity",
+            commodity: useCommoditySubgroupData(metric) ? "Commodity Subgroup" : "Commodity",
             hazard: "Hazard"
         };
         const dimension = dimensionMap[chartType] || "";
@@ -1051,7 +1069,9 @@
             return useProvinceData ? "Province" : "Region";
         }
         if (chartType === "commodity") {
-            return useCommoditySubgroupData ? "Commodity Subgroup" : "Commodity";
+            return useCommoditySubgroupData(
+                chartInstances.commodityPieChart?.activeMetric || "value"
+            ) ? "Commodity Subgroup" : "Commodity";
         }
         if (chartType === "monthly") {
             return "Month";
@@ -1388,7 +1408,7 @@
             const chart = chartInstances["commodityPieChart"];
             if (!chart) return;
             chart.activeMetric = metric;
-            const activeData = useCommoditySubgroupData
+            const activeData = useCommoditySubgroupData(metric)
                 ? (dashboardData.subgroup_pie[metric] || [])
                 : (dashboardData.commodity_pie[metric] || []);
             chart.activeCommodityData = activeData;

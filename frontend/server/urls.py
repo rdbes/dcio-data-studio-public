@@ -9,6 +9,7 @@ from reports.views.damage_losses import damage_losses_incident_options, dashboar
 from reports.views.dashboard import analytics
 from reports.views.incidents import hazard_incidents
 from reports.views.report_generation import report_generation
+from reports.views.tropical_cyclone_frequency import tropical_cyclone_frequency
 from reports.views.tropical_cyclone_tracks import tropical_cyclone_tracks
 
 public_patterns = [
@@ -18,6 +19,7 @@ public_patterns = [
     path("analytics/", require_safe(analytics), name="analytics"),
     path("incidents/", require_safe(hazard_incidents), name="hazard_incidents"),
     path("tropical-cyclone-tracks/", require_safe(tropical_cyclone_tracks), name="tropical_cyclone_tracks"),
+    path("tropical-cyclone-frequency/", require_safe(tropical_cyclone_frequency), name="tropical_cyclone_frequency"),
     path("report-generation/", require_safe(report_generation), name="report_generation"),
 ]
 urlpatterns = [

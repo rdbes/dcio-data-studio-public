@@ -270,7 +270,7 @@ def _damage_losses_discrete_period_selection(
     return discrete_period_selection(request, period, available_years)
 
 
-def _build_province_map_data(filtered_reports, metric_field):
+def _build_province_map_data(filtered_reports, metric_field, selected_years=None):
     base_map_data = build_province_reporting_area_totals(
         filtered_reports,
         metric_field,
@@ -281,18 +281,30 @@ def _build_province_map_data(filtered_reports, metric_field):
     # reporting-area query so chart drill-downs stay client-side and do not
     # issue a second request.
     commodity_rows = (
-        filtered_reports.values(
+        filtered_reports.annotate(
+            dashboard_analysis_year=ExtractYear(
+                damage_report_analysis_date_expression()
+            )
+        ).values(
             "location_psgc_key__province_huc_key__psgc_code",
             "location_psgc_key__province_huc_key__correspondence_code",
             "location_psgc_key__province_huc_name",
             "location_psgc_key__region_name",
             "commodity_key__main_sector",
             "commodity_key__level_2_group",
+            "commodity_key__level_3_group",
             "incident_key__hazard_key__hazard_key",
             "incident_key__hazard_key__hazard_category",
             "incident_key__hazard_key__hazard_type",
+            "dashboard_analysis_year",
         )
         .annotate(
+            dashboard_value_loss_reported=Count("value_loss_php"),
+            dashboard_volume_loss_reported=Count("production_loss_mt"),
+            dashboard_area_affected_reported=Count("area_affected_ha"),
+            dashboard_affected_farmers_reported=Count(
+                "affected_farmers_fisherfolk_count"
+            ),
             dashboard_value_loss=Sum("value_loss_php"),
             dashboard_volume_loss=Sum("production_loss_mt"),
             dashboard_area_affected=Sum("area_affected_ha"),
@@ -308,13 +320,96 @@ def _build_province_map_data(filtered_reports, metric_field):
     # no province/HUC mapping. Keep those rows available to the commodity
     # chart instead of silently dropping their value from the distribution.
     unmapped_commodities = {}
+    commodity_years = {}
+    metric_reported_aliases = {
+        "value": "dashboard_value_loss_reported",
+        "volume": "dashboard_volume_loss_reported",
+        "area": "dashboard_area_affected_reported",
+        "farmers": "dashboard_affected_farmers_reported",
+    }
+    commodity_metric_years = {
+        metric: {}
+        for metric in metric_reported_aliases
+    }
+    commodity_metric_unallocated_years = {
+        metric: {}
+        for metric in metric_reported_aliases
+    }
+    expected_years = {
+        int(year)
+        for year in (selected_years or [])
+        if str(year).strip().lstrip("-").isdigit()
+    }
 
-    def add_hazard_total(target, row, hazard_key, hazard_label):
+    def empty_metrics():
+        return {
+            "value_loss": 0.0,
+            "volume_loss": 0.0,
+            "area_affected": 0.0,
+            "affected_farmers": 0.0,
+        }
+
+    def add_metrics(target, row):
+        target["value_loss"] += float(
+            _number(row.get("dashboard_value_loss"))
+        )
+        target["volume_loss"] += float(
+            _number(row.get("dashboard_volume_loss"))
+        )
+        target["area_affected"] += float(
+            _number(row.get("dashboard_area_affected"))
+        )
+        target["affected_farmers"] += float(
+            _number(row.get("dashboard_affected_farmers"))
+        )
+
+    def serialize_commodity(label, metrics):
+        return {
+            "label": label,
+            "value_loss": metrics["value_loss"],
+            "volume_loss": metrics["volume_loss"],
+            "area_affected": metrics["area_affected"],
+            "affected_farmers": metrics["affected_farmers"],
+            "subgroups_complete": commodity_subgroups_complete.get(
+                label,
+                bool(
+                    metrics.get("subgroups")
+                    and not metrics.get("has_unallocated_subgroup")
+                ),
+            ),
+            "subgroups": [
+                {
+                    "label": subgroup_label,
+                    **subgroup_metrics,
+                }
+                for subgroup_label, subgroup_metrics in sorted(
+                    metrics.get("subgroups", {}).items(),
+                    key=lambda item: (
+                        -float(item[1]["value_loss"]),
+                        item[0].casefold(),
+                    ),
+                )
+            ],
+        }
+
+    def add_hazard_total(
+        target,
+        row,
+        hazard_key,
+        hazard_label,
+        subgroup_label="",
+    ):
+        storage_key = (
+            (hazard_key, subgroup_label)
+            if subgroup_label
+            else hazard_key
+        )
         hazard_totals = target.setdefault(
-            hazard_key,
+            storage_key,
             {
                 "label": hazard_label,
                 "hazard_key": hazard_key,
+                "subgroup": subgroup_label,
                 "affected_farmers": 0.0,
                 "area_affected": 0.0,
                 "volume_loss": 0.0,
@@ -366,6 +461,19 @@ def _build_province_map_data(filtered_reports, metric_field):
         if not commodity_label:
             continue
 
+        analysis_year = row.get("dashboard_analysis_year")
+        if analysis_year is not None:
+            analysis_year = int(analysis_year)
+            commodity_years.setdefault(commodity_label, set()).add(
+                analysis_year
+            )
+            for metric, reported_alias in metric_reported_aliases.items():
+                if row.get(reported_alias):
+                    commodity_metric_years[metric].setdefault(
+                        commodity_label,
+                        set(),
+                    ).add(analysis_year)
+
         hazard_key = str(
             row.get("incident_key__hazard_key__hazard_key") or ""
         ).strip()
@@ -394,20 +502,29 @@ def _build_province_map_data(filtered_reports, metric_field):
                     "volume_loss": 0.0,
                     "area_affected": 0.0,
                     "affected_farmers": 0.0,
+                    "subgroups": {},
+                    "has_unallocated_subgroup": False,
                 },
             )
-            fallback_totals["value_loss"] += float(
-                _number(row.get("dashboard_value_loss"))
-            )
-            fallback_totals["volume_loss"] += float(
-                _number(row.get("dashboard_volume_loss"))
-            )
-            fallback_totals["area_affected"] += float(
-                _number(row.get("dashboard_area_affected"))
-            )
-            fallback_totals["affected_farmers"] += float(
-                _number(row.get("dashboard_affected_farmers"))
-            )
+            add_metrics(fallback_totals, row)
+            subgroup_label = str(
+                row.get("commodity_key__level_3_group") or ""
+            ).strip()
+            if subgroup_label:
+                subgroup_totals = fallback_totals["subgroups"].setdefault(
+                    subgroup_label,
+                    empty_metrics(),
+                )
+                add_metrics(subgroup_totals, row)
+            else:
+                fallback_totals["has_unallocated_subgroup"] = True
+                if analysis_year is not None:
+                    for metric, reported_alias in metric_reported_aliases.items():
+                        if row.get(reported_alias):
+                            commodity_metric_unallocated_years[metric].setdefault(
+                                commodity_label,
+                                set(),
+                            ).add(analysis_year)
             continue
 
         area_commodities = commodity_by_area.setdefault(
@@ -421,20 +538,29 @@ def _build_province_map_data(filtered_reports, metric_field):
                 "volume_loss": 0.0,
                 "area_affected": 0.0,
                 "affected_farmers": 0.0,
+                "subgroups": {},
+                "has_unallocated_subgroup": False,
             },
         )
-        commodity_totals["value_loss"] += float(
-            _number(row.get("dashboard_value_loss"))
-        )
-        commodity_totals["volume_loss"] += float(
-            _number(row.get("dashboard_volume_loss"))
-        )
-        commodity_totals["area_affected"] += float(
-            _number(row.get("dashboard_area_affected"))
-        )
-        commodity_totals["affected_farmers"] += float(
-            _number(row.get("dashboard_affected_farmers"))
-        )
+        add_metrics(commodity_totals, row)
+        subgroup_label = str(
+            row.get("commodity_key__level_3_group") or ""
+        ).strip()
+        if subgroup_label:
+            subgroup_totals = commodity_totals["subgroups"].setdefault(
+                subgroup_label,
+                empty_metrics(),
+            )
+            add_metrics(subgroup_totals, row)
+        else:
+            commodity_totals["has_unallocated_subgroup"] = True
+            if analysis_year is not None:
+                for metric, reported_alias in metric_reported_aliases.items():
+                    if row.get(reported_alias):
+                        commodity_metric_unallocated_years[metric].setdefault(
+                            commodity_label,
+                            set(),
+                        ).add(analysis_year)
 
         if hazard_key:
             area_hazards = hazards_by_area.setdefault(
@@ -456,7 +582,21 @@ def _build_province_map_data(filtered_reports, metric_field):
                 row,
                 hazard_key,
                 hazard_label,
+                subgroup_label,
             )
+
+    if not expected_years:
+        expected_years = set().union(*commodity_years.values()) if commodity_years else set()
+    commodity_subgroups_complete_by_metric = {
+        metric: {
+            label: bool(years) and expected_years.issubset(years)
+            and not commodity_metric_unallocated_years[metric].get(label)
+            for label, years in commodity_metric_years[metric].items()
+        }
+        for metric in metric_reported_aliases
+    }
+    # Keep the original field as the default Value chart completeness flag.
+    commodity_subgroups_complete = commodity_subgroups_complete_by_metric["value"]
 
     for province in provinces:
         province_region = str(
@@ -476,10 +616,7 @@ def _build_province_map_data(filtered_reports, metric_field):
             province_area_key = "1300000000"
 
         province["commodities"] = [
-            {
-                "label": label,
-                **metrics,
-            }
+            serialize_commodity(label, metrics)
             for label, metrics in sorted(
                 commodity_by_area.get(
                     province_area_key,
@@ -516,8 +653,35 @@ def _build_province_map_data(filtered_reports, metric_field):
     return {
         "provinces": provinces,
         "max_metric_value": base_map_data["max_metric_value"],
+        "commodity_subgroups_complete": commodity_subgroups_complete,
+        "commodity_subgroups_complete_by_metric": commodity_subgroups_complete_by_metric,
         "unmapped_commodities": sorted(
-            unmapped_commodities.values(),
+            (
+                {
+                    **item,
+                    "subgroups_complete": commodity_subgroups_complete.get(
+                        item["label"],
+                        bool(
+                            item.get("subgroups")
+                            and not item.get("has_unallocated_subgroup")
+                        ),
+                    ),
+                    "subgroups": [
+                        {
+                            "label": subgroup_label,
+                            **subgroup_metrics,
+                        }
+                        for subgroup_label, subgroup_metrics in sorted(
+                            item.get("subgroups", {}).items(),
+                            key=lambda entry: (
+                                -float(entry[1]["value_loss"]),
+                                entry[0].casefold(),
+                            ),
+                        )
+                    ],
+                }
+                for item in unmapped_commodities.values()
+            ),
             key=lambda item: (
                 -float(item["value_loss"]),
                 str(item["label"]).casefold(),
@@ -1266,6 +1430,7 @@ def dashboard(request):
     map_data = _build_province_map_data(
         map_reports,
         metric_field,
+        selected_years=filters.get("selected_years"),
     )
     map_data["hazards"] = _build_hazard_chart_data(filtered_reports)
 

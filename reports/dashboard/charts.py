@@ -116,7 +116,22 @@ def build_dimension_chart(selected_rows, historical_rows, dimension, *, windows,
         stats = summarize_observations(selected, excluded_years, starts)
         is_composition = dimension in {"commodity_group", "commodity_subgroup", "hazard"}
         baseline = annual_reference(historical, excluded_years, starts)
-        item = {"label": label, "full_label": key or label, "filter_key": dimension, "filter_value": key}
+        parent_filter_value = ""
+        if dimension == "commodity_subgroup" and key:
+            parent_groups = {
+                commodity_group_from_row(row)
+                for row in selected + historical
+                if commodity_group_from_row(row)
+            }
+            if len(parent_groups) == 1:
+                parent_filter_value = next(iter(parent_groups))
+        item = {
+            "label": label,
+            "full_label": key or label,
+            "filter_key": dimension,
+            "filter_value": key,
+            "parent_filter_value": parent_filter_value,
+        }
         for chart_metric, metric in CHART_METRICS.items():
             stat, reference = stats[metric], baseline[metric]
             # Composition charts show actual selected-period totals. Regional
@@ -139,6 +154,7 @@ def composition_series(rows):
         metric_rows = [{
             "label": row["label"], "metric_value": row[chart_metric],
             "filter_key": row["filter_key"], "filter_value": row["filter_value"],
+            "parent_filter_value": row.get("parent_filter_value", ""),
             "comparison_metric_value": row[f"comparison_{chart_metric}"],
             "comparison_years": row[f"comparison_{chart_metric}_years"],
             "comparison_year_count": row[f"comparison_{chart_metric}_year_count"],

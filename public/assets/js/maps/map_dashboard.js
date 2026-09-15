@@ -375,11 +375,27 @@
         const normalizedSelected = normalizeName(
             selectedCommodity
         );
-        const commodity = (
-            provinceData?.commodities || []
-        ).find(function (item) {
+        const commodities = Array.isArray(provinceData?.commodities)
+            ? provinceData.commodities
+            : [];
+        let commodity = commodities.find(function (item) {
             return normalizeName(item?.label) === normalizedSelected;
         });
+        if (!commodity) {
+            for (const parent of commodities) {
+                const subgroup = (
+                    Array.isArray(parent?.subgroups)
+                        ? parent.subgroups
+                        : []
+                ).find(function (item) {
+                    return normalizeName(item?.label) === normalizedSelected;
+                });
+                if (subgroup) {
+                    commodity = subgroup;
+                    break;
+                }
+            }
+        }
 
         return commodity
             ? Number(

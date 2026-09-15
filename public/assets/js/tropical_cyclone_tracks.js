@@ -639,11 +639,19 @@
 
     function popupFor(track) {
         const pointCount = track.points.length.toLocaleString();
-        const source = escapeHtml(track.source_label);
-        const agency = escapeHtml(track.source_agency);
-        const cycloneName = track.cyclone_name || track.international_name || "Tropical Cyclone";
+        const source = escapeHtml(
+            track.source_short_label || track.source_label || "Unknown source"
+        );
+        const month = escapeHtml(
+            track.occurrence_month_label || "Unknown month"
+        );
+        const cycloneName = track.cyclone_name
+            ? escapeHtml(track.cyclone_name)
+            : track.international_name
+                ? `&#123;${escapeHtml(track.international_name)}&#125;`
+                : "Tropical Cyclone";
         const internationalName = track.cyclone_name && track.international_name
-            ? ` · ${escapeHtml(track.international_name)}`
+            ? ` &#123;${escapeHtml(track.international_name)}&#125;`
             : "";
         const intensity = track.peak_intensity
             ? `<br><strong>Peak intensity:</strong> ${escapeHtml(track.peak_intensity)}`
@@ -652,14 +660,14 @@
             ? `<br><strong>Highest strength:</strong> ${escapeHtml(track.highest_strength)}`
             : "";
         const damageReport = track.has_damage_report
-            ? "<br><strong>Damage &amp; Losses:</strong> Linked"
+            ? `<br><strong>Damage &amp; Losses:</strong> ${track.has_combined_damage_report ? "With Combined Damage Report" : "With Damage Report"}`
             : "<br><strong>Damage &amp; Losses:</strong> No linked report";
 
         return [
-            `<strong>${escapeHtml(cycloneName)}${internationalName}</strong>`,
+            `<strong>${cycloneName}${internationalName}</strong>`,
             `<br><strong>Year:</strong> ${track.occurrence_year}`,
+            `<br><strong>Month:</strong> ${month}`,
             `<br><strong>Source:</strong> ${source}`,
-            `<br><strong>Agency:</strong> ${agency}`,
             `<br><strong>Points:</strong> ${pointCount}`,
             intensity,
             highestStrength,
