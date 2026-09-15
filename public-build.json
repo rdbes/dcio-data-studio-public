@@ -228,7 +228,7 @@
     "templates/partials/toast.html": "1c82b44d678921229530f3b86974fffd495739288dc713e4098a4db56b327321",
     "templates/reports/bulletin_checker.html": "1ec1797ce643b1db7731914b2f52d5c116f53f7abbcb1f73ddb09940b799939c",
     "templates/reports/damage_losses.html": "29af2fb6045af588f10225c92613cfb4ea15f0000b0a413e30b547f174b6a14d",
-    "templates/reports/dashboard.html": "b4361a554586be5068e25e94fb82bb3edafa0e7e6397075befd7ca415b0f5916",
+    "templates/reports/dashboard.html": "62c0680da89c90b0c537185cf10dde0c35805c28f34a65caa9f9d73cfc0dc79f",
     "templates/reports/hazard_incidents.html": "06702730e73c657d522dd9a9f57901d6fe2214b6fbee40ed8ea108bc1eb2d427",
     "templates/reports/partials/report_preview_modal.html": "2170c8676cc9139f7bc3af78fac05a0ef0e60753ddb188fd7fed178eb0016061",
     "templates/reports/report_generation.html": "f22efd2e2f7c3794dbb55451a7dbed407302ced8c220d170f5acd0e7045eb5ec",

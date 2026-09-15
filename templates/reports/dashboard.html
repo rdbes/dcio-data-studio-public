@@ -320,14 +320,14 @@
                             <div class="analytics-kpi-context mt-2 space-y-1 text-xs font-normal text-zinc-500">
                                 {% if card.context.comparison_delta.label %}
                                     <span class="block min-w-0 text-left">
+                                        <span class="{% if card.context.comparison_delta.direction == 'increase' %}text-red-600{% elif card.context.comparison_delta.direction == 'decrease' %}text-green-600{% else %}text-zinc-500{% endif %}">{{ card.context.comparison_delta.label }}</span>
                                         <span>vs {{ card.context.comparison_label }}{% if card.context.comparison_basis_label %} {{ card.context.comparison_basis_label }}{% if card.context.comparison_window_years %} ({{ card.context.comparison_window_years }} years){% endif %}{% endif %}</span>
-                                        <span class="ml-2 {% if card.context.comparison_delta.direction == 'increase' %}text-red-600{% elif card.context.comparison_delta.direction == 'decrease' %}text-green-600{% else %}text-zinc-500{% endif %}">{{ card.context.comparison_delta.label }}</span>
                                     </span>
                                 {% endif %}
                                 {% if card.context.previous_year_delta.label %}
                                     <span class="block min-w-0 text-left">
+                                        <span class="{% if card.context.previous_year_delta.direction == 'increase' %}text-red-600{% elif card.context.previous_year_delta.direction == 'decrease' %}text-green-600{% else %}text-zinc-500{% endif %}">{{ card.context.previous_year_delta.label }}</span>
                                         <span>vs {{ card.context.previous_year|default:"—" }}</span>
-                                        <span class="ml-2 {% if card.context.previous_year_delta.direction == 'increase' %}text-red-600{% elif card.context.previous_year_delta.direction == 'decrease' %}text-green-600{% else %}text-zinc-500{% endif %}">{{ card.context.previous_year_delta.label }}</span>
                                     </span>
                                 {% endif %}
                             </div>
