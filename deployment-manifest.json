@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_revision": "be103a4",
+  "source_revision": "bb768be",
   "release_sha256": "206d04ee635bf7540853f288f88ddbf217de3691f72d006fb433d50fe1c54e20",
   "files": {
     "api/index.py": "a198d56d84d7918e7321014149cb50d868644c43cf6bb038f295b1ebb9bc2835",
@@ -90,7 +90,7 @@
     "public/assets/vendor/leaflet/leaflet.js": "db49d009c841f5ca34a888c96511ae936fd9f5533e90d8b2c4d57596f4e5641a",
     "public/data/releases/2026-09-15.json": "206d04ee635bf7540853f288f88ddbf217de3691f72d006fb433d50fe1c54e20",
     "public/data/releases/current.json": "3db7da220bfc5625a43255a0c9fb61573e8f7c933174dda9545aa039cec99c45",
-    "public-build.json": "e1c07561a1d5a041638129caa7b436aa694591bfb1d6353d3901c370d022fac2",
+    "public-build.json": "e2ab27dd2c5e5758ca5fc102232396ba8d65ba200ace3bbab4fafde2957e0212",
     "reports/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "reports/analytics/__init__.py": "8871e6621b7e7a83b8ed9e28676f9d367cb9ee84262ad7a9acd8d5bd6d13427b",
     "reports/analytics/filters.py": "367b2240de6ed0c7a68bc92d0b3342e2345120185161f8b9982b9c5e726d5403",
@@ -164,7 +164,7 @@
     "templates/partials/map_resize_menu.html": "9908b4b222b93614a54a0d1552402a9c9d65ea36054a8ede646d212944ffe6be",
     "templates/partials/quarterly_breakdown_card.html": "056a0e72f292b49913abf4da8c6c25c15d8a14aa17f9adb30ee6dae48c872df3",
     "templates/partials/section_card_header.html": "508332eea44c477af934e304d59366b45a6f90bfa1fdb356067a9d157bd59d85",
-    "templates/partials/sidebar.html": "5136e710fe61fdf9dd1021cba041f9bcd5e3343b85cba1c5258624ec1e4231c8",
+    "templates/partials/sidebar.html": "2dd69481160fe8da8e2df878ca29006c1d717232639ac6bcff881b5ca4fcb797",
     "templates/partials/toast.html": "1c82b44d678921229530f3b86974fffd495739288dc713e4098a4db56b327321",
     "templates/reports/bulletin_checker.html": "1398afb7c91533170617b38228acd4fd3348a0fc5db0f280114968c56bd3301a",
     "templates/reports/damage_losses.html": "a363d1149e6394c4fecc6006fd5a15b676d0ce6da66a39d441452a9061ddf3e2",

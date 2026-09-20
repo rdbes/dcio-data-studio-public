@@ -51,10 +51,12 @@
                         </a>
                     </div>
                 </details>
+                {% if LOCAL_MODE %}
                 <a href="{% url 'reports:crop_production' %}" {% if current_view == 'crop_production' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'crop_production' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
                     <i class="fa-solid fa-wheat-awn sidebar-nav-icon sidebar-nav-icon--green" aria-hidden="true"></i>
                     <span>Crop Production</span>
                 </a>
+                {% endif %}
                 <details class="sidebar-bottom-nav" {% if current_view == 'bulletin_checker' or current_view == 'report_generation' or current_view == 'upload_report' or current_view == 'data_libraries' or current_view == 'data_library_create' or current_view == 'data_library_edit' or current_view == 'data_library_delete' %}open{% endif %}>
                     <summary class="sidebar-bottom-nav__summary flex cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150" aria-label="Toggle additional navigation links">
                         <i class="fa-solid fa-ellipsis sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
