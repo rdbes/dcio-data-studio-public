@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Bulletin Checker | DCIO Data Studio{% endblock %}
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'css/bulletin_checker.css' %}?v=20260914-tables-v14">
+    <link rel="stylesheet" href="{% static 'css/bulletin_checker.css' %}?v=20260920-bulletin-responsive-v1">
 <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
 {% endblock %}
 {% block page_body_spacing_class %}analytics-workspace-page-body p-0{% endblock %}
@@ -137,7 +137,7 @@
     {{ bulletin|json_script:'bulletin-data' }}
     <div id="bulletin-assets" data-provinces-url="{% static 'geo/ph/provinces.geojson' %}" data-outline-url="{% static 'geo/ph/philippines_outline.geojson' %}"></div>
     <script src="{% static 'vendor/chartjs/chart.umd.js' %}" defer></script>
-    <script src="{% static 'js/analytics/chart_presets.js' %}" defer></script>
+    <script src="{% static 'js/analytics/chart_presets.js' %}?v=20260920-flat-axis-bars-v1" defer></script>
     <script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
     <script src="{% static 'js/maps/map_legend_scale.js' %}" defer></script>
     <script src="{% static 'js/maps/map_appearance.js' %}" defer></script>

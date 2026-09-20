@@ -1,6 +1,6 @@
 /* One application stylesheet entry point. Keep the files below ordered by
    responsibility: shell primitives, workspace layout, then components. */
-@import url("base.css?v=20260914-confirm-modal-v1");
-@import url("layout.css?v=20260915-sidebar-submodule-cards-v1");
-@import url("reports.css?v=20260915-incident-native-scroll-v1");
+@import url("base.css?v=20260916-sidebar-submodule-icons-v5");
+@import url("layout.css?v=20260916-sidebar-submodule-icons-v5");
+@import url("reports.css?v=20260920-responsive-v1");
 @import url("auth.css?v=20260906-consistent-form-fields-v15");

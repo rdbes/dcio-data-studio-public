@@ -11,7 +11,7 @@
 
 {% block extra_head %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-frequency.css' %}?v=20260916-frequency-v13">
+    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-frequency.css' %}?v=20260920-frequency-responsive-v1">
 {% endblock %}
 
 {% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
@@ -109,20 +109,6 @@
         </div>
     </section>
 
-    <section class="tc-frequency-climatology-card rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6" aria-labelledby="tc-frequency-climatology-title">
-        <div class="mb-3">
-            <h2 id="tc-frequency-climatology-title" class="text-base font-semibold leading-tight text-zinc-900">Tropical Cyclone Track Climatology</h2>
-            <p class="mt-1 text-xs font-medium text-zinc-400">Monthly climatology with actual tracks from 1948–2015</p>
-        </div>
-        <div class="tc-frequency-climatology-wrap">
-            <img
-                src="{% static 'images/tropical-cyclone-climatology/tropical-cyclone-climatology-4x3.png' %}?v=20260916-tc-climatology-composite-v1"
-                alt="Tropical Cyclone track climatology maps for January through December with actual tracks from 1948 to 2015"
-                class="tc-frequency-climatology-image"
-                loading="lazy"
-            >
-        </div>
-    </section>
 </section>
 
 {{ frequency_metric_charts|json_script:"tc-frequency-data" }}

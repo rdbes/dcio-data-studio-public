@@ -293,7 +293,12 @@
                             colorForAnnualTrend(trendType)
                         ),
                         borderWidth: hairlineWidth,
-                        borderRadius: 2,
+                        borderRadius: {
+                            topLeft: 2,
+                            topRight: 2,
+                            bottomLeft: 0,
+                            bottomRight: 0
+                        },
                         order: 1
                     },
                     {

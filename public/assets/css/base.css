@@ -362,27 +362,6 @@ label, .important-label, strong {
     font-weight: var(--font-weight-semibold) !important;
 }
 
-.sidebar-submodule-icon {
-    --sidebar-submodule-icon-color: var(--color-text-muted);
-    --sidebar-submodule-icon-active-color: var(--color-primary);
-    width: var(--icon-size-sm);
-    flex: 0 0 var(--icon-size-sm);
-    color: var(--sidebar-submodule-icon-color);
-    font-size: var(--type-caption-size);
-    text-align: center;
-    filter: none;
-    transition: color 150ms ease;
-}
-
-.sidebar-submodule-link[aria-current="page"]
-.sidebar-submodule-icon {
-    color:
-        var(
-            --sidebar-submodule-icon-active-color,
-            var(--sidebar-submodule-icon-color)
-        );
-}
-
 /* Responsive sidebar motion and layering — START */
 
 /*

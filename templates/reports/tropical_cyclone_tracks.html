@@ -4,7 +4,7 @@
 {% block extra_head %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
-    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-tracks.css' %}?v=20260909-map-legend-glass-v4">
+    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-tracks.css' %}?v=20260920-tracks-responsive-v1">
     <script defer src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
     <script defer src="{% static 'js/maps/map_appearance.js' %}?v=20260909-map-legend-glass-v3"></script>
     <script defer src="{% static 'js/maps/map_administrative_base.js' %}?v=20260810-ash-boundary-v1"></script>
@@ -99,11 +99,24 @@
                         >({{ paired_cyclone_count }}/{{ cyclone_count }})</span>
                     </div>
                 </div>
-                <label class="ui-search-field tc-tracks-search">
-                    <span class="sr-only">Search tracks</span>
-                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                    <input class="ui-search-field__input" type="search" placeholder="Search cyclone or source" data-tc-search>
-                </label>
+                <div class="tc-tracks-search-row">
+                    <label class="ui-search-field tc-tracks-search">
+                        <span class="sr-only">Search tracks</span>
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                        <input class="ui-search-field__input" type="search" placeholder="Search cyclone or source" data-tc-search>
+                    </label>
+                    <button
+                        type="button"
+                        class="ui-button ui-button--outline ui-button--small tc-tracks-climatology-trigger"
+                        data-dialog-open="tc-tracks-climatology-modal"
+                        aria-controls="tc-tracks-climatology-modal"
+                        aria-expanded="false"
+                        title="Open tropical cyclone track climatology"
+                    >
+                        <i class="fa-solid fa-map" aria-hidden="true"></i>
+                        <span>Climatology</span>
+                    </button>
+                </div>
             </div>
             <details
                 id="tc-track-filter-panel"
@@ -223,6 +236,41 @@
         </aside>
     </div>
 </section>
+
+<dialog
+    id="tc-tracks-climatology-modal"
+    aria-labelledby="tc-tracks-climatology-title"
+    class="tc-tracks-climatology-dialog fixed left-1/2 top-1/2 m-0 max-h-[90vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-0 shadow-2xl backdrop:bg-zinc-900/40"
+>
+    <div class="tc-tracks-climatology-dialog__shell">
+        <header class="tc-tracks-climatology-dialog__header">
+            <div class="min-w-0">
+                <h2 id="tc-tracks-climatology-title">Tropical Cyclone Track Climatology</h2>
+                <p>Monthly climatology with actual tracks from 1948–2015</p>
+            </div>
+            <button
+                type="button"
+                data-dialog-close
+                class="ui-icon-button shrink-0 cursor-pointer text-zinc-600"
+                aria-label="Close tropical cyclone track climatology"
+                title="Close"
+            >
+                <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+            </button>
+        </header>
+        <div class="tc-tracks-climatology-dialog__body">
+            <figure class="tc-tracks-climatology-figure">
+                <img
+                    src="{% static 'images/tropical-cyclone-climatology/tropical-cyclone-climatology-4x3.png' %}?v=20260916-tc-climatology-composite-v1"
+                    alt="Tropical Cyclone track climatology maps for January through December with actual tracks from 1948 to 2015"
+                    class="tc-tracks-climatology-image"
+                    loading="lazy"
+                >
+                <figcaption>Monthly track climatology for the Philippines, 1948–2015.</figcaption>
+            </figure>
+        </div>
+    </div>
+</dialog>
 
 {{ track_payload|json_script:"tc-track-data" }}
 <div hidden data-tc-map-config

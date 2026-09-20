@@ -57,7 +57,7 @@
 
 .tc-frequency-heatmap-card {
     min-width: 0;
-    --tc-frequency-heatmap-color: var(--data-hazard-tropical-cyclone, #68bbe3);
+    --tc-frequency-heatmap-color: var(--map-red-4, #de2d26);
 }
 
 .tc-frequency-heatmap-period {
@@ -155,7 +155,7 @@
 }
 
 .tc-frequency-heatmap {
-    --tc-frequency-heatmap-color: var(--data-hazard-tropical-cyclone, #68bbe3);
+    --tc-frequency-heatmap-color: var(--map-red-4, #de2d26);
     width: 100%;
     min-width: 72rem;
     border-collapse: separate;
@@ -254,23 +254,6 @@
     text-align: center !important;
 }
 
-.tc-frequency-climatology-card {
-    min-width: 0;
-}
-
-.tc-frequency-climatology-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--color-zinc-200, #e4e4e7);
-    border-radius: 0.75rem;
-    background: #fff;
-}
-
-.tc-frequency-climatology-image {
-    display: block;
-    width: 100%;
-    height: auto;
-}
-
 @media (min-width: 64rem) {
     .tc-frequency-charts {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -286,5 +269,101 @@
 
     .tc-frequency-chart-card--annual .tc-frequency-chart-wrap {
         height: 30rem;
+    }
+}
+
+/* Tablet and phone sizing: keep the three charts readable in one column and
+   leave the intentionally wide heatmap inside its own horizontal scroller. */
+@media (max-width: 63.999rem) {
+    .tc-frequency-chart-card,
+    .tc-frequency-heatmap-card {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .tc-frequency-chart-wrap {
+        height: 18rem;
+    }
+
+    .tc-frequency-chart-card--annual .tc-frequency-chart-wrap {
+        height: 24rem;
+    }
+
+    .tc-frequency-heatmap-legend {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .tc-frequency-heatmap-legend__items {
+        width: 100%;
+    }
+
+    .tc-frequency-heatmap-period {
+        width: min(100%, 12rem);
+    }
+
+    .tc-frequency-heatmap-period .ui-select-wrap,
+    .tc-frequency-heatmap-period .ui-select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .tc-frequency-chart-card,
+    .tc-frequency-heatmap-card {
+        padding: 0.875rem !important;
+        border-radius: 0.875rem;
+    }
+
+    .tc-frequency-chart-card__heading {
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .tc-frequency-chart-card__heading > div {
+        min-width: 0;
+    }
+
+    .tc-frequency-switch {
+        align-self: flex-start;
+    }
+
+    .tc-frequency-chart-wrap {
+        height: 16rem;
+    }
+
+    .tc-frequency-chart-card--annual .tc-frequency-chart-wrap {
+        height: 21rem;
+    }
+
+    .tc-frequency-heatmap {
+        min-width: 58rem;
+        font-size: 0.6875rem;
+    }
+
+    .tc-frequency-heatmap th,
+    .tc-frequency-heatmap td {
+        height: 2.25rem;
+        padding: 0.4rem 0.5rem;
+    }
+
+    .tc-frequency-heatmap thead th:first-child,
+    .tc-frequency-heatmap tbody th {
+        min-width: 8rem;
+    }
+}
+
+@media (max-width: 23rem) {
+    .tc-frequency-chart-wrap {
+        height: 14rem;
+    }
+
+    .tc-frequency-chart-card--annual .tc-frequency-chart-wrap {
+        height: 18rem;
+    }
+
+    .tc-frequency-heatmap {
+        min-width: 54rem;
     }
 }

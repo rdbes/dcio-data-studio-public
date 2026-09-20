@@ -122,6 +122,92 @@
     flex-direction: column;
 }
 
+.tc-tracks-search-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.5rem;
+}
+
+.tc-tracks-search-row .tc-tracks-search {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.tc-tracks-climatology-trigger {
+    flex: 0 0 auto;
+}
+
+dialog.tc-tracks-climatology-dialog[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+dialog.tc-tracks-climatology-dialog:not([open]) {
+    display: none;
+}
+
+.tc-tracks-climatology-dialog {
+    width: min(76rem, calc(100vw - 2rem));
+    max-width: none;
+}
+
+.tc-tracks-climatology-dialog__shell {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.tc-tracks-climatology-dialog__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e4e4e7;
+}
+
+.tc-tracks-climatology-dialog__header h2 {
+    margin: 0;
+    color: #18181b;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.tc-tracks-climatology-dialog__header p {
+    margin: 0.35rem 0 0;
+    color: #71717a;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.tc-tracks-climatology-dialog__body {
+    min-height: 0;
+    overflow: auto;
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+.tc-tracks-climatology-figure {
+    margin: 0;
+}
+
+.tc-tracks-climatology-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.75rem;
+    background: #fff;
+}
+
+.tc-tracks-climatology-figure figcaption {
+    margin-top: 0.5rem;
+    color: #71717a;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    text-align: center;
+}
+
 .tc-tracks-card-header__title-row {
     display: flex;
     align-items: center;
@@ -555,6 +641,14 @@
     .tc-tracks-list {
         max-height: 24rem;
     }
+
+    .tc-tracks-page__header,
+    .tc-tracks-workspace,
+    .tc-tracks-map-card,
+    .tc-tracks-list-card {
+        min-width: 0;
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 640px) {
@@ -567,6 +661,81 @@
     }
 
     .tc-tracks-map {
-        min-height: 28rem;
+        min-height: min(28rem, 62dvh);
+        height: min(28rem, 62dvh);
+    }
+
+    .tc-tracks-search-row {
+        flex-wrap: wrap;
+    }
+
+    .tc-tracks-search-row .tc-tracks-search,
+    .tc-tracks-search-row .tc-tracks-climatology-trigger {
+        width: 100%;
+        flex-basis: 100%;
+    }
+
+    .tc-tracks-climatology-trigger {
+        width: 100%;
+    }
+
+    .tc-tracks-climatology-dialog {
+        width: calc(100vw - 1rem);
+        max-height: calc(100dvh - 1rem);
+    }
+
+    .tc-tracks-climatology-dialog__header,
+    .tc-tracks-climatology-dialog__body {
+        padding-right: 0.9rem;
+        padding-left: 0.9rem;
+    }
+
+    .tc-tracks-card-header,
+    .tc-tracks-card-header__title-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .tc-tracks-report-ratio {
+        align-self: flex-start;
+    }
+
+    .tc-tracks-list {
+        max-height: 22rem;
+    }
+
+    .tc-tracks-map .leaflet-bottom.leaflet-left .add-map-legend {
+        max-width: calc(100vw - 2.5rem);
+        margin-bottom: 0.35rem;
+        margin-left: 0.35rem;
+        padding: 0.4rem;
+        font-size: 0.625rem;
+    }
+}
+
+@media (max-width: 30rem) {
+    .tc-tracks-page__stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tc-tracks-page__header,
+    .tc-tracks-card-header {
+        padding: 0.875rem;
+    }
+
+    .tc-tracks-map {
+        min-height: 22rem;
+        height: 22rem;
+    }
+}
+
+@media (max-width: 23rem) {
+    .tc-tracks-page__stats {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tc-tracks-map {
+        min-height: 19rem;
+        height: 19rem;
     }
 }

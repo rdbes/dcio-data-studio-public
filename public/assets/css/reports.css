@@ -3215,6 +3215,195 @@ dialog.chart-table-dialog:not([open]) {
     text-align: center;
 }
 
+/* NOAA RONI history matrix. The table is intentionally wider than a phone or
+ * narrow workspace so the twelve overlapping seasons remain legible; the
+ * wrapper owns the horizontal and vertical scrolling while Year and the
+ * season header stay visible during review. */
+.roni-library-legend {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.75rem 1.25rem;
+    color: var(--color-text-muted);
+    font-size: var(--type-caption-size);
+    font-weight: var(--font-weight-medium);
+}
+
+.roni-library-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.roni-library-legend__swatch {
+    width: 0.8rem;
+    height: 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+}
+
+.roni-library-legend__swatch--warm {
+    border-color: #fca5a5;
+    background: #fff1f2;
+}
+
+.roni-library-legend__swatch--cold {
+    border-color: #93c5fd;
+    background: #eff6ff;
+}
+
+.roni-library-legend__swatch--neutral {
+    background: var(--color-surface);
+}
+
+.roni-library-table-wrap {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+    background: var(--color-surface);
+    scrollbar-gutter: stable both-edges;
+}
+
+.roni-library-table {
+    width: 100%;
+    min-width: 78rem;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    color: var(--color-text);
+    font-size: var(--type-caption-size);
+    font-variant-numeric: tabular-nums;
+}
+
+.roni-library-table th,
+.roni-library-table td {
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    padding: 0.55rem 0.5rem;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.roni-library-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    width: 6.1rem;
+    background: var(--color-surface);
+    color: var(--color-text-strong);
+    box-shadow: 0 1px 0 var(--color-border);
+}
+
+.roni-library-table thead th:first-child,
+.roni-library-table__year-header {
+    left: 0;
+    z-index: 5;
+    width: 5.25rem;
+    min-width: 5.25rem;
+    background: var(--color-surface);
+}
+
+.roni-library-table__season-code {
+    display: block;
+    font-size: var(--type-caption-size);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.02em;
+}
+
+.roni-library-table__season-months {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--color-text-muted);
+    font-size: var(--type-micro-size);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.roni-library-table__year {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--color-surface);
+    color: var(--color-text-strong);
+    font-size: var(--type-body-size);
+    font-weight: var(--font-weight-bold);
+}
+
+.roni-library-cell {
+    position: relative;
+    height: 2.25rem;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+}
+
+.roni-library-cell--warm {
+    background: #fff1f2;
+    color: #a33a3a;
+    font-weight: var(--font-weight-semibold);
+}
+
+.roni-library-cell--cold {
+    background: #eff6ff;
+    color: #3559a8;
+    font-weight: var(--font-weight-semibold);
+}
+
+.roni-library-cell--missing {
+    background: var(--color-surface-subtle);
+    color: var(--color-text-muted);
+}
+
+.roni-library-cell__marker {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.45rem;
+    color: #cc8500;
+    font-size: 0.65rem;
+    line-height: 1;
+}
+
+.roni-library-footer {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface-subtle);
+    padding: 0.75rem 1.25rem;
+    color: var(--color-text-muted);
+    font-size: var(--type-micro-size);
+    line-height: 1.5;
+}
+
+.roni-library-footer p {
+    max-width: 62rem;
+    margin: 0;
+}
+
+.roni-library-footer a {
+    flex: 0 0 auto;
+    color: var(--color-text-strong);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: underline;
+    text-decoration-color: var(--color-border-strong);
+    text-underline-offset: 0.15rem;
+}
+
+@media (max-width: 47.99rem) {
+    .roni-library-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
 .data-library-content-card > .ui-pagination {
     flex: 0 0 auto;
 }
@@ -3232,7 +3421,7 @@ dialog.chart-table-dialog:not([open]) {
     display: grid;
     width: 100%;
     min-width: 48rem;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0.75rem;
 }
 
@@ -3498,6 +3687,10 @@ dialog.chart-table-dialog:not([open]) {
 
     .data-library-toolbar--locations {
         grid-template-columns: minmax(12rem, 1fr) 10rem 10rem auto;
+    }
+
+    .data-library-toolbar--roni {
+        grid-template-columns: minmax(12rem, 1fr) auto;
     }
 
     .data-library-toolbar__actions {
@@ -6737,6 +6930,210 @@ section[aria-label="Selected scope distributions"] {
      * must not create an additional visual inset inside the topbar width. */
     padding-inline-end: 0 !important;
     scrollbar-gutter: auto;
+}
+
+/* ========================================================================
+ * Responsive module contract
+ *
+ * The application shell becomes an overlay drawer below 1280px. These rules
+ * keep every module's own controls and data surfaces within the remaining
+ * canvas instead of allowing a desktop flex row to create horizontal page
+ * overflow. Module styles add their chart/map-specific sizing below.
+ * ====================================================================== */
+
+@media (max-width: 79.999rem) {
+    .farm-page-content,
+    .analytics-workspace-page-body > .farm-page-content {
+        min-width: 0;
+        max-width: none;
+    }
+
+    .module-page-header,
+    .report-header,
+    .report-action-bar,
+    .upload-action-bar,
+    .dashboard-chart-header,
+    .dashboard-chart-actions {
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .report-table-wrap,
+    [data-annual-summary-table-wrap],
+    .upload-report-table-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    [data-annual-summary-grid],
+    [data-annual-summary-grid] > *,
+    [data-dashboard-analysis-panel],
+    [data-dashboard-map-column] {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 63.999rem) {
+    /* Tablet: give filter groups and action rows a predictable wrap point. */
+    [data-analytics-filter-panel] form > .grid,
+    [data-report-scope-grid] {
+        min-width: 0;
+    }
+
+    [data-analytics-filter-panel] form > .flex.items-center.justify-end,
+    [data-report-generation-form] .report-action-bar {
+        flex-wrap: wrap;
+    }
+
+    [data-dashboard-analysis-panel] {
+        min-height: 0;
+        max-width: 100%;
+    }
+
+    .dashboard-analysis-chart-card,
+    .dashboard-quarterly-breakdown-card,
+    [data-annual-summary-card],
+    [data-annual-trends-card] {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .incident-dashboard-dialog {
+        width: calc(100vw - 2rem);
+        height: min(90dvh, 56rem);
+    }
+}
+
+@media (max-width: 47.999rem) {
+    /* Phone: the topbar is allowed to grow so filter chips never compress
+       the page into a horizontal scroll. */
+    [data-workspace-topbar] {
+        min-height: 2.5rem;
+        height: auto;
+        align-items: stretch;
+    }
+
+    [data-workspace-topbar].farm-workspace-topbar--filter-only {
+        align-items: center;
+    }
+
+    [data-workspace-topbar].farm-workspace-topbar--filter-only > [data-filter-header-slot] {
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+    [data-filter-header-slot] > [data-analytics-filter-panel] > summary {
+        min-width: max-content;
+        padding-inline: 0.5rem;
+    }
+
+    [data-filter-header-slot] > [data-analytics-filter-panel] > div {
+        position: fixed;
+        top: 2.5rem;
+        right: 0.5rem;
+        left: 0.5rem;
+        width: auto;
+        max-height: calc(100dvh - 3rem);
+        overflow-y: auto;
+    }
+
+    .farm-page-content,
+    .analytics-workspace-page-body > .farm-page-content {
+        width: 100%;
+        padding-inline: 0;
+    }
+
+    .module-page-header,
+    .report-header,
+    .report-action-bar,
+    .upload-action-bar,
+    .dashboard-chart-header,
+    .dashboard-chart-actions,
+    .tc-tracks-card-header,
+    .tc-tracks-page__header,
+    .data-library-section-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .module-page-header > .ui-action-group,
+    .report-action-bar > *,
+    .upload-action-bar > *,
+    .data-library-section-heading > form {
+        width: 100%;
+    }
+
+    .module-page-header > .ui-action-group,
+    .dashboard-chart-actions {
+        justify-content: flex-start;
+    }
+
+    .dashboard-chart-actions > *,
+    .dashboard-chart-utility-group > * {
+        min-width: 0;
+    }
+
+    .data-library-section-heading > form .ui-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .report-table,
+    .incident-table {
+        min-width: 42rem;
+    }
+
+    .annual-summary-pagination {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+    }
+
+    .annual-summary-pagination [data-annual-summary-controls],
+    .annual-summary-pagination .annual-summary-footnote {
+        grid-column: 1;
+        grid-row: auto;
+        justify-self: stretch;
+        text-align: left;
+    }
+
+    [data-dashboard-analysis-metrics] {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    [data-dashboard-analysis-panel] {
+        overflow-x: hidden;
+    }
+
+    .incident-year-summary {
+        align-items: flex-start;
+    }
+
+    .incident-dashboard-dialog {
+        width: calc(100vw - 1rem);
+        height: calc(100dvh - 1rem);
+        max-height: calc(100dvh - 1rem);
+        border-radius: 0.875rem;
+    }
+
+    .incident-dashboard-dialog > div > header {
+        padding: 0.75rem 1rem;
+    }
+}
+
+@media (max-width: 23rem) {
+    [data-dashboard-analysis-metrics] {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .farm-app-shell {
+        padding: 0.5rem;
+    }
+
+    [data-workspace-topbar].farm-workspace-topbar--filter-only > [data-filter-header-slot] {
+        max-width: calc(100vw - 3.25rem);
+    }
 }
 
 /* FARM motion contract: preserve content and state while removing animation

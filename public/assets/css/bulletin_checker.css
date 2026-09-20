@@ -773,3 +773,57 @@
 .bulletin-map .add-map-legend,
 .bulletin-map .add-map-legend :is(.add-map-legend__title, .add-map-legend__unit,
 .add-map-legend__bound, .add-map-legend__separator) { color: #075985; }
+
+/* Responsive preview contract. The bulletin artwork remains an 800px design
+   surface for faithful output, while the surrounding controls and scroller
+   become fluid on tablets and phones. */
+@media (max-width: 1000px) {
+    .bulletin-workspace {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .bulletin-toolbar,
+    .bulletin-preview-column {
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .bulletin-toolbar {
+        padding: 0.875rem;
+        border-radius: 0.875rem;
+    }
+
+    .bulletin-toolbar h1 {
+        font-size: 1.15rem;
+    }
+
+    .bulletin-toolbar form > .bulletin-metadata-grid,
+    .bulletin-toolbar form > .bulletin-source-grid {
+        gap: 0.75rem;
+    }
+
+    .bulletin-toolbar form > .bulletin-source-grid > .ui-button,
+    .bulletin-actions .ui-button {
+        width: 100%;
+    }
+
+    .bulletin-preview-stage,
+    .bulletin-preview-column .bulletin-scroll {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .bulletin-preview-column .bulletin-scroll {
+        max-height: 70dvh;
+        padding: 0.75rem;
+        border-radius: 0.875rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .bulletin-page-menu {
+        inset: 0.5rem auto auto 0.5rem;
+    }
+}

@@ -3,3 +3,4 @@ Django==5.2.17
 psycopg[binary]>=3.2,<4
 jsonschema[format]>=4.23,<5
 XlsxWriter>=3,<4
+certifi>=2024.2

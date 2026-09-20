@@ -1007,3 +1007,125 @@ class DisasterIncidentTropicalCyclone(models.Model):
             "Reviewed component tropical cyclones associated with each "
             "disaster reporting incident."
         )
+
+
+class ClimateIndex(models.Model):
+    """Metadata for an externally maintained climate-index series."""
+
+    climate_index_key = models.CharField(
+        primary_key=True,
+        max_length=32,
+    )
+    index_name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    unit = models.CharField(max_length=64)
+    source_agency = models.CharField(max_length=160)
+    documentation_url = models.URLField(max_length=500)
+    data_url = models.URLField(max_length=500)
+    base_period = models.CharField(max_length=32, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "climate_index"
+        db_table_comment = (
+            "Metadata for external climate indices used in seasonal "
+            "damage-and-loss analysis."
+        )
+        ordering = ["climate_index_key"]
+
+    def __str__(self):
+        return f"{self.climate_index_key} — {self.index_name}"
+
+
+class ClimateIndexObservation(models.Model):
+    """One dated observation from an external climate-index series."""
+
+    class SeasonCode(models.TextChoices):
+        DJF = "DJF", "December–February"
+        JFM = "JFM", "January–March"
+        FMA = "FMA", "February–April"
+        MAM = "MAM", "March–May"
+        AMJ = "AMJ", "April–June"
+        MJJ = "MJJ", "May–July"
+        JJA = "JJA", "June–August"
+        JAS = "JAS", "July–September"
+        ASO = "ASO", "August–October"
+        SON = "SON", "September–November"
+        OND = "OND", "October–December"
+        NDJ = "NDJ", "November–January"
+
+    climate_index_observation_key = models.BigAutoField(primary_key=True)
+    climate_index = models.ForeignKey(
+        ClimateIndex,
+        on_delete=models.PROTECT,
+        db_column="climate_index_key",
+        related_name="observations",
+    )
+    season_code = models.CharField(
+        max_length=3,
+        choices=SeasonCode.choices,
+    )
+    season_year = models.PositiveSmallIntegerField(
+        help_text="Calendar year containing the season's center month.",
+    )
+    period_start_date = models.DateField()
+    period_center_date = models.DateField(
+        help_text="First day of the season's center month.",
+    )
+    period_end_date = models.DateField()
+    value = models.DecimalField(max_digits=6, decimal_places=2)
+    is_provisional = models.BooleanField(
+        default=False,
+        help_text="True when the source may still revise the observation.",
+    )
+    retrieved_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "climate_index_observation"
+        db_table_comment = (
+            "Dated observations for external climate indices, including "
+            "overlapping seasonal RONI values."
+        )
+        ordering = ["climate_index_id", "period_center_date"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["climate_index", "period_center_date"],
+                name="uq_climate_obs_center",
+            ),
+            models.UniqueConstraint(
+                fields=["climate_index", "season_year", "season_code"],
+                name="uq_climate_obs_season",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(
+                    period_start_date__lte=models.F("period_center_date")
+                ),
+                name="ck_climate_obs_start",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(
+                    period_center_date__lte=models.F("period_end_date")
+                ),
+                name="ck_climate_obs_end",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=["climate_index", "period_center_date"],
+                name="idx_climate_obs_center",
+            ),
+            models.Index(
+                fields=["climate_index", "season_year"],
+                name="idx_climate_obs_year",
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.climate_index_id} "
+            f"{self.season_code} {self.season_year}: {self.value}"
+        )

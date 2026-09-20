@@ -692,7 +692,12 @@
                 backgroundColor: primaryColors,
                 borderColor: primaryColors.map(chartStrokeColor),
                 borderWidth: CHART_HAIRLINE_WIDTH,
-                borderRadius: settings.borderRadius ?? 2,
+                borderRadius: settings.borderRadius ?? {
+                    topLeft: 0,
+                    bottomLeft: 0,
+                    topRight: 2,
+                    bottomRight: 2
+                },
                 borderSkipped: false
             }
         ];
@@ -711,7 +716,12 @@
                     || "#64748b"
                 ),
                 borderWidth: 0,
-                borderRadius: settings.borderRadius ?? 2,
+                borderRadius: settings.borderRadius ?? {
+                    topLeft: 0,
+                    bottomLeft: 0,
+                    topRight: 2,
+                    bottomRight: 2
+                },
                 borderSkipped: false
             });
         }
