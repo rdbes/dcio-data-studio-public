@@ -1,0 +1,446 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Crop Production - DCIO Data Studio{% endblock %}
+
+{% block breadcrumbs %}
+<span class="text-zinc-900 font-semibold">Crop Production</span>
+{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/crop-production.css' %}?v=20260920-crop-production-v69">
+    <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+{% endblock %}
+
+{% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none h-full min-h-0{% endblock %}
+
+{% block content %}
+<section class="crop-production-page mx-auto flex w-full flex-col gap-4" data-crop-production-page aria-labelledby="crop-production-title">
+    <article class="crop-production-card crop-production-accordion rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6" data-crop-production-accordion>
+        <header class="crop-production-card__header">
+            <h1 id="crop-production-title" class="crop-production-accordion__heading">
+                <button type="button" class="crop-production-accordion__toggle" data-crop-production-accordion-toggle aria-expanded="true" aria-controls="crop-production-content">
+                    <span>Crop Production Summary</span>
+                    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+                </button>
+            </h1>
+            <div class="crop-production-card__controls">
+                <label class="crop-production-area-toggle">
+                    <input type="checkbox" class="sr-only" data-crop-production-area-toggle role="switch" aria-checked="false" aria-label="Show area harvested">
+                    <span class="crop-production-area-toggle__track" aria-hidden="true"></span>
+                    <span>Area harvested</span>
+                </label>
+                <span class="ui-select-wrap crop-production-select-wrap">
+                    <label class="sr-only" for="crop-production-period">Production period</label>
+                    <select id="crop-production-period" class="ui-control ui-select" data-crop-production-period-select aria-label="Production period">
+                        <option value="annual" selected>Annual</option>
+                        <option value="semestral">Semestral</option>
+                        <option value="quarterly">Quarterly</option>
+                    </select>
+                    <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </span>
+                <span class="ui-select-wrap crop-production-select-wrap crop-production-select-wrap--range">
+                    <label class="sr-only" for="crop-production-range">Production period range</label>
+                    <select id="crop-production-range" class="ui-control ui-select" data-crop-production-range-select aria-label="Production period range">
+                        <option value="all" selected>All Years ({{ crop_production_data.years|length }})</option>
+                        <option value="5">Last 5 Years</option>
+                        <option value="10">Last 10 Years</option>
+                        <option value="15">Last 15 Years</option>
+                        <option value="20">Last 20 Years</option>
+                        <option value="25">Last 25 Years</option>
+                    </select>
+                    <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </span>
+                <span class="ui-select-wrap crop-production-select-wrap crop-production-select-wrap--region">
+                    <label class="sr-only" for="crop-production-region">Region</label>
+                    <select id="crop-production-region" class="ui-control ui-select" data-crop-production-region-select aria-label="Region">
+                        <option value="" selected>All Regions</option>
+                    </select>
+                    <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </span>
+                <span class="ui-select-wrap crop-production-select-wrap crop-production-select-wrap--province">
+                    <label class="sr-only" for="crop-production-province">Province</label>
+                    <select id="crop-production-province" class="ui-control ui-select" data-crop-production-province-select aria-label="Province" disabled>
+                        <option value="" selected>Select a region first</option>
+                    </select>
+                    <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </span>
+            </div>
+        </header>
+
+        <div id="crop-production-content" class="crop-production-accordion__content" data-crop-production-accordion-content>
+        <div class="crop-production-main-grid mt-4">
+            <div class="crop-production-chart-grid">
+                <section class="crop-production-chart-panel" aria-labelledby="crop-production-palay-title">
+                    <div class="crop-production-chart-panel__header">
+                        <h2 id="crop-production-palay-title" class="crop-production-chart-title">Palay</h2>
+                        <span class="ui-select-wrap crop-production-select-wrap crop-production-breakdown-select-wrap">
+                            <label class="sr-only" for="crop-production-palay-breakdown">Rice breakdown</label>
+                            <select id="crop-production-palay-breakdown" class="ui-control ui-select" data-crop-production-breakdown-select data-crop-production-base-key="Palay" aria-label="Rice breakdown">
+                                <option value="Palay" data-label="Palay" selected>All Rice (Palay)</option>
+                                <option value="Irrigated Palay" data-label="Irrigated Palay">Irrigated Palay</option>
+                                <option value="Rainfed Palay" data-label="Rainfed Palay">Rainfed Palay</option>
+                            </select>
+                            <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <div class="crop-production-chart-wrap">
+                        <div class="crop-production-chart-surface">
+                            <canvas id="crop-production-palay-chart" data-crop-production-chart data-crop-production-key="Palay" aria-label="Annual Palay production bar chart"></canvas>
+                        </div>
+                        <p class="crop-production-empty" data-crop-production-empty hidden>No Palay production data is available.</p>
+                    </div>
+                    <div class="crop-production-phase-legend" aria-label="ENSO Phases background legend">
+                        <span class="crop-production-phase-legend__label">ENSO Phases</span>
+                        <button type="button" class="crop-production-phase-legend__item" data-crop-production-phase-toggle data-crop-production-phase="warm" aria-pressed="true" aria-label="Toggle El Niño phase shading">
+                            <span class="crop-production-phase-legend__swatch crop-production-phase-legend__swatch--warm" aria-hidden="true"></span>
+                            El Niño
+                        </button>
+                        <button type="button" class="crop-production-phase-legend__item" data-crop-production-phase-toggle data-crop-production-phase="cold" aria-pressed="true" aria-label="Toggle La Niña phase shading">
+                            <span class="crop-production-phase-legend__swatch crop-production-phase-legend__swatch--cold" aria-hidden="true"></span>
+                            La Niña
+                        </button>
+                        <button type="button" class="crop-production-phase-legend__item" data-crop-production-phase-toggle data-crop-production-phase="neutral" aria-pressed="true" aria-label="Toggle Neutral phase shading">
+                            <span class="crop-production-phase-legend__swatch crop-production-phase-legend__swatch--neutral" aria-hidden="true"></span>
+                            Neutral
+                        </button>
+                    </div>
+                </section>
+                <section class="crop-production-chart-panel" aria-labelledby="crop-production-corn-title">
+                    <div class="crop-production-chart-panel__header">
+                        <h2 id="crop-production-corn-title" class="crop-production-chart-title">Corn</h2>
+                        <span class="ui-select-wrap crop-production-select-wrap crop-production-breakdown-select-wrap">
+                            <label class="sr-only" for="crop-production-corn-breakdown">Corn breakdown</label>
+                            <select id="crop-production-corn-breakdown" class="ui-control ui-select" data-crop-production-breakdown-select data-crop-production-base-key="Corn" aria-label="Corn breakdown">
+                                <option value="Corn" data-label="Corn" selected>All Corn</option>
+                                <option value="Yellow Corn" data-label="Yellow Corn">Yellow Corn</option>
+                                <option value="White Corn" data-label="White Corn">White Corn</option>
+                            </select>
+                            <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <div class="crop-production-chart-wrap">
+                        <div class="crop-production-chart-surface">
+                            <canvas id="crop-production-corn-chart" data-crop-production-chart data-crop-production-key="Corn" aria-label="Annual Corn production bar chart"></canvas>
+                        </div>
+                        <p class="crop-production-empty" data-crop-production-empty hidden>No Corn production data is available.</p>
+                    </div>
+                    <div class="crop-production-phase-legend" aria-label="ENSO Phases background legend">
+                        <span class="crop-production-phase-legend__label">ENSO Phases</span>
+                        <button type="button" class="crop-production-phase-legend__item" data-crop-production-phase-toggle data-crop-production-phase="warm" aria-pressed="true" aria-label="Toggle El Niño phase shading">
+                            <span class="crop-production-phase-legend__swatch crop-production-phase-legend__swatch--warm" aria-hidden="true"></span>
+                            El Niño
+                        </button>
+                        <button type="button" class="crop-production-phase-legend__item" data-crop-production-phase-toggle data-crop-production-phase="cold" aria-pressed="true" aria-label="Toggle La Niña phase shading">
+                            <span class="crop-production-phase-legend__swatch crop-production-phase-legend__swatch--cold" aria-hidden="true"></span>
+                            La Niña
+                        </button>
+                        <button type="button" class="crop-production-phase-legend__item" data-crop-production-phase-toggle data-crop-production-phase="neutral" aria-pressed="true" aria-label="Toggle Neutral phase shading">
+                            <span class="crop-production-phase-legend__swatch crop-production-phase-legend__swatch--neutral" aria-hidden="true"></span>
+                            Neutral
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <div class="crop-production-summary-grid">
+                <aside class="crop-production-summary-card" data-crop-production-summary data-crop-production-summary-base-key="Palay" aria-labelledby="crop-production-summary-rice-title">
+                    <header class="crop-production-summary-card__header">
+                        <h2 id="crop-production-summary-rice-title">Palay Summary</h2>
+                    </header>
+                    <div class="crop-production-summary-breakdown" data-crop-production-summary-breakdown data-crop-production-summary-breakdown-key="Palay">
+                        <div class="crop-production-summary-breakdown__label">Sub Commodity Breakdown</div>
+                        <div class="crop-production-summary-breakdown__bar" data-crop-production-summary-breakdown-bar role="img" aria-label="Rice production breakdown">
+                            <span class="crop-production-summary-breakdown__segment crop-production-summary-breakdown__segment--irrigated" data-crop-production-summary-breakdown-segment data-crop-production-summary-breakdown-segment-key="Irrigated Palay"></span>
+                            <span class="crop-production-summary-breakdown__segment crop-production-summary-breakdown__segment--rainfed" data-crop-production-summary-breakdown-segment data-crop-production-summary-breakdown-segment-key="Rainfed Palay"></span>
+                        </div>
+                        <div class="crop-production-summary-breakdown__legend" aria-label="Rice production breakdown percentages">
+                            <span class="crop-production-summary-breakdown__legend-item">
+                                <i class="crop-production-summary-breakdown__swatch crop-production-summary-breakdown__swatch--irrigated" aria-hidden="true"></i>
+                                <span>Irrigated</span>
+                                <strong data-crop-production-summary-breakdown-value data-crop-production-summary-breakdown-value-key="Irrigated Palay">-</strong>
+                            </span>
+                            <span class="crop-production-summary-breakdown__legend-item">
+                                <i class="crop-production-summary-breakdown__swatch crop-production-summary-breakdown__swatch--rainfed" aria-hidden="true"></i>
+                                <span>Rainfed</span>
+                                <strong data-crop-production-summary-breakdown-value data-crop-production-summary-breakdown-value-key="Rainfed Palay">-</strong>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="crop-production-summary-kpis__title" data-crop-production-summary-kpis-title>Production Comparison</div>
+                    <div class="crop-production-summary-kpis" data-crop-production-summary-kpis aria-label="Palay production comparison"></div>
+                    <div class="crop-production-summary-list">
+                        <section class="crop-production-summary-item" data-crop-production-summary-item data-crop-production-summary-kind="production" data-crop-production-summary-key="Palay" aria-label="Palay production statistics by period">
+                            <div class="crop-production-summary-table-wrap">
+                                <table class="crop-production-summary-table" data-crop-production-summary-values aria-label="Palay production statistics by period">
+                                    <caption class="crop-production-summary-table__caption">Production (MT)</caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Period</th>
+                                            <th scope="col">Min</th>
+                                            <th scope="col">Ave</th>
+                                            <th scope="col">Max</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                {% for range_mode, range_label in summary_range_modes %}
+                                        <tr data-crop-production-summary-values-row="{{ range_mode }}">
+                                            <th scope="row">{{ range_label }}</th>
+                                            <td data-crop-production-summary-min>-</td>
+                                            <td data-crop-production-summary-average>-</td>
+                                            <td data-crop-production-summary-max>-</td>
+                                        </tr>
+                                {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                        <section class="crop-production-summary-item" data-crop-production-summary-item data-crop-production-summary-kind="yield" data-crop-production-summary-key="Palay" aria-label="Palay yield statistics by period">
+                            <div class="crop-production-summary-table-wrap">
+                                <table class="crop-production-summary-table" data-crop-production-summary-yield-values aria-label="Palay yield statistics by period">
+                                    <caption class="crop-production-summary-table__caption">Yield (MT/ha)</caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Period</th>
+                                            <th scope="col">Min</th>
+                                            <th scope="col">Ave</th>
+                                            <th scope="col">Max</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                {% for range_mode, range_label in summary_range_modes %}
+                                        <tr data-crop-production-summary-yield-values-row="{{ range_mode }}">
+                                            <th scope="row">{{ range_label }}</th>
+                                            <td data-crop-production-summary-yield-min>-</td>
+                                            <td data-crop-production-summary-yield-average>-</td>
+                                            <td data-crop-production-summary-yield-max>-</td>
+                                        </tr>
+                                {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+                </aside>
+                <aside class="crop-production-summary-card" data-crop-production-summary data-crop-production-summary-base-key="Corn" aria-labelledby="crop-production-summary-corn-title">
+                    <header class="crop-production-summary-card__header">
+                        <h2 id="crop-production-summary-corn-title">Corn Summary</h2>
+                    </header>
+                    <div class="crop-production-summary-breakdown" data-crop-production-summary-breakdown data-crop-production-summary-breakdown-key="Corn">
+                        <div class="crop-production-summary-breakdown__label">Sub Commodity Breakdown</div>
+                        <div class="crop-production-summary-breakdown__bar" data-crop-production-summary-breakdown-bar role="img" aria-label="Corn production breakdown">
+                            <span class="crop-production-summary-breakdown__segment crop-production-summary-breakdown__segment--yellow" data-crop-production-summary-breakdown-segment data-crop-production-summary-breakdown-segment-key="Yellow Corn"></span>
+                            <span class="crop-production-summary-breakdown__segment crop-production-summary-breakdown__segment--white" data-crop-production-summary-breakdown-segment data-crop-production-summary-breakdown-segment-key="White Corn"></span>
+                        </div>
+                        <div class="crop-production-summary-breakdown__legend" aria-label="Corn production breakdown percentages">
+                            <span class="crop-production-summary-breakdown__legend-item">
+                                <i class="crop-production-summary-breakdown__swatch crop-production-summary-breakdown__swatch--yellow" aria-hidden="true"></i>
+                                <span>Yellow Corn</span>
+                                <strong data-crop-production-summary-breakdown-value data-crop-production-summary-breakdown-value-key="Yellow Corn">-</strong>
+                            </span>
+                            <span class="crop-production-summary-breakdown__legend-item">
+                                <i class="crop-production-summary-breakdown__swatch crop-production-summary-breakdown__swatch--white" aria-hidden="true"></i>
+                                <span>White Corn</span>
+                                <strong data-crop-production-summary-breakdown-value data-crop-production-summary-breakdown-value-key="White Corn">-</strong>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="crop-production-summary-kpis__title" data-crop-production-summary-kpis-title>Production Comparison</div>
+                    <div class="crop-production-summary-kpis" data-crop-production-summary-kpis aria-label="Corn production comparison"></div>
+                    <div class="crop-production-summary-list">
+                        <section class="crop-production-summary-item" data-crop-production-summary-item data-crop-production-summary-kind="production" data-crop-production-summary-key="Corn" aria-label="Corn production statistics by period">
+                            <div class="crop-production-summary-table-wrap">
+                                <table class="crop-production-summary-table" data-crop-production-summary-values aria-label="Corn production statistics by period">
+                                    <caption class="crop-production-summary-table__caption">Production (MT)</caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Period</th>
+                                            <th scope="col">Min</th>
+                                            <th scope="col">Ave</th>
+                                            <th scope="col">Max</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                {% for range_mode, range_label in summary_range_modes %}
+                                        <tr data-crop-production-summary-values-row="{{ range_mode }}">
+                                            <th scope="row">{{ range_label }}</th>
+                                            <td data-crop-production-summary-min>-</td>
+                                            <td data-crop-production-summary-average>-</td>
+                                            <td data-crop-production-summary-max>-</td>
+                                        </tr>
+                                {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                        <section class="crop-production-summary-item" data-crop-production-summary-item data-crop-production-summary-kind="yield" data-crop-production-summary-key="Corn" aria-label="Corn yield statistics by period">
+                            <div class="crop-production-summary-table-wrap">
+                                <table class="crop-production-summary-table" data-crop-production-summary-yield-values aria-label="Corn yield statistics by period">
+                                    <caption class="crop-production-summary-table__caption">Yield (MT/ha)</caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Period</th>
+                                            <th scope="col">Min</th>
+                                            <th scope="col">Ave</th>
+                                            <th scope="col">Max</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                {% for range_mode, range_label in summary_range_modes %}
+                                        <tr data-crop-production-summary-yield-values-row="{{ range_mode }}">
+                                            <th scope="row">{{ range_label }}</th>
+                                            <td data-crop-production-summary-yield-min>-</td>
+                                            <td data-crop-production-summary-yield-average>-</td>
+                                            <td data-crop-production-summary-yield-max>-</td>
+                                        </tr>
+                                {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        </div>
+
+    </article>
+
+<article class="crop-production-location-card crop-production-accordion rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6" data-crop-production-location data-crop-production-accordion>
+    <header class="crop-production-location-card__header">
+        <div class="crop-production-location-card__title">
+            <h2 id="crop-production-location-title" class="crop-production-accordion__heading">
+                <button type="button" class="crop-production-accordion__toggle" data-crop-production-accordion-toggle aria-expanded="true" aria-controls="crop-location-content">
+                    <span>Crop Production by Area</span>
+                    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+                </button>
+            </h2>
+        </div>
+        <div class="crop-production-location-card__controls">
+            <span class="ui-select-wrap crop-production-location-select-wrap crop-production-location-select-wrap--period">
+                <label class="sr-only" for="crop-location-period">Location production period</label>
+                <select id="crop-location-period" class="ui-control ui-select" data-crop-location-period aria-label="Location production period">
+                    <option value="annual" selected>Annual</option>
+                    <option value="semestral">Semestral</option>
+                    <option value="quarterly">Quarterly</option>
+                </select>
+                <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </span>
+            <span class="ui-select-wrap crop-production-location-select-wrap crop-production-location-select-wrap--range">
+                <label class="sr-only" for="crop-location-range">Location year range</label>
+                <select id="crop-location-range" class="ui-control ui-select" data-crop-location-range aria-label="Location year range">
+                    <option value="all" selected>All Years</option>
+                    <option value="5">Last 5 Years</option>
+                    <option value="10">Last 10 Years</option>
+                    <option value="15">Last 15 Years</option>
+                    <option value="20">Last 20 Years</option>
+                    <option value="25">Last 25 Years</option>
+                </select>
+                <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </span>
+            <span class="ui-select-wrap crop-production-location-select-wrap">
+                <label class="sr-only" for="crop-location-level">Location level</label>
+                <select id="crop-location-level" class="ui-control ui-select" data-crop-location-level aria-label="Location level">
+                    <option value="region" selected>Regions</option>
+                    <option value="province">Provinces</option>
+                </select>
+                <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </span>
+            <span class="ui-select-wrap crop-production-location-select-wrap">
+                <label class="sr-only" for="crop-location-crop">Crop</label>
+                <select id="crop-location-crop" class="ui-control ui-select" data-crop-location-crop aria-label="Crop">
+                    <option value="Palay" selected>Palay</option>
+                    <option value="Corn">Corn</option>
+                </select>
+                <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </span>
+            <span class="ui-select-wrap crop-production-location-select-wrap crop-production-location-select-wrap--focus">
+                <label class="sr-only" for="crop-location-focus">Location to inspect</label>
+                <select id="crop-location-focus" class="ui-control ui-select" data-crop-location-focus aria-label="Location to inspect">
+                    <option value="">Top locations</option>
+                </select>
+                <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </span>
+        </div>
+    </header>
+    <div id="crop-location-content" class="crop-production-accordion__content" data-crop-production-accordion-content>
+    <div class="crop-production-location-grid">
+        <section class="crop-production-location-map-panel" data-map-canvas-card aria-label="Production by Location">
+            <div class="crop-production-location-map-wrap" data-crop-location-map-wrap>
+                <div class="crop-production-location-map" data-map-root data-crop-location-map data-provinces-url="{% static 'geo/ph/provinces.geojson' %}?v=20260917" data-regions-url="{% static 'geo/ph/regions.geojson' %}?v=20260920" data-outline-url="{% static 'geo/ph/philippines_outline.geojson' %}?v=20260917" role="application" aria-label="Crop production map by location"></div>
+                <div data-map-coordinate-labels class="add-map-coordinate-labels" aria-hidden="true"></div>
+                <div data-map-control-rail class="absolute left-2.5 top-2.5 z-[1000] flex flex-col items-start gap-1">
+                    <div data-map-primary-controls class="flex flex-col gap-1">
+                        <button type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" data-crop-location-map-fullscreen aria-label="Expand map to browser window" aria-pressed="false" title="Expand map to browser window"><i data-crop-location-map-fullscreen-icon class="fa-solid fa-expand text-xs" aria-hidden="true"></i></button>
+                        <button type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" data-crop-location-map-reset aria-label="Reset map extent" title="Reset map extent"><i class="fa-solid fa-location-crosshairs text-xs" aria-hidden="true"></i></button>
+                        <div data-map-zoom-controls class="add-map-zoom-controls" role="group" aria-label="Map zoom controls">
+                            <button type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-400" data-crop-location-map-zoom-in aria-label="Zoom in" title="Zoom in"><i class="fa-solid fa-plus text-xs" aria-hidden="true"></i></button>
+                            <button type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-400" data-crop-location-map-zoom-out aria-label="Zoom out" title="Zoom out"><i class="fa-solid fa-minus text-xs" aria-hidden="true"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="crop-production-location-map-legend add-map-legend map-studio-legend-host" data-crop-location-map-legend aria-label="Map value legend"></div>
+            </div>
+        </section>
+        <div class="crop-production-location-charts">
+            <section class="crop-production-location-chart-panel" aria-labelledby="crop-location-ranking-title">
+                <div class="crop-production-location-panel__header">
+                    <h3 id="crop-location-ranking-title">Location comparison</h3>
+                    <span data-crop-location-ranking-label>Latest available year</span>
+                </div>
+                <div class="crop-production-location-chart-wrap"><canvas data-crop-location-ranking-chart aria-label="Location comparison chart"></canvas></div>
+            </section>
+            <section class="crop-production-location-chart-panel" aria-labelledby="crop-location-contribution-title">
+                <div class="crop-production-location-panel__header">
+                    <h3 id="crop-location-contribution-title">Contribution to national production</h3>
+                    <span data-crop-location-contribution-label>Top locations + Others</span>
+                </div>
+                <div class="crop-production-location-chart-wrap"><canvas data-crop-location-contribution-chart aria-label="100 percent stacked contribution to national production chart"></canvas></div>
+            </section>
+            <section class="crop-production-location-chart-panel" aria-labelledby="crop-location-trend-title">
+                <div class="crop-production-location-panel__header">
+                    <h3 id="crop-location-trend-title">Location trend</h3>
+                    <span data-crop-location-trend-label>Production over time</span>
+                </div>
+                <div class="crop-production-location-chart-wrap"><canvas data-crop-location-trend-chart aria-label="Location trend chart"></canvas></div>
+            </section>
+        </div>
+    </div>
+    <section class="crop-production-location-table-panel" aria-labelledby="crop-location-table-title">
+        <div class="crop-production-location-panel__header">
+            <h3 id="crop-location-table-title">Location detail</h3>
+            <span data-crop-location-table-metric>Production (MT)</span>
+        </div>
+        <div class="crop-production-location-table-wrap">
+            <table class="crop-production-location-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Location</th>
+                        <th scope="col" data-crop-location-table-value-heading>Production</th>
+                        <th scope="col">National share</th>
+                        <th scope="col">Share change</th>
+                        <th scope="col">Trend</th>
+                        <th scope="col">Variability</th>
+                    </tr>
+                </thead>
+                <tbody data-crop-location-table-body></tbody>
+            </table>
+        </div>
+    </section>
+    </div>
+</article>
+
+</section>
+
+{{ crop_production_data|json_script:"crop-production-data" }}
+{{ crop_location_data|json_script:"crop-location-data" }}
+<script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script src="{% static 'js/maps/map_appearance.js' %}?v=20260919-crop-map-appearance-v1"></script>
+<script src="{% static 'js/maps/map_administrative_base.js' %}?v=20260919-crop-map-base-v1"></script>
+<script src="{% static 'js/maps/map_legend_scale.js' %}?v=20260919-crop-map-scale-v1"></script>
+<script src="{% static 'js/crop_production.js' %}?v=20260920-crop-production-v100"></script>
+{% endblock %}

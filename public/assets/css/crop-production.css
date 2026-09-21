@@ -1,0 +1,1292 @@
+.crop-production-page {
+    max-width: none;
+}
+
+.crop-production-card {
+    min-width: 0;
+}
+
+.crop-production-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-zinc-100, #f4f4f5);
+    padding-bottom: 0.875rem;
+}
+
+.crop-production-accordion__heading {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+.crop-production-accordion__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--color-zinc-900, #18181b);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.crop-production-accordion__toggle:hover {
+    color: var(--ui-focus, #247ba0);
+}
+
+.crop-production-accordion__toggle:focus-visible {
+    border-radius: 0.25rem;
+    outline: 2px solid var(--ui-focus, #247ba0);
+    outline-offset: 3px;
+}
+
+.crop-production-card .crop-production-accordion__toggle {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.crop-production-location-card__title .crop-production-accordion__toggle {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.crop-production-accordion__toggle i {
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.625rem;
+    transition: transform 150ms ease;
+}
+
+.crop-production-accordion__toggle[aria-expanded="false"] i {
+    transform: rotate(180deg);
+}
+
+.crop-production-phase-legend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.375rem 0.875rem;
+    margin-top: 0.75rem;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+}
+
+.crop-production-chart-panel > .crop-production-phase-legend {
+    justify-content: center;
+    margin-top: 0.375rem;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--color-zinc-100, #f4f4f5);
+}
+
+.crop-production-phase-legend__label {
+    color: var(--color-zinc-700, #3f3f46);
+    font-weight: 700;
+}
+
+.crop-production-phase-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+}
+
+.crop-production-phase-legend__item:hover {
+    color: var(--color-zinc-800, #27272a);
+}
+
+.crop-production-phase-legend__item[aria-pressed="false"] {
+    opacity: 0.42;
+}
+
+.crop-production-phase-legend__swatch {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 0.1875rem;
+}
+
+.crop-production-phase-legend__swatch--warm {
+    border-color: #fca5a5;
+    background: #fff1f2;
+}
+
+.crop-production-phase-legend__swatch--cold {
+    border-color: #93c5fd;
+    background: #eff6ff;
+}
+
+.crop-production-phase-legend__swatch--neutral {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.crop-production-card__controls {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.crop-production-area-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--color-zinc-500, #71717a);
+    cursor: pointer;
+    font: 600 0.6875rem/1.1 Inter, sans-serif;
+    white-space: nowrap;
+}
+
+.crop-production-area-toggle__track {
+    position: relative;
+    display: inline-block;
+    width: 1.8rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background: var(--ui-border-subtle, #e4e4e7);
+    transition: var(--farm-transition-standard, 150ms ease);
+}
+
+.crop-production-area-toggle__track::after {
+    position: absolute;
+    top: 0.125rem;
+    left: 0.125rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: var(--ui-surface, #fff);
+    box-shadow: 0 1px 2px rgb(38 55 70 / 0.2);
+    content: "";
+    transition: var(--farm-transition-standard, 150ms ease);
+}
+
+.crop-production-area-toggle input:checked + .crop-production-area-toggle__track {
+    background: var(--ui-focus, #247ba0);
+}
+
+.crop-production-area-toggle input:checked + .crop-production-area-toggle__track::after {
+    transform: translateX(0.8rem);
+}
+
+.crop-production-area-toggle input:focus-visible + .crop-production-area-toggle__track {
+    outline: 2px solid var(--ui-focus, #247ba0);
+    outline-offset: 2px;
+}
+
+.crop-production-select-wrap {
+    display: block;
+    width: 8.75rem;
+}
+
+.crop-production-select-wrap--range {
+    width: 10.25rem;
+}
+
+.crop-production-select-wrap--region {
+    width: 9.25rem;
+}
+
+.crop-production-select-wrap--province {
+    width: 10.75rem;
+}
+
+.crop-production-select-wrap .ui-select {
+    width: 100%;
+    height: var(--control-height-compact);
+    min-height: var(--control-height-compact);
+    border-color: var(--ui-border-subtle, #e4e4e7);
+    border-radius: var(--ui-control-radius, 0.5rem) !important;
+    background: var(--ui-surface, #fff);
+    color: var(--ui-text, #27272a);
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+}
+
+.crop-production-select-wrap .ui-select:hover {
+    border-color: var(--ui-border, #d4d4d8);
+}
+
+.crop-production-select-wrap .ui-select:focus,
+.crop-production-select-wrap .ui-select:focus-visible {
+    border-color: var(--ui-focus, #247ba0);
+    outline: 2px solid color-mix(in srgb, var(--ui-focus, #247ba0) 22%, transparent);
+    outline-offset: 1px;
+}
+
+.crop-production-select-wrap .ui-select:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+}
+
+.crop-production-select-wrap .ui-select__icon {
+    right: 0.625rem;
+    color: var(--ui-icon, #71717a);
+    font-size: 0.625rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.crop-production-main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2.5fr) minmax(18rem, 1fr);
+    /* Let each summary card keep its content height. Chart panels fill the
+       shared row so the two columns remain visually aligned without making
+       the summary card taller than its content. */
+    align-items: start;
+    gap: 1rem;
+}
+
+.crop-production-chart-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+}
+
+.crop-production-chart-panel {
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    min-width: 0;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 0.875rem;
+    background: var(--ui-surface, #fff);
+    padding: 0.875rem;
+}
+
+.crop-production-chart-panel__header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.crop-production-chart-title {
+    margin: 0;
+    color: var(--color-zinc-800, #27272a);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.crop-production-breakdown-select-wrap {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 10rem;
+}
+
+.crop-production-breakdown-select-wrap .ui-select {
+    height: 1.75rem;
+    min-height: 1.75rem;
+    font-size: 0.6875rem;
+}
+
+.crop-production-chart-wrap {
+    position: relative;
+    /* Chart.js needs a definite height when aspect-ratio maintenance is off.
+       Without one, the canvas uses its width-based intrinsic size, so hiding
+       the sidebar can make the wider chart grow vertically. */
+    /* Match the summary column's content height so both card boundaries line
+       up while the chart itself keeps a stable height as the sidebar toggles. */
+    --crop-production-chart-height: 40.75rem;
+    flex: 0 0 var(--crop-production-chart-height);
+    overflow-x: hidden;
+    overflow-y: hidden;
+    height: var(--crop-production-chart-height);
+    min-height: 0;
+}
+
+.crop-production-chart-surface {
+    position: relative;
+    width: 100%;
+    min-width: 100%;
+    height: 100%;
+}
+
+.crop-production-chart-surface canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.crop-production-empty {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.875rem;
+}
+
+.crop-production-summary-card {
+    --crop-production-summary-section-gap: 0.75rem;
+    align-self: start;
+    min-width: 0;
+    height: auto;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 0.875rem;
+    background: var(--ui-surface, #fff);
+    padding: 0.75rem;
+}
+
+.crop-production-summary-grid {
+    display: contents;
+}
+
+.crop-production-chart-grid,
+.crop-production-summary-grid {
+    display: contents;
+}
+
+.crop-production-chart-grid > section:first-child,
+.crop-production-summary-grid > aside:first-child {
+    grid-row: 1;
+}
+
+.crop-production-chart-grid > section:nth-child(2),
+.crop-production-summary-grid > aside:nth-child(2) {
+    grid-row: 2;
+}
+
+.crop-production-chart-grid > section {
+    grid-column: 1;
+}
+
+.crop-production-summary-grid > aside {
+    grid-column: 2;
+}
+
+.crop-production-summary-card__header {
+    border-bottom: 1px solid var(--color-zinc-200, #e4e4e7);
+    padding-bottom: 0.5rem;
+}
+
+.crop-production-summary-card__header h2 {
+    margin: 0;
+    color: var(--color-zinc-800, #27272a);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.crop-production-summary-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(3, auto);
+    gap: 0.375rem;
+    margin-top: 0.25rem;
+}
+
+.crop-production-summary-kpis__title {
+    margin-top: var(--crop-production-summary-section-gap);
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 0.875rem;
+}
+
+.crop-production-summary-kpi {
+    min-width: 0;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 0.5rem;
+    background: var(--color-zinc-50, #fafafa);
+    padding: 0.375rem 0.4rem;
+}
+
+.crop-production-summary-kpi[data-crop-production-summary-kpi-mode="annual"] {
+    grid-column: 1 / -1;
+}
+
+.crop-production-summary-kpi[data-crop-production-summary-kpi-mode="semestral"] {
+    grid-column: span 2;
+}
+
+.crop-production-summary-kpi[data-crop-production-summary-kpi-mode="annual"],
+.crop-production-summary-kpi[data-crop-production-summary-kpi-mode="semestral"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    column-gap: 0.75rem;
+    align-items: center;
+}
+
+.crop-production-summary-kpi[data-crop-production-summary-kpi-mode="annual"] .crop-production-summary-kpi__comparisons,
+.crop-production-summary-kpi[data-crop-production-summary-kpi-mode="semestral"] .crop-production-summary-kpi__comparisons {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: center;
+    justify-items: end;
+    margin-top: 0;
+    text-align: right;
+}
+
+.crop-production-summary-kpi__label,
+.crop-production-summary-kpi__period {
+    display: block;
+    overflow: hidden;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.5625rem;
+    line-height: 0.75rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.crop-production-summary-kpi__label {
+    font-weight: 600;
+}
+
+.crop-production-summary-kpi__value {
+    display: block;
+    margin-top: 0.125rem;
+    overflow: hidden;
+    color: var(--color-zinc-800, #27272a);
+    font-family: var(--font-family-data, "IBM Plex Mono", monospace);
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    line-height: 1rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.crop-production-summary-kpi__period {
+    margin-top: 0.125rem;
+}
+
+.crop-production-summary-kpi__comparisons {
+    display: grid;
+    gap: 0.0625rem;
+    margin-top: 0.25rem;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.5625rem;
+    line-height: 0.75rem;
+    white-space: nowrap;
+}
+
+.crop-production-summary-kpi__comparison {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.crop-production-summary-kpi__delta {
+    font-family: var(--font-family-data, "IBM Plex Mono", monospace);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.crop-production-summary-kpi__delta[data-direction="increase"] {
+    color: var(--color-green-600, #16a34a);
+}
+
+.crop-production-summary-kpi__delta[data-direction="decrease"] {
+    color: var(--color-red-600, #dc2626);
+}
+
+.crop-production-summary-kpi__delta[data-direction="flat"],
+.crop-production-summary-kpi__delta[data-direction="unavailable"] {
+    color: var(--color-zinc-500, #71717a);
+}
+
+.crop-production-summary-card__header p {
+    margin: 0.25rem 0 0;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+}
+
+.crop-production-summary-breakdown {
+    margin-top: var(--crop-production-summary-section-gap);
+}
+
+.crop-production-summary-breakdown__label {
+    margin-bottom: 0.125rem;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 0.875rem;
+}
+
+.crop-production-summary-breakdown__bar {
+    display: flex;
+    width: 100%;
+    height: 0.75rem;
+    overflow: hidden;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 0.375rem;
+    background: var(--color-zinc-100, #f4f4f5);
+}
+
+.crop-production-summary-breakdown__segment {
+    display: block;
+    min-width: 0;
+    height: 100%;
+    transition: width 150ms ease;
+}
+
+.crop-production-summary-breakdown__segment--irrigated,
+.crop-production-summary-breakdown__swatch--irrigated {
+    background: #52525b;
+}
+
+.crop-production-summary-breakdown__segment--rainfed,
+.crop-production-summary-breakdown__swatch--rainfed {
+    background: #d4d4d8;
+}
+
+.crop-production-summary-breakdown__segment--yellow,
+.crop-production-summary-breakdown__swatch--yellow {
+    background: #52525b;
+}
+
+.crop-production-summary-breakdown__segment--white,
+.crop-production-summary-breakdown__swatch--white {
+    background: #d4d4d8;
+}
+
+.crop-production-summary-breakdown__legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 0.625rem;
+    margin-top: 0.125rem;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.5625rem;
+    line-height: 0.75rem;
+}
+
+.crop-production-summary-breakdown__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.crop-production-summary-breakdown__legend-item strong {
+    color: var(--color-zinc-700, #3f3f46);
+    font-weight: 700;
+}
+
+.crop-production-summary-breakdown__swatch {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: 0 0 auto;
+    border-radius: 0.125rem;
+}
+
+.crop-production-summary-list {
+    display: grid;
+    gap: var(--crop-production-summary-section-gap);
+    padding-top: var(--crop-production-summary-section-gap);
+}
+
+.crop-production-summary-item {
+    min-width: 0;
+}
+
+.crop-production-summary-item h3 {
+    margin: 0;
+    color: var(--color-zinc-800, #27272a);
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.25rem;
+}
+
+.crop-production-summary-table-wrap {
+    margin-top: 0;
+    overflow-x: auto;
+}
+
+.crop-production-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.625rem;
+    line-height: 0.875rem;
+    table-layout: fixed;
+}
+
+.crop-production-summary-table__caption {
+    padding: 0 0 0.125rem;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 0.875rem;
+    text-align: left;
+}
+
+.crop-production-summary-table th,
+.crop-production-summary-table td {
+    padding: 0.25rem 0.2rem;
+    border-bottom: 1px solid var(--color-zinc-200, #e4e4e7);
+    white-space: nowrap;
+}
+
+.crop-production-summary-table thead th {
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.crop-production-summary-table thead th:first-child,
+.crop-production-summary-table tbody th {
+    text-align: left;
+}
+
+.crop-production-summary-table tbody th {
+    color: var(--color-zinc-700, #3f3f46);
+    font-weight: 700;
+}
+
+.crop-production-summary-table tbody td {
+    text-align: right;
+    font-family: var(--font-family-data, "IBM Plex Mono", monospace);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Keep summary rows on one neutral surface; the group separators provide the structure. */
+.crop-production-summary-table tbody > tr,
+.crop-production-summary-table tbody > tr:nth-child(odd),
+.crop-production-summary-table tbody > tr:nth-child(even) {
+    background: var(--ui-surface, #fff);
+}
+
+.crop-production-summary-table tbody tr[data-crop-production-summary-values-row="annual"] > *,
+.crop-production-summary-table tbody tr[data-crop-production-summary-values-row="s1"] > *,
+.crop-production-summary-table tbody tr[data-crop-production-summary-values-row="q1"] > *,
+.crop-production-summary-table tbody tr[data-crop-production-summary-yield-values-row="annual"] > *,
+.crop-production-summary-table tbody tr[data-crop-production-summary-yield-values-row="s1"] > *,
+.crop-production-summary-table tbody tr[data-crop-production-summary-yield-values-row="q1"] > * {
+    border-top: 2px solid var(--color-zinc-300, #d4d4d8);
+}
+
+.crop-production-card__footer {
+    border-top: 1px solid var(--color-zinc-100, #f4f4f5);
+    padding-top: 0.75rem;
+}
+
+.crop-production-location-card {
+    min-width: 0;
+}
+
+.crop-production-location-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-zinc-100, #f4f4f5);
+    padding-bottom: 0.75rem;
+}
+
+.crop-production-location-card__header h2 {
+    margin: 0;
+    color: var(--color-zinc-900, #18181b);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.crop-production-location-card__header p {
+    margin: 0.25rem 0 0;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.6875rem;
+    line-height: 1.25rem;
+}
+
+.crop-production-location-card__controls {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.crop-production-location-select-wrap {
+    display: block;
+    width: 8rem;
+}
+
+.crop-production-location-select-wrap--focus {
+    width: 11rem;
+}
+
+.crop-production-location-select-wrap--period {
+    width: 7.5rem;
+}
+
+.crop-production-location-select-wrap--range {
+    width: 9.5rem;
+}
+
+.crop-production-location-select-wrap .ui-select {
+    width: 100%;
+    height: var(--control-height-compact);
+    min-height: var(--control-height-compact);
+    border-color: var(--ui-border-subtle, #e4e4e7);
+    border-radius: var(--ui-control-radius, 0.5rem) !important;
+    background: var(--ui-surface, #fff);
+    color: var(--ui-text, #27272a);
+    font-size: 0.75rem;
+}
+
+.crop-production-location-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.625rem;
+    min-height: 1rem;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.625rem;
+    line-height: 1rem;
+}
+
+.crop-production-location-grid {
+    display: grid;
+    /* Match the full chart card, including its header and ENSO legend. */
+    --crop-production-location-height: 46.25rem;
+    --crop-production-location-mix-height: 18rem;
+    --crop-production-location-trend-height: 22rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2.5fr);
+    grid-template-rows: var(--crop-production-location-height) var(--crop-production-location-mix-height) var(--crop-production-location-trend-height);
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.crop-production-location-chart-panel,
+.crop-production-location-table-panel {
+    min-width: 0;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: 0.875rem;
+    background: #fff;
+    padding: 0.625rem;
+}
+
+.crop-production-location-map-panel {
+    min-width: 0;
+    min-height: 0;
+}
+
+.crop-production-location-panel__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.crop-production-location-panel__header h3 {
+    margin: 0;
+    color: var(--color-zinc-700, #3f3f46);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.1rem;
+}
+
+.crop-production-location-panel__header span {
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.625rem;
+    white-space: nowrap;
+}
+
+.crop-production-location-map-wrap {
+    position: relative;
+    height: var(--crop-production-location-height);
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: #c0e8ff;
+}
+
+.crop-production-location-map {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 0.625rem;
+    background: #c0e8ff;
+}
+
+.crop-production-location-map .leaflet-container {
+    width: 100%;
+    height: 100%;
+    font: inherit;
+}
+
+.crop-production-location-map-legend {
+    position: absolute;
+    z-index: 400;
+    left: 0.5rem;
+    bottom: 0.5rem;
+    width: max-content;
+    min-width: 0;
+    max-width: 13rem;
+    margin: 0;
+    padding: 0.55rem 0.6rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: transparent;
+    box-shadow: none;
+    color: #075985;
+    font-size: 0.5625rem;
+    line-height: 1.05;
+    pointer-events: none;
+    backdrop-filter: blur(6px) saturate(1.04);
+}
+
+.crop-production-location-map-legend .add-map-legend__title,
+.crop-production-location-map-legend .add-map-legend__unit {
+    font-size: 0.5625rem;
+    font-weight: 600;
+}
+
+.crop-production-location-map-legend .add-map-legend__unit {
+    margin-bottom: 0.25rem;
+}
+
+.crop-production-location-map-legend .add-map-legend__list {
+    display: grid;
+    grid-template-columns: 2rem max-content max-content max-content;
+    column-gap: 0.15rem;
+    row-gap: 0.1rem;
+    align-items: center;
+    justify-content: start;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.crop-production-location-map-legend .add-map-legend__row {
+    display: contents;
+}
+
+.crop-production-location-map-legend .add-map-legend__row--lowest-bound .add-map-legend__bound--lower {
+    grid-column: 2 / -1;
+    justify-self: end;
+    text-align: right;
+}
+
+.crop-production-location-map-legend .add-map-legend__swatch {
+    display: block;
+    width: 2rem;
+    height: 0.55rem;
+}
+
+.crop-production-location-map-legend .add-map-legend__bound--lower,
+.crop-production-location-map-legend .add-map-legend__bound--upper {
+    text-align: right;
+}
+
+.crop-production-location-map-legend .add-map-legend__separator {
+    color: #a1a1aa;
+    text-align: center;
+}
+
+.crop-production-location-map-legend .add-map-legend__separator:empty {
+    display: none;
+}
+
+.crop-production-location-map-panel:fullscreen {
+    box-sizing: border-box;
+    width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+    padding: 1rem;
+    border-radius: 0;
+    background: #fff;
+}
+
+.crop-production-location-map-panel:fullscreen .crop-production-location-map-wrap {
+    height: calc(100vh - 5rem);
+}
+
+.crop-production-location-charts {
+    display: contents;
+    min-width: 0;
+    min-height: 0;
+}
+
+.crop-production-location-chart-panel {
+    display: flex;
+    min-height: 0;
+    height: auto;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.crop-production-location-charts > .crop-production-location-chart-panel:first-child {
+    grid-column: 2;
+    grid-row: 1;
+    height: var(--crop-production-location-height);
+}
+
+.crop-production-location-charts > .crop-production-location-chart-panel:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: var(--crop-production-location-mix-height);
+}
+
+.crop-production-location-charts > .crop-production-location-chart-panel:nth-child(3) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    height: var(--crop-production-location-trend-height);
+}
+
+.crop-production-location-chart-wrap {
+    position: relative;
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+}
+
+.crop-production-location-chart-wrap--scrollable {
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+
+.crop-production-location-chart-wrap canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.crop-production-location-chart-wrap--scrollable canvas {
+    height: var(--crop-production-ranking-chart-height) !important;
+}
+
+.crop-production-location-table-panel {
+    margin-top: 1rem;
+}
+
+.crop-production-location-table-wrap {
+    overflow-x: auto;
+}
+
+.crop-production-location-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: var(--color-zinc-600, #52525b);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+}
+
+.crop-production-location-table th,
+.crop-production-location-table td {
+    padding: 0.4rem 0.45rem;
+    border-bottom: 1px solid var(--color-zinc-200, #e4e4e7);
+    white-space: nowrap;
+}
+
+.crop-production-location-table thead th {
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.crop-production-location-table thead th:first-child,
+.crop-production-location-table tbody th {
+    text-align: left;
+}
+
+.crop-production-location-table tbody th {
+    color: var(--color-zinc-800, #27272a);
+    font-weight: 700;
+}
+
+.crop-production-location-table tbody td {
+    font-family: var(--font-family-data, "IBM Plex Mono", monospace);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.crop-production-location-table tbody tr {
+    cursor: pointer;
+}
+
+.crop-production-location-table tbody tr:hover,
+.crop-production-location-table tbody tr[data-selected="true"] {
+    background: #f0f9ff;
+}
+
+@media (max-width: 960px) {
+    .crop-production-chart-wrap {
+        --crop-production-chart-height: 30rem;
+    }
+
+    .crop-production-main-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .crop-production-chart-grid > section,
+    .crop-production-summary-grid > aside {
+        grid-column: 1;
+    }
+
+    .crop-production-chart-grid > section:first-child {
+        grid-row: 1;
+    }
+
+    .crop-production-summary-grid > aside:first-child {
+        grid-row: 2;
+    }
+
+    .crop-production-chart-grid > section:nth-child(2) {
+        grid-row: 3;
+    }
+
+    .crop-production-summary-grid > aside:nth-child(2) {
+        grid-row: 4;
+    }
+
+    .crop-production-location-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .crop-production-location-map-wrap {
+        height: 35.5rem;
+    }
+
+    .crop-production-location-grid {
+        grid-template-rows: 35.5rem 22rem 35.5rem 35.5rem;
+    }
+
+    .crop-production-location-charts > .crop-production-location-chart-panel:first-child {
+        grid-column: 1;
+        grid-row: 2;
+        height: 35.5rem;
+    }
+
+    .crop-production-location-charts > .crop-production-location-chart-panel:nth-child(2) {
+        grid-column: 1;
+        grid-row: 3;
+        height: 22rem;
+    }
+
+    .crop-production-location-charts > .crop-production-location-chart-panel:nth-child(3) {
+        grid-column: 1;
+        grid-row: 4;
+        height: 35.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .crop-production-card__header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .crop-production-accordion__toggle {
+        width: 100%;
+    }
+
+    .crop-production-card__controls {
+        align-self: flex-start;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .crop-production-select-wrap,
+    .crop-production-select-wrap--range,
+    .crop-production-select-wrap--region,
+    .crop-production-select-wrap--province {
+        flex: 1 1 9rem;
+        width: auto;
+    }
+
+    .crop-production-chart-wrap {
+        --crop-production-chart-height: 22rem;
+        min-height: 0;
+    }
+
+    .crop-production-location-card__header {
+        flex-direction: column;
+    }
+
+    .crop-production-location-card__controls {
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .crop-production-location-select-wrap,
+    .crop-production-location-select-wrap--focus {
+        flex: 1 1 9rem;
+        width: auto;
+    }
+
+    .crop-production-location-map-wrap {
+        height: 27.5rem;
+    }
+
+    .crop-production-location-grid {
+        grid-template-rows: 27.5rem 27.5rem 22rem 27.5rem;
+    }
+
+    .crop-production-location-chart-panel {
+        height: 27.5rem;
+    }
+
+    .crop-production-location-charts > .crop-production-location-chart-panel:first-child {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .crop-production-location-charts > .crop-production-location-chart-panel:nth-child(2) {
+        grid-column: 1;
+        grid-row: 3;
+        height: 22rem;
+    }
+
+    .crop-production-location-charts > .crop-production-location-chart-panel:nth-child(3) {
+        grid-column: 1;
+        grid-row: 4;
+    }
+
+    .crop-production-location-chart-wrap {
+        height: auto;
+    }
+}
+
+/* Responsive crop-production contract. Keep the chart and summary columns
+   independent, let controls wrap before they become unusably narrow, and
+   give location charts a bounded canvas on touch screens. */
+@media (max-width: 960px) {
+    .crop-production-card__header,
+    .crop-production-location-card__header {
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .crop-production-card__controls,
+    .crop-production-location-card__controls {
+        flex: 1 1 100%;
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .crop-production-chart-panel,
+    .crop-production-summary-card,
+    .crop-production-location-chart-panel,
+    .crop-production-location-table-panel {
+        max-width: 100%;
+    }
+
+    .crop-production-summary-card {
+        width: 100%;
+    }
+
+    .crop-production-location-grid {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .crop-production-card,
+    .crop-production-location-card {
+        padding: 0.875rem !important;
+    }
+
+    .crop-production-chart-panel {
+        padding: 0.625rem;
+    }
+
+    .crop-production-chart-panel__header {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.4rem;
+        min-height: 0;
+    }
+
+    .crop-production-chart-title {
+        text-align: left;
+    }
+
+    .crop-production-breakdown-select-wrap {
+        position: static;
+        width: 100%;
+    }
+
+    .crop-production-breakdown-select-wrap .ui-select {
+        width: 100%;
+    }
+
+    .crop-production-location-meta {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    .crop-production-location-map-wrap {
+        height: min(27.5rem, 68dvh);
+        min-height: 20rem;
+    }
+
+    .crop-production-location-chart-panel {
+        height: min(24rem, 62dvh);
+        min-height: 19rem;
+    }
+
+    .crop-production-location-map-legend {
+        max-width: calc(100% - 1rem);
+        padding: 0.35rem 0.4rem;
+        font-size: 0.5rem;
+    }
+
+    .crop-production-location-map-legend .add-map-legend__title,
+    .crop-production-location-map-legend .add-map-legend__unit {
+        font-size: 0.5rem;
+    }
+
+    .crop-production-summary-kpis {
+        gap: 0.3rem;
+    }
+
+    .crop-production-summary-kpi[data-crop-production-summary-kpi-mode="annual"],
+    .crop-production-summary-kpi[data-crop-production-summary-kpi-mode="semestral"] {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 0.2rem;
+    }
+
+    .crop-production-summary-kpi[data-crop-production-summary-kpi-mode="annual"] .crop-production-summary-kpi__comparisons,
+    .crop-production-summary-kpi[data-crop-production-summary-kpi-mode="semestral"] .crop-production-summary-kpi__comparisons {
+        grid-column: 1;
+        grid-row: auto;
+        justify-items: start;
+        text-align: left;
+    }
+}
+
+@media (max-width: 23rem) {
+    .crop-production-summary-kpis {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .crop-production-summary-kpi[data-crop-production-summary-kpi-mode="semestral"] {
+        grid-column: 1;
+    }
+
+    .crop-production-chart-wrap {
+        --crop-production-chart-height: 19rem;
+    }
+
+    .crop-production-location-map-wrap {
+        min-height: 18rem;
+    }
+}
