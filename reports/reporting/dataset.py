@@ -8,6 +8,7 @@ from typing import Any
 
 from django.conf import settings
 
+from ..analytics.periods import selection_label
 from ..incident_attribution import incident_analysis_date
 from ..location_ordering import region_sort_key
 from .consolidation import _consolidate_report_rows
@@ -593,7 +594,6 @@ def build_report_dataset(request) -> dict[str, Any]:
 
     from .options import (
         _label,
-        _selection_label,
         _selection_option_label,
     )
     from .workbook import _generated_by
@@ -602,17 +602,19 @@ def build_report_dataset(request) -> dict[str, Any]:
     generated_by = _generated_by(request)
 
     labels = {
-        "year": _selection_label(
+        "year": selection_label(
             selected["years"],
             formatter=str,
             all_values=options["years"],
             all_label="All Years",
+            empty_label="All Years",
         ),
-        "month": _selection_label(
+        "month": selection_label(
             selected["months"],
             formatter=lambda value: month_name[value],
             all_values=options["month_years"],
             all_label="All Months",
+            empty_label="All Months",
         ),
         "region": (
             selected["region"]

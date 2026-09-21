@@ -23,7 +23,6 @@ from reports.models import (
     TropicalCycloneTrackPoint,
 )
 
-
 FREQUENCY_MODES = {
     "annual": {
         "label": "Annual",

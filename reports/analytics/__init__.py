@@ -5,7 +5,6 @@ from reports.analytics.filters import (
     url_with_query,
 )
 from reports.analytics.formatting import (
-    REGION_LABEL_ALIASES,
     format_compact_value,
     format_exact_value,
     format_percent_delta,
@@ -47,8 +46,8 @@ from reports.analytics.periods import (
     period_error_fallback,
     period_label,
     period_value,
-    selection_label,
     selected_period_options,
+    selection_label,
 )
 from reports.analytics.queries import (
     METRIC_CONFIG,
@@ -58,7 +57,6 @@ from reports.analytics.queries import (
 )
 
 __all__ = [
-    "REGION_LABEL_ALIASES",
     "short_region_label",
     "title_case_label",
     "zero",

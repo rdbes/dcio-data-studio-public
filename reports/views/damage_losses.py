@@ -58,7 +58,6 @@ from reports.analytics import (
     zero as _zero,
 )
 from reports.analytics.province_map import build_province_reporting_area_totals
-from reports.incident_attribution import damage_report_analysis_date_expression
 from reports.hazards.tropical_cyclone_tracks import (
     HISTORICAL_TC_TRACK_SOURCE_PRECEDENCE,
     build_operational_tc_tracks,
@@ -66,6 +65,7 @@ from reports.hazards.tropical_cyclone_tracks import (
     historical_tc_track_for_cyclone,
     serialize_historical_tc_tracks,
 )
+from reports.incident_attribution import damage_report_analysis_date_expression
 from reports.location_ordering import (
     region_sort_key,
     short_region_label,

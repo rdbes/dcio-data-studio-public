@@ -347,19 +347,19 @@ def selected_period_options(filters: dict[str, Any], available_years: list[int])
 
     available_year_set = set(available_years)
     selected_available_years = [year for year in years if year in available_year_set]
-    year_label = (
-        "All Years"
-        if filters["period_mode"] == "all_data"
-        else str(years[0])
-        if len(years) == 1
-        else f"{min(years)}-{max(years)}"
+    year_label = selection_label(
+        years,
+        formatter=str,
+        all_values=available_years if filters["period_mode"] == "all_data" else None,
+        all_label="All Years",
+        empty_label="All Years" if filters["period_mode"] == "all_data" else "",
     )
-    month_label = (
-        "All Months"
-        if len(months) == 12
-        else MONTH_LABELS[months[0]]
-        if len(months) == 1
-        else f"{MONTH_LABELS[min(months)]}-{MONTH_LABELS[max(months)]}"
+    month_label = selection_label(
+        months,
+        formatter=lambda month: MONTH_LABELS[month],
+        all_values=range(1, 13),
+        all_label="All Months",
+        empty_label="All Months",
     )
 
     return {

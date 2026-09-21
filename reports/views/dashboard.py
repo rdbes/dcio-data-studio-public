@@ -66,8 +66,8 @@ from reports.dashboard.aggregation import (
     period_windows,
     report_observations,
     select_observations,
-    summarize_observations,
     subgroups_complete_for_selection,
+    summarize_observations,
     year_label,
 )
 from reports.dashboard.kpis import comparison_delta, previous_period_references

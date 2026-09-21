@@ -80,17 +80,6 @@ METRIC_OPTIONS = (
 )
 
 
-def _selection_label(values, *, formatter, all_values, all_label):
-    """Keep Report Generation's empty-selection label contract."""
-    return selection_label(
-        values,
-        formatter=formatter,
-        all_values=all_values,
-        all_label=all_label,
-        empty_label=all_label,
-    )
-
-
 CONSOLIDATION_OPTIONS = (
     {
         "value": "detailed",
@@ -1185,17 +1174,19 @@ def build_report_generation_context(request):
     )
 
     selected_labels = {
-        "year": _selection_label(
+        "year": selection_label(
             selected["years"],
             formatter=str,
             all_values=options["years"],
             all_label="All Years",
+            empty_label="All Years",
         ),
-        "month": _selection_label(
+        "month": selection_label(
             selected["months"],
             formatter=lambda value: month_abbr[value],
             all_values=options["month_years"],
             all_label="All Months",
+            empty_label="All Months",
         ),
         "region": (
             selected["region"]
