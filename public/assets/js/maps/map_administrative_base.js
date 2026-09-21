@@ -6,7 +6,7 @@
     const defaultZoom = 5;
     const landmassPaneName = "nationalLandmassPane";
 
-    function createMap(mapNode) {
+    function createMap(mapNode, options = {}) {
         if (!mapNode || !window.L) return null;
 
         return window.L.map(mapNode, {
@@ -17,7 +17,8 @@
             zoomControl: false,
             zoomDelta: 1,
             zoomSnap: 0.25,
-            wheelPxPerZoomLevel: 100
+            wheelPxPerZoomLevel: 100,
+            ...options
         }).setView(defaultCenter, defaultZoom);
     }
 

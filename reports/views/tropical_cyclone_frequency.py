@@ -13,6 +13,7 @@ from django.utils import timezone
 from reports.hazards.tropical_cyclones import (
     MIN_TROPICAL_CYCLONE_YEAR,
     TROPICAL_CYCLONE_HAZARD_KEY,
+    occurrence_month,
 )
 from reports.location_ordering import region_sort_key
 from reports.models import (
@@ -52,18 +53,6 @@ HEATMAP_PERIOD_OPTIONS = (
     ("15", "15 years"),
     ("all", "All years"),
 )
-
-def _occurrence_month(cyclone, points) -> int | None:
-    """Resolve a calendar month from the catalogue or earliest track point."""
-
-    if cyclone.start_date:
-        return cyclone.start_date.month
-    if cyclone.first_tracked_within_par_at:
-        return cyclone.first_tracked_within_par_at.month
-    if points:
-        return min(points, key=lambda point: point.valid_at).valid_at.month
-    return None
-
 
 def _selected_mode(value: str) -> str:
     mode = str(value or "").strip().lower()
@@ -138,7 +127,7 @@ def tropical_cyclone_frequency(request):
         metrics = ("all", "damage") if has_damage_report else ("all",)
         for metric in metrics:
             annual_counts_by_metric[metric][cyclone.occurrence_year] += 1
-        month = _occurrence_month(
+        month = occurrence_month(
             cyclone,
             getattr(cyclone, "frequency_track_points", ()),
         )

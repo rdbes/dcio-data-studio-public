@@ -1,0 +1,49 @@
+/* Loaded after module styles so tablet and phone geometry has one final owner. */
+.map-tools-disclosure { display: none; }
+@media (max-width: 1023px) {
+    [data-map-control-rail] .map-tools-disclosure {
+        display: inline-flex;
+        align-items: center;
+        gap: .375rem;
+        min-height: 2.25rem;
+        padding: .375rem .625rem;
+        border: 1px solid #d4e2e8;
+        border-radius: .5rem;
+        background: #fffffff2;
+        color: #1d6785;
+        font: 600 .6875rem Inter, sans-serif;
+        cursor: pointer;
+    }
+    [data-map-control-rail][data-tools-collapsed="true"] > :not(.map-tools-disclosure) { display: none !important; }
+    [data-map-control-rail] .ui-map-icon-button { width: 2rem; height: 2rem; min-width: 2rem; min-height: 2rem; }
+    [data-map-control-rail] .ui-map-icon-button i { font-size: .6875rem; }
+    [data-map-control-popover] { max-width: min(19rem, calc(100vw - 4rem)); max-height: 50dvh; overflow-y: auto; }
+    [data-map-canvas-card] .add-map-legend { font-size: .625rem; max-width: calc(100% - 1rem); }
+    [data-map-canvas-card] .add-map-legend__title,
+    [data-map-canvas-card] .add-map-legend__unit { font-size: .625rem; }
+    [data-map-canvas-card] .add-map-legend__swatch { height: .5rem; }
+    .crop-production-location-panel__header { flex-wrap: wrap; gap: .25rem; }
+}
+@media (pointer: coarse) and (max-width: 1023px) {
+    /* Preserve touch targets while keeping the glyphs visually compact. */
+    [data-map-control-rail] .ui-map-icon-button { min-width: 2.25rem; min-height: 2.25rem; }
+}
+@media (max-width: 960px) {
+    .crop-production-location-grid { grid-template-rows: auto; grid-auto-rows: auto; }
+    .crop-production-location-charts > .crop-production-location-chart-panel:first-child { height: 32rem; }
+    .crop-production-location-charts > .crop-production-location-chart-panel:nth-child(2),
+    .crop-production-location-charts > .crop-production-location-chart-panel:nth-child(3) { height: 24rem; }
+}
+@media (max-width: 640px) {
+    .crop-production-location-charts > .crop-production-location-chart-panel:first-child { height: 30rem; }
+    .crop-production-location-charts > .crop-production-location-chart-panel:nth-child(2),
+    .crop-production-location-charts > .crop-production-location-chart-panel:nth-child(3) { height: 22rem; }
+    .crop-production-location-map-wrap { height: clamp(20rem, 65dvh, 28rem); }
+    .crop-production-summary-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .crop-production-summary-kpi[data-crop-production-summary-kpi-mode="annual"] { grid-column: 1 / -1; }
+    .crop-production-summary-kpi[data-crop-production-summary-kpi-mode="semestral"] { grid-column: span 1; }
+    .crop-production-phase-legend { flex-wrap: wrap; }
+    .dashboard-analysis-chart-card__canvas { min-width: 0; }
+    [data-damage-losses-dashboard] #dashboard-region-chart-card .dashboard-analysis-chart-card__canvas { min-height: 24rem; }
+    .report-table th, .report-table td, .incident-table th, .incident-table td { padding: .5rem; font-size: .6875rem; }
+}

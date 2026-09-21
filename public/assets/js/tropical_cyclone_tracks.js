@@ -28,6 +28,10 @@
     const mapAppearance = window.ADDMapAppearance;
     const administrativeBaseMap = window.ADDAdministrativeBaseMap;
     const mapLegendScale = window.ADDMapLegendScale;
+    const tropicalCycloneMapUtils = window.ADDTropicalCycloneMapUtils;
+    const escapeHtml = tropicalCycloneMapUtils.escapeHtml;
+    const pointCategory = tropicalCycloneMapUtils.pointCategory;
+    const splitTrack = tropicalCycloneMapUtils.splitTrack;
     const mapBackgrounds = mapAppearance?.backgrounds || {};
     const trackRows = Array.from(page.querySelectorAll("[data-tc-track-row]"));
     const yearGroups = Array.from(page.querySelectorAll("[data-tc-track-year-group]"));
@@ -42,65 +46,6 @@
         LPA: "#73736B",
         AA: "#73736B"
     };
-    function escapeHtml(value) {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
-    function pointCategory(point) {
-        const sourceCategory = String(
-            point?.intensity
-            || point?.intensity_code
-            || ""
-        )
-            .trim()
-            .toUpperCase();
-        const wind = Number(
-            point?.maximum_wind_kt
-            ?? point?.maximum_wind
-            ?? point?.wind_kt
-            ?? Number.NaN
-        );
-
-        if (sourceCategory === "STY") {
-            return "STY";
-        }
-        if (sourceCategory === "TY") {
-            return Number.isFinite(wind) && wind >= 100
-                ? "STY"
-                : "TY";
-        }
-        if (["STS", "TS", "TD"].includes(sourceCategory)) {
-            return sourceCategory;
-        }
-        if (["L", "LPA"].includes(sourceCategory)) {
-            return "LPA";
-        }
-        if (["AA", "ET", "EX", "XT"].includes(sourceCategory)) {
-            return "AA";
-        }
-        if (Number.isFinite(wind) && wind > 0) {
-            if (wind >= 100) {
-                return "STY";
-            }
-            if (wind >= 64) {
-                return "TY";
-            }
-            if (wind >= 48) {
-                return "STS";
-            }
-            if (wind >= 34) {
-                return "TS";
-            }
-            return "TD";
-        }
-        return "AA";
-    }
-
     function pointColor(point) {
         return pointCategoryColors[pointCategory(point)]
             || pointCategoryColors.AA;
@@ -800,37 +745,6 @@
             });
         }
         (entry.markers[0] || entry.lines[0])?.openPopup();
-    }
-
-    function splitTrack(points) {
-        if (!points.length) {
-            return [];
-        }
-
-        const segments = [];
-        let segment = [points[0]];
-
-        for (let index = 1; index < points.length; index += 1) {
-            const previous = points[index - 1];
-            const current = points[index];
-            // JMA encodes tracks crossing the antimeridian as +180/-180
-            // longitude jumps. Do not let Leaflet draw those as world-spanning
-            // endpoint segments.
-            if (Math.abs(current.longitude - previous.longitude) >= 180) {
-                if (segment.length) {
-                    segments.push(segment);
-                }
-                segment = [current];
-                continue;
-            }
-            segment.push(current);
-        }
-
-        if (segment.length) {
-            segments.push(segment);
-        }
-
-        return segments;
     }
 
     tracks.forEach(function (track) {

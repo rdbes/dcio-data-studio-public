@@ -1,4 +1,8 @@
 (function () {
+    const tropicalCycloneMapUtils = window.ADDTropicalCycloneMapUtils;
+    const escapeHtml = tropicalCycloneMapUtils.escapeHtml;
+    const historicalTcPointCategory = tropicalCycloneMapUtils.pointCategory;
+    const splitHistoricalTcTrack = tropicalCycloneMapUtils.splitTrack;
     const fallback = document.getElementById("map-fallback");
     const mapNode = document.getElementById("ph-map");
     const mapDataNode = document.getElementById("map-spatial-data");
@@ -625,15 +629,6 @@
         return legendControl;
     }
 
-    function escapeHtml(value) {
-        return String(value || "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
     function buildProvincePopupContent(
         provinceData,
         name,
@@ -883,101 +878,6 @@
         return "#b91c1c";
     }
 
-    function historicalTcPointCategory(
-        point
-    ) {
-        const sourceCategory = String(
-            point?.intensity
-            || point?.intensity_code
-            || ""
-        )
-            .trim()
-            .toUpperCase();
-
-        const wind = Number(
-            point?.maximum_wind_kt
-            ?? point?.maximum_wind
-            ?? point?.wind_kt
-            ?? Number.NaN
-        );
-
-        /*
-         * Preserve explicit PAGASA/JMA tropical
-         * categories where available.
-         *
-         * JMA's TY bucket also contains systems that
-         * meet the PAGASA super-typhoon wind threshold,
-         * so promote those strong TY points for marker
-         * presentation when wind is available.
-         */
-        if (sourceCategory === "STY") {
-            return "STY";
-        }
-
-        if (sourceCategory === "TY") {
-            return (
-                Number.isFinite(wind)
-                && wind >= 100
-                    ? "STY"
-                    : "TY"
-            );
-        }
-
-        if (
-            sourceCategory === "STS"
-            || sourceCategory === "TS"
-            || sourceCategory === "TD"
-        ) {
-            return sourceCategory;
-        }
-
-        if (
-            sourceCategory === "L"
-            || sourceCategory === "LPA"
-        ) {
-            return "LPA";
-        }
-
-        if (
-            sourceCategory === "AA"
-            || sourceCategory === "ET"
-            || sourceCategory === "EX"
-            || sourceCategory === "XT"
-        ) {
-            return "AA";
-        }
-
-        /*
-         * Several finalized PAGASA archive rows carry
-         * wind but leave intensity_code blank.
-         * Derive a display category only in that case.
-         */
-        if (
-            Number.isFinite(wind)
-            && wind > 0
-        ) {
-            if (wind >= 100) {
-                return "STY";
-            }
-
-            if (wind >= 64) {
-                return "TY";
-            }
-
-            if (wind >= 48) {
-                return "STS";
-            }
-
-            if (wind >= 34) {
-                return "TS";
-            }
-
-            return "TD";
-        }
-
-        return "AA";
-    }
-
     function historicalTcPointColor(
         point
     ) {
@@ -1142,56 +1042,6 @@
             + "</div>"
             + "</div>"
         );
-    }
-
-    function splitHistoricalTcTrack(points) {
-        if (!points.length) {
-            return [];
-        }
-
-        const segments = [];
-        let segment = [
-            points[0]
-        ];
-
-        for (
-            let index = 1;
-            index < points.length;
-            index += 1
-        ) {
-            const previous = points[
-                index - 1
-            ];
-            const current = points[
-                index
-            ];
-
-            // Keep antimeridian crossings from becoming world-spanning
-            // endpoint segments in Leaflet.
-            if (
-                Math.abs(
-                    current.longitude
-                    - previous.longitude
-                ) >= 180
-            ) {
-                if (segment.length) {
-                    segments.push(segment);
-                }
-
-                segment = [
-                    current
-                ];
-                continue;
-            }
-
-            segment.push(current);
-        }
-
-        if (segment.length) {
-            segments.push(segment);
-        }
-
-        return segments;
     }
 
     function historicalTcTrackKey(

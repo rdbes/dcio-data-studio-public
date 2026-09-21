@@ -196,6 +196,17 @@ DYNAMIC_LINK_NOTE = (
 )
 
 
+def occurrence_month(cyclone, points=()) -> int | None:
+    """Resolve a cyclone's display month from catalog data or track points."""
+    if cyclone.start_date:
+        return cyclone.start_date.month
+    if cyclone.first_tracked_within_par_at:
+        return cyclone.first_tracked_within_par_at.month
+    if points:
+        return min(points, key=lambda point: point.valid_at).valid_at.month
+    return None
+
+
 def _normalized_match_text(value: str | None) -> str:
     ascii_value = (
         unicodedata.normalize("NFKD", str(value or ""))

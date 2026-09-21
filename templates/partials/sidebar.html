@@ -61,7 +61,7 @@
                     <summary class="sidebar-bottom-nav__summary flex cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150" aria-label="Toggle additional navigation links">
                         <i class="fa-solid fa-ellipsis sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
                         <span>More</span>
-                        <i data-sidebar-bottom-chevron class="fa-solid fa-caret-down text-xs" aria-hidden="true"></i>
+                        <i data-sidebar-bottom-chevron class="fa-solid fa-caret-up text-xs" aria-hidden="true"></i>
                     </summary>
                     <div class="sidebar-bottom-nav__links" data-sidebar-bottom-links>
                         <a href="{% url 'reports:bulletin_checker' %}" {% if current_view == 'bulletin_checker' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'bulletin_checker' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">

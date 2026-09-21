@@ -177,6 +177,7 @@
                         const bars = visibleBars(metas, index);
                         const topBar = bars[bars.length - 1];
                         if (!topBar) return;
+                        if (ctx.measureText(formatValue(value)).width + 4 > chart.chartArea.width / entry.currentValues.length) return;
                         const bottom = Math.max(...bars.map((bar) => bar.base));
                         const height = Math.abs(bottom - topBar.y);
                         const topDatasetIndex = metas.findIndex((meta) => meta.data[index] === topBar);

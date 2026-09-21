@@ -370,6 +370,32 @@ def selected_period_options(filters: dict[str, Any], available_years: list[int])
     }
 
 
+def selection_label(
+    values: list[int],
+    *,
+    formatter=str,
+    all_values=None,
+    all_label="",
+    empty_label="",
+) -> str:
+    """Format a discrete numeric selection as one, a range, or a list."""
+    ordered = sorted(set(values))
+    if not ordered:
+        return empty_label
+
+    normalized_all = sorted(set(all_values)) if all_values is not None else []
+    if all_label and normalized_all and ordered == normalized_all:
+        return all_label
+    if len(ordered) == 1:
+        return formatter(ordered[0])
+    if all(
+        current == previous + 1
+        for previous, current in zip(ordered, ordered[1:])
+    ):
+        return f"{formatter(ordered[0])}–{formatter(ordered[-1])}"
+    return ", ".join(formatter(value) for value in ordered)
+
+
 def discrete_period_selection(
     request: Any,
     period: dict[str, Any],
@@ -397,31 +423,6 @@ def discrete_period_selection(
             if parsed not in selected:
                 selected.append(parsed)
         return sorted(selected)
-
-    def is_contiguous(values: list[int]) -> bool:
-        return len(values) < 2 or all(
-            current == previous + 1
-            for previous, current in zip(values, values[1:])
-        )
-
-    def selection_label(
-        values: list[int],
-        *,
-        formatter,
-        all_values=None,
-        all_label="",
-    ) -> str:
-        values = sorted(set(values))
-        if not values:
-            return ""
-        normalized_all = sorted(set(all_values)) if all_values is not None else []
-        if all_label and normalized_all and values == normalized_all:
-            return all_label
-        if len(values) == 1:
-            return formatter(values[0])
-        if is_contiguous(values):
-            return f"{formatter(values[0])}–{formatter(values[-1])}"
-        return ", ".join(formatter(value) for value in values)
 
     requested_years = bounded_ints(raw_year_values, 1, 9999)
     requested_months = bounded_ints(raw_month_values, 1, 12)

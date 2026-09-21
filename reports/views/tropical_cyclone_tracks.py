@@ -12,6 +12,7 @@ from reports.analytics.filters import url_with_query
 from reports.hazards.tropical_cyclones import (
     MIN_TROPICAL_CYCLONE_YEAR,
     TROPICAL_CYCLONE_HAZARD_KEY,
+    occurrence_month,
 )
 from reports.map_reporting_areas import (
     NCR_REGION_CODE,
@@ -67,18 +68,6 @@ def _short_track_source_label(
     if "PAGASA" in source_text:
         return "DOST-PAGASA"
     return str(source_agency or "Unknown source").strip() or "Unknown source"
-
-
-def _occurrence_month(cyclone, points) -> int | None:
-    """Resolve the occurrence month from the catalogue or earliest point."""
-
-    if cyclone.start_date:
-        return cyclone.start_date.month
-    if cyclone.first_tracked_within_par_at:
-        return cyclone.first_tracked_within_par_at.month
-    if points:
-        return min(points, key=lambda point: point.valid_at).valid_at.month
-    return None
 
 
 def _selected_year(value: str) -> int | None:
@@ -262,13 +251,13 @@ def _serialize_tracks(cyclones):
                 point
             )
 
-        occurrence_month = _occurrence_month(
+        occurrence_month_value = occurrence_month(
             cyclone,
             cyclone.all_track_points,
         )
         occurrence_month_label = (
-            calendar.month_name[occurrence_month]
-            if occurrence_month
+            calendar.month_name[occurrence_month_value]
+            if occurrence_month_value
             else ""
         )
 
@@ -280,7 +269,7 @@ def _serialize_tracks(cyclones):
                     "cyclone_name": cyclone.cyclone_name or "",
                     "international_name": cyclone.international_name or "",
                     "occurrence_year": cyclone.occurrence_year,
-                    "occurrence_month": occurrence_month,
+                    "occurrence_month": occurrence_month_value,
                     "occurrence_month_label": occurrence_month_label,
                     "catalog_source": cyclone.get_catalog_source_display(),
                     "source_type": "",
@@ -331,7 +320,7 @@ def _serialize_tracks(cyclones):
                     "cyclone_name": cyclone.cyclone_name or "",
                     "international_name": cyclone.international_name or "",
                     "occurrence_year": cyclone.occurrence_year,
-                    "occurrence_month": occurrence_month,
+                    "occurrence_month": occurrence_month_value,
                     "occurrence_month_label": occurrence_month_label,
                     "catalog_source": cyclone.get_catalog_source_display(),
                     "source_type": source_type,

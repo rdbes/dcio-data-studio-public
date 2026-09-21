@@ -1,6 +1,6 @@
 import calendar
 
-from django.db.models import Count, Max, Prefetch, Sum
+from django.db.models import Count, Max, Sum
 from django.db.models.functions import ExtractYear
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -59,6 +59,13 @@ from reports.analytics import (
 )
 from reports.analytics.province_map import build_province_reporting_area_totals
 from reports.incident_attribution import damage_report_analysis_date_expression
+from reports.hazards.tropical_cyclone_tracks import (
+    HISTORICAL_TC_TRACK_SOURCE_PRECEDENCE,
+    build_operational_tc_tracks,
+    build_selected_incident_tc_tracks,
+    historical_tc_track_for_cyclone,
+    serialize_historical_tc_tracks,
+)
 from reports.location_ordering import (
     region_sort_key,
     short_region_label,
@@ -71,11 +78,16 @@ from reports.map_reporting_areas import (
 
 from ..models import (
     DamageReport,
-    DisasterIncidentTropicalCyclone,
     RefHazard,
-    TropicalCyclone,
-    TropicalCycloneTrackPoint,
 )
+
+# Compatibility aliases for existing tests and imports while track payload
+# construction lives in the reusable hazard module.
+_HISTORICAL_TC_TRACK_SOURCE_PRECEDENCE = HISTORICAL_TC_TRACK_SOURCE_PRECEDENCE
+_historical_tc_track_for_cyclone = historical_tc_track_for_cyclone
+_serialize_historical_tc_tracks = serialize_historical_tc_tracks
+_build_selected_incident_tc_tracks = build_selected_incident_tc_tracks
+_build_operational_tc_tracks = build_operational_tc_tracks
 
 MAP_CANVAS_METRIC_KEYS = (
     "value",
@@ -182,92 +194,6 @@ def _default_period_year_for_incident(request, active_reports, current_year):
         .aggregate(year=Max("map_analysis_year"))
     )
     return result["year"] or current_year
-
-
-def _damage_losses_selected_ints(values, minimum=None, maximum=None):
-    selected = []
-    seen = set()
-
-    for raw_value in values:
-        try:
-            value = int(raw_value)
-        except (TypeError, ValueError):
-            continue
-
-        if minimum is not None and value < minimum:
-            continue
-        if maximum is not None and value > maximum:
-            continue
-        if value in seen:
-            continue
-
-        seen.add(value)
-        selected.append(value)
-
-    return sorted(selected)
-
-
-def _damage_losses_is_contiguous(values):
-    if len(values) < 2:
-        return True
-
-    return all(
-        current == previous + 1
-        for previous, current in zip(
-            values,
-            values[1:],
-            strict=False,
-        )
-    )
-
-
-def _damage_losses_selection_label(
-    values,
-    *,
-    formatter=str,
-    all_values=None,
-    all_label="",
-):
-    values = sorted(set(values))
-
-    if not values:
-        return ""
-
-    if len(values) == 1:
-        return formatter(values[0])
-
-    contiguous = _damage_losses_is_contiguous(values)
-    normalized_all_values = (
-        sorted(set(all_values))
-        if all_values
-        else []
-    )
-
-    if (
-        all_label
-        and normalized_all_values
-        and values == normalized_all_values
-    ):
-        return all_label
-
-    if contiguous:
-        return (
-            f"{formatter(values[0])}"
-            f"–{formatter(values[-1])}"
-        )
-
-    return ", ".join(
-        formatter(value)
-        for value in values
-    )
-
-
-def _damage_losses_discrete_period_selection(
-    request,
-    period,
-    available_years,
-):
-    return discrete_period_selection(request, period, available_years)
 
 
 def _build_province_map_data(filtered_reports, metric_field, selected_years=None):
@@ -693,276 +619,6 @@ def _build_province_map_data(filtered_reports, metric_field, selected_years=None
     }
 
 
-
-
-_HISTORICAL_TC_TRACK_SOURCE_PRECEDENCE = (
-    (
-        TropicalCycloneTrackPoint.SourceType.PAGASA_BEST_TRACK_FINAL,
-        "DOST-PAGASA",
-        "DOST-PAGASA Final Best Track",
-    ),
-    (
-        TropicalCycloneTrackPoint.SourceType.PAGASA_PRELIMINARY_BEST_TRACK,
-        "DOST-PAGASA",
-        "DOST-PAGASA Preliminary Best Track",
-    ),
-    (
-        TropicalCycloneTrackPoint.SourceType.PAGASA_WARNING_BEST_TRACK,
-        "DOST-PAGASA",
-        "DOST-PAGASA Warning Best Track (2017)",
-    ),
-    (
-        TropicalCycloneTrackPoint.SourceType.JMA_BEST_TRACK_FINAL,
-        "Japan Meteorological Agency",
-        "JMA/RSMC Tokyo Final Best Track",
-    ),
-)
-
-
-def _historical_tc_track_for_cyclone(cyclone):
-    """Return the highest-precedence coherent historical track."""
-
-    points_by_source = {}
-
-    for point in getattr(
-        cyclone,
-        "_historical_track_points",
-        (),
-    ):
-        key = (
-            point.source_type,
-            point.source_agency,
-        )
-        points_by_source.setdefault(
-            key,
-            [],
-        ).append(point)
-
-    for (
-        source_type,
-        source_agency,
-        source_label,
-    ) in _HISTORICAL_TC_TRACK_SOURCE_PRECEDENCE:
-        points = points_by_source.get(
-            (
-                source_type,
-                source_agency,
-            ),
-            (),
-        )
-
-        if not points:
-            continue
-
-        serialized_points = []
-
-        for point in points:
-            serialized_points.append(
-                {
-                    "valid_at": (
-                        point.valid_at.isoformat()
-                        .replace("+00:00", "Z")
-                    ),
-                    "latitude": float(point.latitude),
-                    "longitude": float(point.longitude),
-                    "intensity_code": (
-                        point.intensity_code or ""
-                    ),
-                    "central_pressure_hpa": (
-                        point.central_pressure_hpa
-                    ),
-                    "maximum_wind_kt": (
-                        point.maximum_wind_kt
-                    ),
-                    "source_url": (
-                        point.source_url or ""
-                    ),
-                }
-            )
-
-        source_url = next(
-            (
-                point["source_url"]
-                for point in serialized_points
-                if point["source_url"]
-            ),
-            "",
-        )
-
-        return {
-            "cyclone_key": cyclone.cyclone_key,
-            "cyclone_name": cyclone.cyclone_name or "",
-            "international_name": (
-                cyclone.international_name or ""
-            ),
-            "occurrence_year": cyclone.occurrence_year,
-            "source_type": source_type,
-            "source_agency": source_agency,
-            "source_label": source_label,
-            "source_url": source_url,
-            "points": serialized_points,
-        }
-
-    return None
-
-
-def _serialize_historical_tc_tracks(
-    incident_cyclone_links,
-):
-    """Serialize every available component TC of an incident."""
-
-    tracks = []
-
-    for link in incident_cyclone_links:
-        track = _historical_tc_track_for_cyclone(
-            link.cyclone_key
-        )
-
-        if track is not None:
-            tracks.append(track)
-
-    return tracks
-
-
-def _build_selected_incident_tc_tracks(
-    incident_key,
-):
-    """Build historical track payload for one selected incident."""
-
-    if not incident_key:
-        return []
-
-    historical_source_types = [
-        source_type
-        for (
-            source_type,
-            _source_agency,
-            _source_label,
-        ) in _HISTORICAL_TC_TRACK_SOURCE_PRECEDENCE
-    ]
-
-    track_points = (
-        TropicalCycloneTrackPoint.objects
-        .filter(
-            source_type__in=historical_source_types,
-        )
-        .order_by(
-            "valid_at",
-            "track_point_key",
-        )
-    )
-
-    incident_cyclone_links = (
-        DisasterIncidentTropicalCyclone.objects
-        .filter(
-            incident_key_id=incident_key,
-        )
-        .select_related(
-            "cyclone_key",
-        )
-        .prefetch_related(
-            Prefetch(
-                "cyclone_key__track_points",
-                queryset=track_points,
-                to_attr="_historical_track_points",
-            )
-        )
-        .order_by(
-            "cyclone_key__occurrence_year",
-            "cyclone_key__cyclone_name",
-            "cyclone_key_id",
-        )
-    )
-
-    return _serialize_historical_tc_tracks(
-        incident_cyclone_links
-    )
-
-
-def _build_operational_tc_tracks(incident_key=None):
-    """Serialize operational tracks relevant to the selected incident.
-
-    With the argument omitted this returns the retained catalog payload for
-    operational monitoring and maintenance views. The Dashboard always passes
-    its selected incident value (including an empty value), which limits the
-    layer to cyclones explicitly linked through
-    ``disaster_incident_tropical_cyclone``.
-    """
-
-    points = (
-        TropicalCycloneTrackPoint.objects
-        .filter(
-            source_type=(
-                TropicalCycloneTrackPoint
-                .SourceType
-                .PAGASA_OPERATIONAL_ANALYSIS
-            ),
-            cyclone_key__catalog_source=(
-                TropicalCyclone
-                .CatalogSource
-                .PAGASA_OPERATIONAL_TRACK
-            ),
-            cyclone_key__is_active=True,
-        )
-        .select_related("cyclone_key")
-        .order_by(
-            "cyclone_key__occurrence_year",
-            "cyclone_key__cyclone_name",
-            "valid_at",
-            "track_point_key",
-        )
-    )
-
-    if incident_key is not None:
-        if not incident_key:
-            return []
-        points = points.filter(
-            cyclone_key__incident_links__incident_key_id=incident_key,
-        )
-
-    tracks = {}
-
-    for point in points:
-        cyclone = point.cyclone_key
-        track = tracks.setdefault(
-            cyclone.cyclone_key,
-            {
-                "cyclone_key": cyclone.cyclone_key,
-                "cyclone_name": cyclone.cyclone_name or "",
-                "international_name": (
-                    cyclone.international_name or ""
-                ),
-                "occurrence_year": cyclone.occurrence_year,
-                "source_type": point.source_type,
-                "source_agency": point.source_agency,
-                "source_label": (
-                    "DOST-PAGASA Operational Track"
-                ),
-                "source_url": point.source_url or "",
-                "track_kind": "operational",
-                "points": [],
-            },
-        )
-        track["points"].append(
-            {
-                "valid_at": (
-                    point.valid_at.isoformat()
-                    .replace("+00:00", "Z")
-                ),
-                "latitude": float(point.latitude),
-                "longitude": float(point.longitude),
-                "intensity_code": point.intensity_code or "",
-                "central_pressure_hpa": (
-                    point.central_pressure_hpa
-                ),
-                "maximum_wind_kt": point.maximum_wind_kt,
-                "source_url": point.source_url or "",
-            }
-        )
-
-    return list(tracks.values())
-
-
 def _is_tropical_cyclone_hazard(hazard):
     """Return whether a selected hazard represents tropical cyclone."""
 
@@ -1064,7 +720,7 @@ def _dynamic_incident_options(request):
     )
 
     period.update(
-        _damage_losses_discrete_period_selection(
+        discrete_period_selection(
             request,
             period,
             available_years,
@@ -1228,7 +884,7 @@ def dashboard(request):
     )
     period.update(_selected_period_options(period, available_years))
     period.update(
-        _damage_losses_discrete_period_selection(
+        discrete_period_selection(
             request,
             period,
             available_years,

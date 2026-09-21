@@ -13,6 +13,7 @@ from ..analytics.options import (
     hazard_display_label,
     hazard_sort_key,
 )
+from ..analytics.periods import selection_label
 from ..incident_attribution import (
     damage_report_analysis_date_expression,
 )
@@ -77,6 +78,17 @@ METRIC_OPTIONS = (
         "is_count": True,
     },
 )
+
+
+def _selection_label(values, *, formatter, all_values, all_label):
+    """Keep Report Generation's empty-selection label contract."""
+    return selection_label(
+        values,
+        formatter=formatter,
+        all_values=all_values,
+        all_label=all_label,
+        empty_label=all_label,
+    )
 
 
 CONSOLIDATION_OPTIONS = (
@@ -1051,42 +1063,6 @@ def _selection_option_label(options, values, fallback):
         if option["value"] in selected_values
     ]
     return ", ".join(labels) or fallback
-
-
-def _selection_label(
-    values,
-    *,
-    formatter,
-    all_values,
-    all_label,
-):
-    ordered = sorted(set(values))
-    available = sorted(set(all_values))
-
-    if not ordered or ordered == available:
-        return all_label
-
-    if len(ordered) == 1:
-        return formatter(ordered[0])
-
-    contiguous = all(
-        current == previous + 1
-        for previous, current in zip(
-            ordered,
-            ordered[1:],
-        )
-    )
-
-    if contiguous:
-        return (
-            f"{formatter(ordered[0])}–"
-            f"{formatter(ordered[-1])}"
-        )
-
-    return ", ".join(
-        formatter(value)
-        for value in ordered
-    )
 
 
 def build_report_generation_context(request):

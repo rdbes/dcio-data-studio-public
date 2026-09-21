@@ -47,6 +47,7 @@ from reports.analytics.periods import (
     period_error_fallback,
     period_label,
     period_value,
+    selection_label,
     selected_period_options,
 )
 from reports.analytics.queries import (
@@ -83,6 +84,7 @@ __all__ = [
     "period_bounds",
     "period_label",
     "period_error_fallback",
+    "selection_label",
     "normalize_period",
     "selected_period_options",
     "commodity_group_from_row",

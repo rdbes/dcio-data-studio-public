@@ -313,8 +313,8 @@
     transform: rotate(90deg);
 }
 
-/* The secondary navigation group uses a vertical caret so its open state is
- * clear without adding another navigation pattern to the sidebar. */
+/* The bottom navigation group opens upward, so the collapsed state points up
+ * toward the links and the expanded state points down toward the summary. */
 [data-sidebar-shell] nav > .sidebar-bottom-nav > summary {
     list-style: none;
 }

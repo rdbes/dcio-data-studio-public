@@ -4,6 +4,8 @@ import re
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
+from reports.location_ordering import short_region_label
+
 REGION_LABEL_ALIASES = {
     "NATIONAL CAPITAL REGION": "NCR",
     "NATIONAL CAPITAL REGION (NCR)": "NCR",
@@ -76,37 +78,6 @@ def title_case_label(value: Any) -> str:
         return word[:1].upper() + word[1:].lower()
 
     return re.sub(r"[A-Za-zÀ-ÖØ-öø-ÿ]+", replace_word, text)
-
-
-def short_region_label(region_name: Any) -> str:
-    """Return concise display label for region names."""
-    if not region_name:
-        return "Unspecified Region"
-
-    normalized = " ".join(str(region_name).replace("\xa0", " ").split()).upper()
-
-    if normalized in REGION_LABEL_ALIASES:
-        return REGION_LABEL_ALIASES[normalized]
-
-    if "MIMAROPA" in normalized:
-        return "MIMAROPA"
-
-    if "BANGSAMORO" in normalized or "BARMM" in normalized:
-        return "BARMM"
-
-    if "NATIONAL CAPITAL" in normalized or normalized == "NCR":
-        return "NCR"
-
-    if "CORDILLERA" in normalized or normalized == "CAR":
-        return "CAR"
-
-    if "CARAGA" in normalized:
-        return "Caraga"
-
-    if "NEGROS" in normalized or normalized == "NIR":
-        return "NIR"
-
-    return str(region_name)
 
 
 def zero(value: Any) -> Any:
