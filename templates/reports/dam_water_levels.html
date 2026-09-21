@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dam Water Levels Monitoring - DCIO Data Studio{% endblock %}
+{% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block breadcrumbs %}<span>Dam Water Levels</span>{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/dam-water-levels.css' %}?v=20260921-standalone-module-v1">
+<script defer src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+<script defer src="{% static 'js/dam_water_levels.js' %}?v=20260921-standalone-module-v1"></script>
+{% endblock %}
+
+{% block content %}
+<section class="w-full space-y-3" aria-labelledby="dam-water-levels-title" data-dam-water-levels data-static-app="true" data-auto-refresh-times="09:00,21:00" data-static-data-url="{% static 'data/dam_water_levels.json' %}" data-dam-chart-api="{% static 'data/dam_water_levels.json' %}">
+                        <header class="module-page-header">
+                            <div class="module-page-header__top">
+                                <div class="module-page-heading min-w-0">
+                                    <div class="min-w-0">
+                                        <h1 id="dam-water-levels-title" class="module-page-title">Dam Water Levels Monitoring</h1>
+                                        <p class="module-page-subtitle">Source: <a href="https://www.pagasa.dost.gov.ph/flood" target="_blank" rel="noopener noreferrer" class="font-semibold underline decoration-zinc-300 underline-offset-2 hover:text-zinc-950">DOST-PAGASA</a></p>
+                                    </div>
+                                </div>
+                                <div class="module-page-header-meta__actions">
+                                    <a href="https://dam-water-levels-monitoring.vercel.app/api/dam_report" data-dam-report-download aria-label="Download report" title="Download report" class="ui-button ui-button--primary ui-button--small inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold shadow-2xs transition-colors">
+                                        <i data-dam-report-icon class="fa-solid fa-download" aria-hidden="true"></i>
+                                        <span data-dam-report-label>Download Report</span>
+                                    </a>
+                                    <button type="button" data-refresh-live class="ui-button ui-button--secondary ui-button--small inline-flex items-center justify-center gap-2 rounded-md border border-zinc-200 bg-white h-8 w-8 p-0 text-xs font-semibold text-zinc-700 shadow-2xs transition-colors" aria-label="Refresh data" title="Refresh data">
+                                        <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="module-page-header-meta" aria-label="PAGASA source update details">
+                                <div class="module-page-header-meta__item"><span class="module-page-header-meta__label">Observed</span><span class="module-page-header-meta__value" data-source-observed>—</span></div>
+                                <div class="module-page-header-meta__item"><span class="module-page-header-meta__label" data-source-retrieved-label>Synced</span><span class="module-page-header-meta__value" data-source-retrieved>—</span></div>
+                            </div>
+                            <p class="sr-only" data-dam-source-status role="status" aria-live="polite" aria-atomic="true">Loading the latest PAGASA dam readings…</p>
+                        </header>
+
+                        <section class="ui-main-card min-w-0 max-w-full rounded-xl border border-zinc-200/80 bg-white shadow-xs" aria-labelledby="dam-water-level-summary-title">
+                            <div class="ui-section-header" data-dam-summary-header>
+                                <div class="dam-water-level-summary-header__inner">
+                                <div>
+                                    <h2 id="dam-water-level-summary-title" class="ui-section-title">Dam Water Level Summary</h2>
+                                    <p class="dam-water-level-summary-key">Indicators show current water level deviation from each reference point.</p>
+                                </div>
+                                    <button type="button" data-dam-summary-copy class="ui-icon-button dam-water-level-summary-copy" aria-label="Copy Dam Water Level Summary table as image" title="Copy Dam Water Level Summary table as image">
+                                        <svg data-summary-copy-icon width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                            <rect x="5" y="5" width="8" height="8" rx="1.25" stroke="currentColor" stroke-width="1.25"></rect>
+                                            <path d="M11 5V3.75A1.75 1.75 0 0 0 9.25 2h-5.5A1.75 1.75 0 0 0 2 3.75v5.5A1.75 1.75 0 0 0 3.75 11H5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"></path>
+                                        </svg>
+                                    </button>
+                                    <span class="dam-water-level-summary-copy-feedback" data-dam-summary-copy-feedback role="status" aria-live="polite" hidden></span>
+                                </div>
+                            </div>
+                            <div class="report-table-wrap max-w-full overflow-x-auto" tabindex="0" aria-label="Scrollable dam water level summary">
+                                <table class="report-table dam-water-level-summary-table">
+                                    <caption class="sr-only">Current dam reading compared with source reference levels and annual series.</caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Dam</th>
+                                            <th scope="col">Water Level<br><span class="dam-water-level-summary-table__as-of" data-summary-as-of>as of —</span></th>
+                                            <th scope="col" class="dam-water-level-summary-table__trend">Trend<br><span class="dam-water-level-summary-table__as-of" data-trend-as-of>Jan 1, — to present</span></th>
+                                            <th scope="col">Rule<br>Curve</th>
+                                            <th scope="col">Normal High<br>Water Level</th>
+                                            <th scope="col">Low<br>Water Level</th>
+                                            <th scope="col"><span data-comparison-year="0">—</span><br><span class="dam-water-level-summary-table__as-of">Same day</span></th>
+                                            <th scope="col"><span data-comparison-year="1">—</span><br><span class="dam-water-level-summary-table__as-of">Same day</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dam-summary-body">
+                                        <tr><td colspan="8">Loading the latest PAGASA dam readings…</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+
+                        <section class="ui-main-card min-w-0 max-w-full rounded-xl border border-zinc-200/80 bg-white shadow-xs" aria-labelledby="dam-water-level-trends-title">
+                            <div class="ui-section-header dam-water-level-trend-header">
+                                <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                    <div><h2 id="dam-water-level-trends-title" class="ui-section-title">Dam Water Levels Trends</h2></div>
+                                    <div class="dam-water-level-trend-info" data-dam-trend-info>
+                                        <button type="button" class="dam-water-level-trend-info__toggle" data-dam-trend-info-toggle aria-expanded="false" aria-controls="dam-water-level-trend-info-card" aria-label="Explain chart terms" title="Explain chart terms">
+                                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                                        </button>
+                                        <div id="dam-water-level-trend-info-card" class="dam-water-level-trend-info__card" data-dam-trend-info-card role="region" aria-labelledby="dam-water-level-trend-info-title" hidden>
+                                            <div class="dam-water-level-trend-info__card-header">
+                                                <h3 id="dam-water-level-trend-info-title">Chart terms</h3>
+                                                <button type="button" class="dam-water-level-trend-info__close" data-dam-trend-info-close aria-label="Close chart terms" title="Close chart terms">
+                                                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                            <dl class="dam-water-level-trend-info__list">
+                                                <div>
+                                                    <dt><span class="dam-water-level-trend-info__swatch dam-water-level-trend-info__swatch--current"></span>Current year</dt>
+                                                    <dd>Daily water-level readings for the current calendar year.</dd>
+                                                </div>
+                                                <div>
+                                                    <dt><span class="dam-water-level-trend-info__swatch dam-water-level-trend-info__swatch--rule"></span>Rule Curve</dt>
+                                                    <dd>Planned operating guide for the reservoir elevation through the year.</dd>
+                                                </div>
+                                                <div>
+                                                    <dt><span class="dam-water-level-trend-info__swatch dam-water-level-trend-info__swatch--high"></span>Normal High Water Level</dt>
+                                                    <dd>Normal upper operating or reference elevation for the dam.</dd>
+                                                </div>
+                                                <div>
+                                                    <dt><span class="dam-water-level-trend-info__swatch dam-water-level-trend-info__swatch--low"></span>Low Water Level</dt>
+                                                    <dd>Lower reference or threshold level, when provided by PAGASA.</dd>
+                                                </div>
+                                                <div>
+                                                    <dt><span class="dam-water-level-trend-info__swatch dam-water-level-trend-info__swatch--historical"></span>Historical years</dt>
+                                                    <dd>Same-calendar-day readings from the previous two years.</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="dam-chart-grid" class="dam-water-level-chart-grid grid gap-4 p-4 lg:grid-cols-2 sm:p-5" aria-label="Responsive individual dam line charts">
+                                <div class="lg:col-span-2 static-loading-panel" role="status" aria-live="polite">Loading source chart data…</div>
+                            </div>
+                        </section>
+
+                        <section class="ui-main-card min-w-0 max-w-full rounded-xl border border-zinc-200/80 bg-white shadow-xs" aria-labelledby="dam-water-level-update-title">
+                            <div class="ui-section-header"><h2 id="dam-water-level-update-title" class="ui-section-title">Dam Water Level Update</h2></div>
+                            <figure class="p-4 sm:p-5">
+                                <div class="dam-water-level-status-image-frame report-table-wrap max-w-full overflow-x-auto rounded-lg border border-zinc-200 bg-zinc-50 p-2" tabindex="0" aria-label="Official PAGASA dam status image">
+                                    <a data-status-image-link href="https://pubfiles.pagasa.dost.gov.ph/hmd/DAMSTATUS.gif" target="_blank" rel="noopener noreferrer" class="dam-water-level-status-image-link" aria-label="Open the full-size official PAGASA dam water-level status image">
+                                        <img data-status-image src="https://pubfiles.pagasa.dost.gov.ph/hmd/DAMSTATUS.gif" alt="Official PAGASA dam water-level status image. Select to open the full-size source image." class="dam-water-level-status-image" loading="lazy" decoding="async">
+                                    </a>
+                                </div>
+                            </figure>
+                        </section>
+                    </section>
+{% endblock %}

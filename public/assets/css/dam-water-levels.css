@@ -1,0 +1,906 @@
+[data-dam-water-levels] .module-page-header-meta {
+    gap: 0.2rem 0.75rem;
+}
+
+[data-dam-water-levels] .module-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem 1rem;
+    padding-bottom: var(--space-2);
+}
+
+[data-dam-water-levels] .module-page-subtitle {
+    margin-top: 0;
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-line-height);
+}
+
+[data-dam-water-levels] .module-page-header > .module-page-header-meta {
+    width: 100%;
+    flex-shrink: 0;
+    justify-content: flex-start;
+}
+
+[data-dam-water-levels] .module-page-header-meta__item {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.3rem;
+}
+
+[data-dam-water-levels] .module-page-header-meta__label {
+    font-family: var(--font-family-interface);
+    font-size: var(--type-caption-size);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--type-caption-line-height);
+}
+
+[data-dam-water-levels] .module-page-header-meta__value {
+    font-family: var(--font-family-interface);
+    font-size: var(--type-caption-size);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--type-caption-line-height);
+}
+
+[data-dam-water-levels] .module-page-header-meta__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--ui-text-strong);
+    font-family: var(--font-family-data);
+    font-size: 0.68rem;
+    font-variant-numeric: var(--type-numeric-variant);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+[data-dam-water-levels] .module-page-header-meta__status::before {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: var(--ui-text-muted);
+    content: "";
+}
+
+[data-dam-water-levels] .module-page-header-meta__status[data-freshness-state="fresh"]::before {
+    background: #16a34a;
+}
+
+[data-dam-water-levels] .module-page-header-meta__status[data-freshness-state="stale"]::before {
+    background: #ea580c;
+}
+
+[data-dam-water-levels] .module-page-header-meta__status[data-freshness-state="expired"]::before {
+    background: #dc2626;
+}
+
+[data-dam-water-levels] .module-page-header__top .ui-button--secondary {
+    width: 1.75rem;
+    height: 1.75rem;
+    min-height: 1.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.375rem;
+    background: #f4f4f5;
+    color: #3f3f46;
+    box-shadow: none;
+}
+
+[data-dam-water-levels] .module-page-header__top .ui-button--secondary:hover {
+    border-color: #a1a1aa;
+    background: #e4e4e7;
+    color: #27272a;
+    box-shadow: none;
+}
+
+[data-dam-water-levels] .ui-section-header {
+    background: #ffffff;
+    padding: 0.7rem 1rem;
+}
+
+[data-dam-water-levels] .ui-section-title {
+    text-align: center;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-header > div:first-child {
+    position: relative;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-header > div:first-child > div:first-child {
+    min-width: 0;
+    width: 100%;
+    text-align: center;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    z-index: 10;
+    transform: translateY(-50%);
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__toggle,
+[data-dam-water-levels] .dam-water-level-trend-info__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 0.375rem;
+    color: var(--ui-text-muted);
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__toggle {
+    width: 1.75rem;
+    height: 1.75rem;
+    background: transparent;
+    font-size: 0.875rem;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__toggle:hover,
+[data-dam-water-levels] .dam-water-level-trend-info__toggle[aria-expanded="true"] {
+    background: #e6f4ff;
+    color: #1677b9;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__toggle:focus-visible,
+[data-dam-water-levels] .dam-water-level-trend-info__close:focus-visible {
+    outline: 2px solid #99d1ff;
+    outline-offset: 2px;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__card {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    width: min(22rem, calc(100vw - 2rem));
+    padding: 0.875rem;
+    border: 1px solid #dbeaf4;
+    border-radius: 0.625rem;
+    background: #ffffff;
+    box-shadow: 0 12px 30px rgb(15 23 42 / 14%);
+    color: var(--ui-text);
+    text-align: left;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 0.625rem;
+    border-bottom: 1px solid #eef3f7;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__card-header h3 {
+    margin: 0;
+    color: var(--ui-text-strong);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__close {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: 0 0 auto;
+    background: transparent;
+    font-size: 0.75rem;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__close:hover {
+    background: #f1f8fd;
+    color: #1677b9;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__list {
+    display: grid;
+    gap: 0.625rem;
+    margin: 0;
+    padding-top: 0.75rem;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__list > div {
+    display: grid;
+    gap: 0.2rem;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__list dt {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--ui-text-strong);
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__list dd {
+    margin: 0 0 0 1.95rem;
+    color: var(--ui-text-muted);
+    font-size: 0.65rem;
+    line-height: 1.4;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__swatch {
+    display: inline-block;
+    width: 1.5rem;
+    height: 0.2rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: #99d1ff;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__swatch--rule {
+    background: #facc15;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__swatch--high {
+    background: #16a34a;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__swatch--low {
+    background: #dc2626;
+}
+
+[data-dam-water-levels] .dam-water-level-trend-info__swatch--historical {
+    height: 0;
+    border-top: 2px dashed #64748b;
+    border-radius: 0;
+    background: transparent;
+}
+
+[data-dam-summary-header] > div:first-child {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-dam-summary-header] > div:first-child > div:first-child {
+    min-width: 0;
+    flex: 1 1 auto;
+    text-align: center;
+}
+
+.dam-water-level-summary-copy {
+    position: absolute;
+    top: 50%;
+    right: 0.7rem;
+    z-index: 2;
+    width: 1.75rem;
+    height: 1.75rem;
+    min-height: 1.75rem;
+    border: 0;
+    border-radius: 0.375rem;
+    background: #ffffff;
+    color: #52525b;
+    box-shadow: none;
+    transform: translateY(-50%);
+}
+
+.dam-water-level-summary-copy:hover,
+.dam-water-level-summary-copy.is-copied {
+    background: #e6f4ff;
+    color: #0c4a6e;
+}
+
+.dam-water-level-summary-copy.is-error {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.dam-water-level-summary-copy-feedback {
+    position: absolute;
+    top: 50%;
+    right: 3rem;
+    z-index: 3;
+    max-width: calc(100% - 5rem);
+    padding: 0.3rem 0.55rem;
+    border: 1px solid #bae6fd;
+    border-radius: 0.375rem;
+    background: #e6f4ff;
+    color: #0c4a6e;
+    box-shadow: 0 2px 6px rgb(24 24 27 / 8%);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1rem;
+    pointer-events: none;
+    white-space: nowrap;
+    transform: translateY(-50%);
+}
+
+.add-map-palette-option {
+    display: block;
+    position: relative;
+    width: 100%;
+    min-height: 1.25rem;
+    padding: 0.2rem;
+    border: 1px solid transparent;
+    border-radius: var(--map-control-radius);
+}
+
+.add-map-palette-option:hover {
+    background: var(--map-glass-hover, rgba(148, 163, 184, 0.12));
+}
+
+.add-map-palette-preview {
+    display: flex;
+    width: 100%;
+    height: 0.75rem;
+    border: 1px solid var(--map-ui-border, var(--color-control-border));
+}
+
+.add-map-palette-color-box {
+    width: auto;
+    height: 100%;
+    min-width: 0;
+    flex: 1 1 0;
+}
+
+.add-map-palette-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.add-map-background-option:focus-visible,
+.add-map-palette-option:focus-visible {
+    outline: 2px solid var(--color-focus, var(--drop-base, #3578b8));
+    outline-offset: 1px;
+}
+
+/* PAGASA dam charts need a stable plotting frame so the dense annual series,
+   value grid, x-axis labels, and legend remain readable at every width. */
+.dam-water-level-chart-container {
+    position: relative;
+    height: 20rem;
+    min-width: 0;
+}
+
+.dam-water-level-chart-container > canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.dam-water-level-chart-copy {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    z-index: 2;
+    width: 1.75rem;
+    height: 1.75rem;
+    min-height: 1.75rem;
+    border: 0;
+    border-radius: 0.375rem;
+    background: #ffffff;
+    color: #52525b;
+    box-shadow: none;
+}
+
+.dam-water-level-chart-copy:hover {
+    background: #f4f4f5;
+    color: #27272a;
+}
+
+.dam-water-level-chart-copy-feedback {
+    position: absolute;
+    top: 0.7rem;
+    right: 3rem;
+    z-index: 3;
+    max-width: calc(100% - 5rem);
+    padding: 0.3rem 0.55rem;
+    border: 1px solid #bbf7d0;
+    border-radius: 0.375rem;
+    background: #f0fdf4;
+    color: #166534;
+    box-shadow: 0 2px 6px rgb(24 24 27 / 8%);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1rem;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.dam-water-level-status-image-frame {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.dam-water-level-status-image-link {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+}
+
+.dam-water-level-status-image-link:focus-visible {
+    outline: 2px solid var(--color-focus, var(--drop-base, #3578b8));
+    outline-offset: 2px;
+}
+
+.dam-water-level-status-image {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin-inline: auto;
+}
+
+.dam-water-level-summary-table {
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
+}
+
+.dam-water-level-summary-table thead th {
+    background: #ffffff;
+    padding: 0.55rem 0.4rem;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
+}
+
+.dam-water-level-summary-table tbody > tr {
+    background: #ffffff;
+}
+
+.dam-water-level-summary-table tbody > tr:nth-child(even):not([data-row-emphasis]) {
+    background: #fafafa;
+}
+
+.dam-water-level-summary-table :is(th, td) {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.dam-water-level-summary-table tbody th,
+.dam-water-level-summary-table tbody td {
+    padding: 0.55rem 0.4rem;
+}
+
+.dam-water-level-summary-table tbody > tr > td,
+.dam-water-level-summary-table tbody > tr > th[scope="row"] {
+    text-align: center;
+}
+
+.dam-water-level-summary-table thead th {
+    white-space: normal;
+}
+
+.dam-water-level-summary-table__as-of {
+    display: inline-block;
+    margin-top: 0.15rem;
+    color: var(--ui-text-muted);
+    font-size: var(--type-micro-size);
+    font-weight: 400;
+    letter-spacing: normal;
+    line-height: 1.1;
+    text-transform: none;
+    white-space: nowrap;
+}
+
+.dam-water-level-summary-table :is(thead th[colspan], tbody th) {
+    color: var(--ui-text-strong);
+    font-weight: 600;
+}
+
+.dam-water-level-summary-table tbody th {
+    text-align: center;
+}
+
+.dam-water-level-summary-table tbody th[scope="row"],
+.dam-water-level-summary-table tbody td[data-summary-current] {
+    vertical-align: middle;
+}
+
+.dam-water-level-summary-table tbody > tr:hover {
+    background: #e6f4ff;
+}
+
+.dam-water-level-summary-table tbody > tr:hover > :is(th, td) {
+    background-color: #e6f4ff !important;
+}
+
+.dam-water-level-summary-table [data-summary-comparison] {
+    vertical-align: middle;
+}
+
+.dam-water-level-summary-table__trend {
+    width: 8rem;
+    min-width: 8rem;
+}
+
+.dam-water-level-summary-table__sparkline {
+    display: block;
+    width: 5rem;
+    height: 1.5rem;
+    margin-inline: auto;
+}
+
+.dam-water-level-summary-table [data-summary-value] {
+    display: block;
+    font-family: var(--font-family-data);
+    font-size: var(--type-body-size);
+    font-variant-numeric: var(--type-numeric-variant);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--type-body-line-height);
+}
+
+.dam-water-level-summary-table [data-summary-current] {
+    font-family: var(--font-family-data);
+    font-size: var(--type-body-size);
+    font-variant-numeric: var(--type-numeric-variant);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--type-body-line-height);
+}
+
+.dam-water-level-summary-table [data-summary-difference] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    max-width: 100%;
+    margin: 0.25rem auto 0;
+    padding: 0.12rem 0.36rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: var(--type-micro-size);
+    font-weight: 400;
+    gap: 0.2rem;
+}
+
+.dam-water-level-summary-table [data-summary-difference-amount] {
+    font-weight: 700;
+}
+
+.dam-water-level-summary-table [data-summary-difference-context] {
+    font-weight: 400;
+}
+
+.dam-water-level-summary-table__difference--positive {
+    color: #007f43;
+    background: #ecfdf3;
+    border-color: #b7e4c7;
+}
+
+.dam-water-level-summary-table__difference--negative {
+    color: #b42318;
+    background: #fff1f2;
+    border-color: #fecaca;
+}
+
+.dam-water-level-summary-table__difference--neutral {
+    color: var(--ui-text-muted);
+    background: #f4f4f5;
+    border-color: #d4d4d8;
+}
+
+.dam-water-level-summary-key {
+    max-width: 46rem;
+    margin: 0.35rem auto 0;
+    color: var(--ui-text-muted);
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-line-height);
+    text-align: center;
+}
+
+.dam-water-level-chart-legend {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 1rem;
+    row-gap: 0.5rem;
+    box-sizing: border-box;
+    padding: 0.375rem 0.75rem;
+    color: #3f3f46;
+    font-family: Inter, sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.125rem;
+    white-space: nowrap;
+}
+
+.dam-water-level-chart-legend__group {
+    display: contents;
+}
+
+.dam-water-level-chart-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    white-space: nowrap;
+}
+
+.dam-water-level-chart-legend__line {
+    display: inline-block;
+    width: 1.5rem;
+    height: 0;
+    flex: 0 0 auto;
+    border-top-style: solid;
+}
+
+@media (max-width: 63.99rem) {
+    /* Keep the seven-column comparison readable on phones and tablets. The
+       wrapper provides the intentional horizontal scroll for this dense table. */
+    .dam-water-level-summary-table {
+        min-width: 48rem;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .dam-water-level-summary-table thead th {
+        padding: 0.45rem 0.35rem;
+        font-size: 0.62rem;
+        letter-spacing: 0.04em;
+    }
+
+    .dam-water-level-summary-table tbody th,
+    .dam-water-level-summary-table tbody td {
+        padding: 0.5rem 0.35rem;
+        font-size: 0.74rem;
+    }
+
+    .dam-water-level-summary-table__as-of {
+        font-size: 0.58rem;
+    }
+
+    .dam-water-level-summary-table [data-summary-difference] {
+        margin-top: 0.15rem;
+        font-size: 0.58rem;
+    }
+
+    [data-dam-water-levels] .dam-water-level-summary-table thead th:first-child,
+    [data-dam-water-levels] .dam-water-level-summary-table tbody th[scope="row"] {
+        position: sticky;
+        left: 0;
+        box-shadow: 2px 0 3px -1px rgb(24 24 27 / 18%);
+    }
+
+    [data-dam-water-levels] .dam-water-level-summary-table thead th:first-child {
+        z-index: 5;
+        background-color: #ffffff;
+    }
+
+    [data-dam-water-levels] .dam-water-level-summary-table tbody th[scope="row"] {
+        z-index: 4;
+        background-color: #ffffff;
+    }
+
+    [data-dam-water-levels] .dam-water-level-summary-table tbody > tr:nth-child(even) th[scope="row"] {
+        background-color: #fafafa;
+    }
+
+    [data-dam-water-levels] .dam-water-level-summary-table tbody > tr:hover th[scope="row"] {
+        background-color: #e6f4ff;
+    }
+
+    .dam-water-level-chart-legend {
+        flex-direction: row;
+        flex-wrap: wrap;
+        column-gap: 1rem;
+        row-gap: 0.5rem;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.6875rem;
+        line-height: 1.125rem;
+        white-space: nowrap;
+    }
+}
+
+@media (min-width: 48rem) {
+    .dam-water-level-chart-container {
+        height: 22rem;
+    }
+}
+
+/* Dam monitoring responsive layout -------------------------------------- */
+
+/* Keep the dense dashboard inside the viewport while giving touch users
+   room to operate the header and scroll the comparison table deliberately. */
+[data-dam-water-levels] {
+    min-width: 0;
+}
+
+[data-dam-water-levels] .report-table-wrap {
+    overscroll-behavior-inline: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+[data-dam-water-levels] .report-table-wrap::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+@media (max-width: 47.999rem) {
+    /* Keep the mobile header in a deliberate reading order: title/source,
+       one compact metadata row, then the report controls. */
+    [data-dam-water-levels] .module-page-header {
+        gap: 0.5rem;
+        padding-top: 0.75rem;
+        padding-bottom: 0.625rem;
+    }
+
+    [data-dam-water-levels] .module-page-header__top {
+        display: contents;
+    }
+
+    [data-dam-water-levels] .module-page-heading {
+        order: 1;
+        width: 100%;
+        flex: 0 0 auto;
+    }
+
+    [data-dam-water-levels] .module-page-title {
+        font-size: clamp(1.25rem, 6vw, 1.5rem);
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    [data-dam-water-levels] .module-page-header-meta__actions {
+        order: 3;
+        width: 100%;
+        margin-left: 0;
+    }
+
+    [data-dam-water-levels] .module-page-header-meta__actions > .ui-button--primary {
+        min-height: 2.75rem;
+        flex: 1 1 auto;
+    }
+
+    [data-dam-water-levels] .module-page-header-meta__actions > .ui-button--secondary {
+        width: 2.75rem;
+        height: 2.75rem;
+        min-height: 2.75rem;
+        flex: 0 0 2.75rem;
+    }
+
+    [data-dam-water-levels] .module-page-header > .module-page-header-meta {
+        order: 2;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        row-gap: 0.35rem;
+        column-gap: 0.75rem;
+    }
+
+    [data-dam-water-levels] .module-page-header-meta__item {
+        min-width: 0;
+        flex: none;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.125rem;
+    }
+
+    [data-dam-water-levels] .module-page-header-meta__value {
+        min-width: 0;
+        width: 100%;
+        white-space: nowrap;
+        overflow-wrap: anywhere;
+    }
+
+    [data-dam-water-levels] .ui-section-header {
+        padding: 0.625rem 0.75rem;
+    }
+
+    [data-dam-water-levels] .dam-water-level-summary-copy {
+        right: 0.5rem;
+    }
+
+    [data-dam-water-levels] .dam-water-level-summary-copy-feedback {
+        right: 2.75rem;
+        max-width: calc(100% - 4rem);
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* The table intentionally scrolls within its card; the page itself
+       remains fixed-width-free and the first column stays visible. */
+    [data-dam-water-levels] .report-table-wrap {
+        touch-action: pan-x pan-y;
+    }
+
+    [data-dam-water-levels] .dam-water-level-chart-grid,
+    [data-dam-water-levels] #dam-chart-grid {
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    [data-dam-water-levels] [data-dam-chart-card] {
+        padding: 0.625rem;
+    }
+
+    [data-dam-water-levels] .dam-water-level-chart-container {
+        height: clamp(16rem, 68vw, 19rem);
+    }
+
+    [data-dam-water-levels] .dam-water-level-status-image-frame {
+        padding: 0.375rem;
+    }
+
+    [data-dam-water-levels] .dam-water-level-status-image-frame,
+    [data-dam-water-levels] .dam-water-level-status-image-link {
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 48rem) and (max-width: 63.999rem) {
+    /* One chart per row keeps labels and touch targets readable on tablets;
+       the desktop two-column grid resumes at the existing 64rem breakpoint. */
+    [data-dam-water-levels] #dam-chart-grid {
+        gap: 1rem;
+    }
+
+    [data-dam-water-levels] .dam-water-level-chart-container {
+        height: clamp(19rem, 42vw, 22rem);
+    }
+
+    [data-dam-water-levels] .module-page-title {
+        font-size: clamp(1.35rem, 3vw, 1.5rem);
+    }
+}
+
+/* FARM motion contract: preserve content and state while removing animation
+   for users who request reduced motion at the operating-system level. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+/* Static deployment additions. Shared ADD/FARM styles remain in assets/css. */
+
+.static-loading-panel {
+    min-height: 20rem;
+    display: grid;
+    place-items: center;
+    color: var(--ui-text-muted, #71717a);
+    font-size: 0.75rem;
+}
+
+[data-dam-chart-card][data-chart-state="error"] {
+    border-color: #fecaca;
+}
+
+@media print {
+    html, body {
+        overflow: visible;
+        background: #fff;
+    }
+
+    [data-workspace-topbar],
+    .module-page-header-meta__actions,
+    .dam-water-level-chart-copy,
+    .farm-app-shell,
+    .farm-main-panel,
+    .farm-page-body {
+        display: block;
+        height: auto;
+        overflow: visible;
+        padding: 0;
+    }
+
+    .module-page-header {
+        position: static;
+        padding-top: 0;
+    }
+}

@@ -35,7 +35,7 @@ class PublicOnlyMiddleware:
         response["Content-Security-Policy"] = (
             "default-src 'self'; base-uri 'self'; object-src 'none'; "
             "script-src 'self'; script-src-attr 'none'; "
-            "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; "
+            "style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://pubfiles.pagasa.dost.gov.ph; "
             "font-src 'self'; connect-src 'self'; frame-src 'self'; "
             "frame-ancestors 'self'; form-action 'self'"
         )
