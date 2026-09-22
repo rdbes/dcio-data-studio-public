@@ -25,12 +25,12 @@
 
     function renderTable(card, table, metric) {
         const body = card.querySelector("[data-breakdown-table-body]");
-        const unit = card.querySelector("[data-breakdown-table-unit]");
+        const heading = card.querySelector("[data-breakdown-table-heading]");
         if (!body || !table) {
             return;
         }
-        if (unit) {
-            unit.textContent = metricDetails[metric]?.label || metricDetails.value.label;
+        if (heading) {
+            heading.textContent = `${metricDetails[metric]?.label || metricDetails.value.label} ${table.title}`;
         }
         const rows = [...(table.rows || [])].sort((left, right) => {
             const leftValue = Number(left.metrics?.[metric]?.reduce((sum, value) => sum + (Number(value) || 0), 0) || 0);

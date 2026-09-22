@@ -886,8 +886,7 @@
                         <div class="border-b border-zinc-100 bg-white py-3 px-5">
                             <div class="dashboard-chart-header flex flex-row flex-wrap items-center justify-between gap-3">
                                 <div class="min-w-0">
-                                    <h2 class="text-base font-semibold text-zinc-900 leading-tight">{{ table.title }}</h2>
-                                    <p class="text-xs text-zinc-400 mt-1 font-medium" data-breakdown-table-unit>Value Loss (PHP)</p>
+                                    <h2 class="text-base font-semibold text-zinc-900 leading-tight" data-breakdown-table-heading>Value Loss (PHP) {{ table.title }}</h2>
                                 </div>
                                 <div class="dashboard-metric-switcher flex items-center gap-1 bg-zinc-100 p-1 rounded-lg text-xs" data-breakdown-table-switcher>
                                     {% for option in breakdown_metric_options %}

@@ -199,7 +199,7 @@ def build_metric_breakdown_tables(rows, years):
         return []
     metric_keys = tuple(CHART_METRICS)
     table_specs = (
-        ("hazard", "By Hazard Category", "Disaster/Calamity"),
+        ("hazard", "By Hazard", "Disaster/Calamity"),
         ("commodity", "By Commodity", "Commodity"),
     )
     tables = []
