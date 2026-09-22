@@ -24,7 +24,7 @@
     const automaticRefreshUtcHours = [1, 13];
     const navigationEntry = window.performance?.getEntriesByType?.("navigation")?.[0];
     const isBrowserReload = navigationEntry?.type === "reload";
-    const forceSnapshotRefresh = isStaticApp
+    let forceSnapshotRefresh = isStaticApp
         && (new URLSearchParams(window.location.search).has("refresh") || isBrowserReload);
 
     function browserCacheKey(type, damName = "") {
@@ -2055,12 +2055,6 @@
         });
     }
 
-    function reloadForManualRefresh() {
-        const refreshUrl = new URL(window.location.href);
-        refreshUrl.searchParams.set("refresh", String(Date.now()));
-        window.location.assign(refreshUrl);
-    }
-
     function millisecondsUntilAutomaticRefresh() {
         const now = new Date();
         const today = new Date(now);
@@ -2078,8 +2072,15 @@
 
     function scheduleAutomaticRefresh() {
         window.setTimeout(function refreshDamPage() {
+            const refresh = () => {
+                if (!isStaticApp) {
+                    window.location.reload();
+                    return;
+                }
+                refreshStaticData().finally(scheduleAutomaticRefresh);
+            };
             if (document.visibilityState === "visible") {
-                window.location.reload();
+                refresh();
                 return;
             }
 
@@ -2088,10 +2089,62 @@
                     return;
                 }
                 document.removeEventListener("visibilitychange", onVisibilityChange);
-                window.location.reload();
+                refresh();
             };
             document.addEventListener("visibilitychange", onVisibilityChange);
         }, millisecondsUntilAutomaticRefresh());
+    }
+
+    function wireChartCards() {
+        chartCards.forEach((card, index) => {
+            const copyButton = card.querySelector("[data-dam-chart-copy]");
+            copyButton?.addEventListener("click", () => copyDamChart(card, copyButton));
+            loadDamChart(card, chartMetadata[index]);
+        });
+    }
+
+    async function refreshStaticData(refreshButton = null) {
+        if (refreshButton) {
+            refreshButton.disabled = true;
+            refreshButton.setAttribute("aria-busy", "true");
+        }
+        try {
+            const liveUrl = new URL(
+                chartApiTemplate || "/api/dam_water_levels",
+                window.location.href,
+            );
+            liveUrl.searchParams.set("refresh", String(Date.now()));
+            const payload = await fetchJsonWithTimeout(liveUrl.toString(), {
+                cache: "no-store",
+                headers: { Accept: "application/json" },
+            });
+            if (!Array.isArray(payload.readings)) {
+                throw new Error("PAGASA summary returned no usable readings.");
+            }
+            forceSnapshotRefresh = true;
+            staticSnapshotPayload = payload;
+            writeBrowserCache(browserCacheKey("summary"), payload);
+            renderStaticDashboard(payload);
+            wireChartCards();
+        } catch (_error) {
+            const cached = readBrowserCache(browserCacheKey("summary"));
+            if (cached && Array.isArray(cached.payload.readings)) {
+                staticSnapshotPayload = cached.payload;
+                renderStaticDashboard(cached.payload, {
+                    dataSource: "cache",
+                    cachedAt: cached.cachedAt,
+                });
+                wireChartCards();
+            } else {
+                setSourceStatus("Live PAGASA dam readings are currently unavailable. The official PAGASA status image is still available below.");
+                renderStaticUnavailableState();
+            }
+        } finally {
+            if (refreshButton) {
+                refreshButton.disabled = false;
+                refreshButton.removeAttribute("aria-busy");
+            }
+        }
     }
 
     function wireChartsAndRefresh() {
@@ -2111,22 +2164,14 @@
             summaryCopyButton.dataset.wired = "true";
             summaryCopyButton.addEventListener("click", () => copyDamSummary(summaryCopyButton));
         }
-        chartCards.forEach((card, index) => {
-            const copyButton = card.querySelector("[data-dam-chart-copy]");
-            copyButton?.addEventListener("click", () => copyDamChart(card, copyButton));
-            loadDamChart(card, chartMetadata[index]);
-        });
+        wireChartCards();
 
         scheduleAutomaticRefresh();
     }
 
     async function initializeStaticPage() {
         const refreshButton = document.querySelector("[data-refresh-live]");
-        refreshButton?.addEventListener("click", () => {
-            refreshButton.disabled = true;
-            refreshButton.setAttribute("aria-busy", "true");
-            reloadForManualRefresh();
-        });
+        refreshButton?.addEventListener("click", () => refreshStaticData(refreshButton));
 
         try {
             const summaryUrl = forceSnapshotRefresh
