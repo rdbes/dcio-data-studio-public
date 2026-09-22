@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_revision": "accb97805e1300d2d8ef65f34bb4f10758cb4ebd",
+  "source_revision": null,
   "release_sha256": "a34f82308c4d6146150421da6b88be299918440694aca636fa3d38ca6b1b28b9",
   "files": {
     "api/index.py": "a198d56d84d7918e7321014149cb50d868644c43cf6bb038f295b1ebb9bc2835",
@@ -22,7 +22,7 @@
     "public/assets/css/base.css": "f9eff5d9957be30b6584ae39795c764bd6b1170a0144dfea1554a74901200950",
     "public/assets/css/bulletin_checker.css": "489b1ca861233313eff3bcebcd672deb4efb9ddcaacaf263eded1782617f7529",
     "public/assets/css/crop-production.css": "f1cd6fabdf2e9b8a8d5db878d18467d49383fe5778eb5a8a1b66b98fe85a0667",
-    "public/assets/css/dam-water-levels.css": "9b8748b61b2466e5e642ca302852e6ac1d8267cf6505b3b795832b8a8cf5069f",
+    "public/assets/css/dam-water-levels.css": "0d35a5aff3a9d31e7218d68f84e6e476ec513bbec6efa33ebb8586c790abb628",
     "public/assets/css/layout.css": "689a4195606fce2d3c5e284af675ca6ef3bf64327a40ceae5149a40ebd21f3b7",
     "public/assets/css/reports.css": "9ba04b564c1f87ec95e591b2913b151fe156d9c362bc6df7f0a37c0ae73a1721",
     "public/assets/css/responsive-workspace.css": "a4360024f927b3d90380f558b8929233d308d6a28efdcbc020ca7003b70b0f00",
@@ -103,7 +103,7 @@
     "public/assets/vendor/leaflet/leaflet.js": "db49d009c841f5ca34a888c96511ae936fd9f5533e90d8b2c4d57596f4e5641a",
     "public/data/releases/2026-09-20.json": "a34f82308c4d6146150421da6b88be299918440694aca636fa3d38ca6b1b28b9",
     "public/data/releases/current.json": "bc43eea0c32b55db216737f00b0811cb21b621e4db0d5f454f31bd81d4c5532c",
-    "public-build.json": "50e3dab856bfc52678f073d751703cdf9c2e29a9dc06ec494428882e010d1a04",
+    "public-build.json": "5c8410bdfdf12ffc606b182c4958285789d6aa99faf3bcd7ec30bc3165ebbf46",
     "reports/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "reports/analytics/__init__.py": "b1f2b5ff5135dfe86923ced2f6a5686f9eadb2ab463e728d01a05113544abd31",
     "reports/analytics/filters.py": "367b2240de6ed0c7a68bc92d0b3342e2345120185161f8b9982b9c5e726d5403",

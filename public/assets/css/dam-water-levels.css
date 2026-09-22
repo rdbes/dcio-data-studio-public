@@ -9,6 +9,30 @@
     padding-bottom: var(--space-2);
 }
 
+/* Keep report actions at the far right of the header on wider screens. */
+[data-dam-water-levels] .module-page-header__top {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+[data-dam-water-levels] .module-page-header__top .module-page-heading {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+[data-dam-water-levels] .module-page-header__top .module-page-header-meta__actions {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
 [data-dam-water-levels] .module-page-subtitle {
     margin-top: 0;
     font-size: var(--type-caption-size);
@@ -754,7 +778,7 @@
         overflow-wrap: anywhere;
     }
 
-    [data-dam-water-levels] .module-page-header-meta__actions {
+    [data-dam-water-levels] .module-page-header__top .module-page-header-meta__actions {
         order: 3;
         width: 100%;
         margin-left: 0;
