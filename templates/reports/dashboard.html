@@ -897,6 +897,12 @@
                         </div>
                         <div class="report-table-wrap dashboard-breakdown-table-wrap">
                             <table class="report-table report-table--blue-header ui-table--compact dashboard-breakdown-table-grid" data-breakdown-table-grid>
+                                <colgroup>
+                                    <col class="dashboard-breakdown-label-column">
+                                    {% for year in table.years %}
+                                        <col class="dashboard-breakdown-year-column">
+                                    {% endfor %}
+                                </colgroup>
                                 <thead>
                                     <tr>
                                         <th scope="col">{{ table.row_label }}</th>

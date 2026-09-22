@@ -2976,6 +2976,7 @@ dialog.incident-dashboard-dialog:not([open]) {
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    isolation: isolate;
     scrollbar-gutter: stable;
 }
 
@@ -2983,6 +2984,19 @@ dialog.incident-dashboard-dialog:not([open]) {
     width: max-content;
     min-width: 100%;
     table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.dashboard-breakdown-table-grid .dashboard-breakdown-label-column {
+    width: 14rem;
+    min-width: 14rem;
+    max-width: 14rem;
+}
+
+.dashboard-breakdown-table-grid .dashboard-breakdown-year-column {
+    width: 8rem;
+    min-width: 8rem;
 }
 
 .dashboard-breakdown-table-grid th:first-child {
