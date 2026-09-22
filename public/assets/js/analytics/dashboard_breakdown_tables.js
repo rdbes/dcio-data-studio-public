@@ -60,7 +60,7 @@
         (table.years || []).forEach((year) => {
             const yearCell = document.createElement("th");
             yearCell.scope = "col";
-            yearCell.className = "is-numeric";
+            yearCell.className = "is-numeric dashboard-breakdown-year-header";
             yearCell.textContent = year;
             if (splitFarmers) {
                 yearCell.colSpan = 2;
@@ -75,10 +75,10 @@
         detailRow.hidden = !splitFarmers;
         if (splitFarmers) {
             (table.years || []).forEach(() => {
-                ["Farmers", "Fisherfolk"].forEach((labelText) => {
+                ["Farmers", "Fisherfolk"].forEach((labelText, index) => {
                     const detailCell = document.createElement("th");
                     detailCell.scope = "col";
-                    detailCell.className = "is-numeric dashboard-breakdown-detail-header";
+                    detailCell.className = `is-numeric dashboard-breakdown-detail-header ${index === 0 ? "dashboard-breakdown-detail-header--start" : "dashboard-breakdown-detail-header--end"}`;
                     detailCell.textContent = labelText;
                     detailRow.append(detailCell);
                 });

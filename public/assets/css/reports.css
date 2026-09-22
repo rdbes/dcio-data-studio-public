@@ -2076,6 +2076,28 @@ table thead th:not(.report-preview-column-header) {
     color: var(--color-text-inverse);
 }
 
+/* Farmers/Fisherfolk uses a two-column group for each year. Keep the year
+ * label centered over both values and make each year boundary visible against
+ * the shared blue header surface. */
+.dashboard-breakdown-table-grid thead th.dashboard-breakdown-year-header {
+    border-left: 0.5px solid rgb(255 255 255 / 0.95);
+    border-right: 0.5px solid rgb(255 255 255 / 0.95);
+    text-align: center;
+}
+
+.dashboard-breakdown-table-grid thead th.dashboard-breakdown-detail-header {
+    border-bottom: 0.5px solid rgb(255 255 255 / 0.95);
+    text-align: center;
+}
+
+.dashboard-breakdown-table-grid thead th.dashboard-breakdown-detail-header--start {
+    border-left: 0.5px solid rgb(255 255 255 / 0.95);
+}
+
+.dashboard-breakdown-table-grid thead th.dashboard-breakdown-detail-header--end {
+    border-right: 0.5px solid rgb(255 255 255 / 0.95);
+}
+
 [data-incident-year-groups] .incident-table.report-table--blue-header thead th:not(.report-preview-column-header) {
     background-color: color-mix(in srgb, var(--color-brand) 82%, var(--utility-white));
     color: var(--color-text-inverse);
