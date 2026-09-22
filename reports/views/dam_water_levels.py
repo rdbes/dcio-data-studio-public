@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import json
 import logging
+import ssl
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+import certifi
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -46,7 +48,12 @@ def dam_water_levels_data(request):
                 "User-Agent": "DCIO Data Studio Dam Water Levels",
             },
         )
-        with urlopen(source_request, timeout=12) as response:
+        # Use the bundled CA bundle. The macOS Python runtime used by the
+        # local Data Studio server may not have OpenSSL's system CA path, so a
+        # default ``urlopen`` call can fail before it reaches the standalone
+        # monitor even though the same HTTPS endpoint is healthy in a browser.
+        context = ssl.create_default_context(cafile=certifi.where())
+        with urlopen(source_request, timeout=12, context=context) as response:
             payload = json.load(response)
     except (HTTPError, URLError, TimeoutError, OSError, ValueError, json.JSONDecodeError):
         logger.exception("Standalone Dam Water Levels API request failed.")

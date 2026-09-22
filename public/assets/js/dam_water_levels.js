@@ -23,7 +23,8 @@
     // 09:00 and 21:00 in Asia/Manila.
     const automaticRefreshUtcHours = [1, 13];
     const navigationEntry = window.performance?.getEntriesByType?.("navigation")?.[0];
-    const isBrowserReload = navigationEntry?.type === "reload";
+    const isBrowserReload = navigationEntry?.type === "reload"
+        || window.performance?.navigation?.type === 1;
     let forceSnapshotRefresh = isStaticApp
         && (new URLSearchParams(window.location.search).has("refresh") || isBrowserReload);
 
@@ -1933,6 +1934,8 @@
             retrievedElement.textContent = retrievedLabel;
             retrievedElement.title = dataSource === "cache"
                 ? "Last successful sync; the latest manual refresh was unavailable"
+                : dataSource === "snapshot"
+                    ? "Bundled snapshot; the live standalone monitor was unavailable"
                 : isScheduledSnapshot
                     ? "Automatic sync at 9:00 AM and 9:00 PM Asia/Manila"
                     : "Updated by the manual Refresh data action";
@@ -1942,6 +1945,8 @@
         }
         setSourceStatus(dataSource === "cache"
             ? `The latest refresh was unavailable. Showing PAGASA dam readings from the last successful sync ${retrievedLabel}; observed ${observedLabel}.`
+            : dataSource === "snapshot"
+                ? `The live standalone monitor was unavailable. Showing the bundled PAGASA dam snapshot from ${retrievedLabel}; observed ${observedLabel}.`
             : isScheduledSnapshot
                 ? `PAGASA dam readings automatically synced ${retrievedLabel}; observed ${observedLabel}.`
                 : `PAGASA dam readings refreshed ${retrievedLabel}; observed ${observedLabel}.`);
@@ -2095,6 +2100,19 @@
         }, millisecondsUntilAutomaticRefresh());
     }
 
+    function summarySourceUrl(forceRefresh = false) {
+        // Use the same-origin proxy for every page entry so the bundled JSON
+        // is a fallback rather than a stale primary source.
+        const sourceUrl = new URL(
+            chartApiTemplate || staticDataUrl,
+            window.location.href,
+        );
+        if (forceRefresh) {
+            sourceUrl.searchParams.set("refresh", String(Date.now()));
+        }
+        return sourceUrl.toString();
+    }
+
     function wireChartCards() {
         chartCards.forEach((card, index) => {
             const copyButton = card.querySelector("[data-dam-chart-copy]");
@@ -2174,15 +2192,9 @@
         refreshButton?.addEventListener("click", () => refreshStaticData(refreshButton));
 
         try {
-            const summaryUrl = forceSnapshotRefresh
-                ? (() => {
-                    const liveUrl = new URL(chartApiTemplate || "/api/dam_water_levels", window.location.href);
-                    liveUrl.searchParams.set("refresh", String(Date.now()));
-                    return liveUrl.toString();
-                })()
-                : staticDataUrl;
+            const summaryUrl = summarySourceUrl(forceSnapshotRefresh);
             const payload = await fetchJsonWithTimeout(summaryUrl, {
-                cache: "default",
+                cache: forceSnapshotRefresh ? "no-store" : "default",
                 headers: { Accept: "application/json" },
             });
             if (!Array.isArray(payload.readings)) {
@@ -2203,8 +2215,20 @@
                     cachedAt: cached.cachedAt,
                 });
             } else {
-                setSourceStatus("Live PAGASA dam readings are currently unavailable. The official PAGASA status image is still available below.");
-                renderStaticUnavailableState();
+                try {
+                    const snapshot = await fetchJsonWithTimeout(staticDataUrl, {
+                        cache: "default",
+                        headers: { Accept: "application/json" },
+                    });
+                    if (!Array.isArray(snapshot.readings)) {
+                        throw new Error("Bundled PAGASA snapshot returned no usable readings.");
+                    }
+                    staticSnapshotPayload = snapshot;
+                    renderStaticDashboard(snapshot, {dataSource: "snapshot"});
+                } catch (_snapshotError) {
+                    setSourceStatus("Live PAGASA dam readings are currently unavailable. The official PAGASA status image is still available below.");
+                    renderStaticUnavailableState();
+                }
             }
         } finally {
             wireChartsAndRefresh();
