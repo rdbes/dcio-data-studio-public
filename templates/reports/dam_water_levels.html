@@ -6,7 +6,7 @@
 {% block breadcrumbs %}<span>Dam Water Levels</span>{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/dam-water-levels.css' %}?v=20260921-standalone-module-v1">
+<link rel="stylesheet" href="{% static 'css/dam-water-levels.css' %}?v=20260922-dam-module-v2">
 <script defer src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
 <script defer src="{% static 'js/dam_water_levels.js' %}?v=20260922-dam-live-source-v3"></script>
 {% endblock %}
@@ -22,7 +22,7 @@
                                     </div>
                                 </div>
                                 <div class="module-page-header-meta__actions">
-                                    <a href="https://dam-water-levels-monitoring.vercel.app/api/dam_report" data-dam-report-download aria-label="Download report" title="Download report" class="ui-button ui-button--primary ui-button--small inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold shadow-2xs transition-colors">
+                                    <a href="{% url 'reports:dam_water_levels_report' %}" data-dam-report-download aria-label="Download report" title="Download report" class="ui-button ui-button--primary ui-button--small inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold shadow-2xs transition-colors">
                                         <i data-dam-report-icon class="fa-solid fa-download" aria-hidden="true"></i>
                                         <span data-dam-report-label>Download Report</span>
                                     </a>
