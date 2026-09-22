@@ -2963,6 +2963,13 @@ dialog.incident-dashboard-dialog:not([open]) {
     background: #f4f4f5;
 }
 
+.dashboard-breakdown-total-row {
+    border-top: 2px solid #dc2626;
+    background: #fef2f2;
+    color: #7f1d1d;
+    font-weight: 600;
+}
+
 .dashboard-chart-card > .p-5 {
     min-height: 0;
 }

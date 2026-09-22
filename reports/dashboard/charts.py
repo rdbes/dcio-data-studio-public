@@ -186,6 +186,93 @@ def build_chart_breakdowns(selected_rows, historical_rows, **context):
     }
 
 
+def build_metric_breakdown_tables(rows, years):
+    """Build year-column tables for hazard and commodity breakdowns.
+
+    The rows retain all four dashboard metrics so the UI can switch metrics
+    without another request. Values are summed within each selected calendar
+    year, matching the annual damage-and-loss table convention.
+    """
+
+    years = sorted({int(year) for year in years})
+    if not years or not rows:
+        return []
+    metric_keys = tuple(CHART_METRICS)
+    table_specs = (
+        ("hazard", "By Hazard Category", "Disaster/Calamity"),
+        ("commodity", "By Commodity", "Commodity"),
+    )
+    tables = []
+
+    for table_key, title, row_label in table_specs:
+        grouped = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        labels = {}
+        for row in rows:
+            year = row["analysis_date"].year
+            if year not in years:
+                continue
+            if table_key == "hazard":
+                key = row["incident_key__hazard_key_id"] or ""
+                label = hazard_display_label(
+                    key,
+                    row["incident_key__hazard_key__hazard_type"],
+                    row["incident_key__hazard_key__hazard_category"],
+                )
+            else:
+                label = commodity_group_from_row(row)
+                key = label
+            key = key or label or ("Unclassified" if table_key == "hazard" else "Unspecified Commodity")
+            labels[key] = label or key
+            for metric_key, field in CHART_METRICS.items():
+                value = row.get(field)
+                if value is not None:
+                    grouped[key][metric_key][year].append(value)
+
+        table_rows = []
+        for key, metric_values in grouped.items():
+            metrics = {}
+            for metric_key in metric_keys:
+                metrics[metric_key] = [
+                    float(nullable_sum(metric_values[metric_key].get(year, [])))
+                    if metric_values[metric_key].get(year)
+                    else None
+                    for year in years
+                ]
+            table_rows.append({"label": labels[key], "metrics": metrics})
+
+        table_rows.sort(
+            key=lambda row: (
+                -sum(value or 0 for value in row["metrics"]["value"]),
+                row["label"].casefold(),
+            )
+        )
+        totals = {
+            metric_key: [
+                float(nullable_sum(
+                    row["metrics"][metric_key][year_index]
+                    for row in table_rows
+                    if row["metrics"][metric_key][year_index] is not None
+                ))
+                if any(
+                    row["metrics"][metric_key][year_index] is not None
+                    for row in table_rows
+                )
+                else None
+                for year_index, _year in enumerate(years)
+            ]
+            for metric_key in metric_keys
+        }
+        tables.append({
+            "key": table_key,
+            "title": title,
+            "row_label": row_label,
+            "years": years,
+            "rows": table_rows,
+            "totals": totals,
+        })
+    return tables
+
+
 def _legacy_dimension_chart(filtered_reports, dimension, num_years=1):
     """Keep the pre-composition helper shape for callers outside Analytics."""
     rows = report_observations(filtered_reports)

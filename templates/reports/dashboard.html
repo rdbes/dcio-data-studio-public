@@ -879,6 +879,56 @@
             </section>
         {% endif %}
 
+        {% if breakdown_tables %}
+            <section class="dashboard-card-group grid grid-cols-1 gap-4" aria-label="Damage and loss breakdown tables">
+                {% for table in breakdown_tables %}
+                    <article class="ui-main-card dashboard-breakdown-table-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left" data-breakdown-table="{{ table.key }}">
+                        <div class="border-b border-zinc-100 bg-white py-3 px-5">
+                            <div class="dashboard-chart-header flex flex-row flex-wrap items-center justify-between gap-3">
+                                <div class="min-w-0">
+                                    <h2 class="text-base font-semibold text-zinc-900 leading-tight">{{ table.title }}</h2>
+                                    <p class="text-xs text-zinc-400 mt-1 font-medium" data-breakdown-table-unit>Value Loss (PHP)</p>
+                                </div>
+                                <div class="dashboard-metric-switcher flex items-center gap-1 bg-zinc-100 p-1 rounded-lg text-xs" data-breakdown-table-switcher>
+                                    {% for option in breakdown_metric_options %}
+                                        <button type="button" data-breakdown-table-metric="{{ option.key }}" class="dashboard-metric-option{% if option.key == 'value' %} is-active{% endif %}" aria-pressed="{% if option.key == 'value' %}true{% else %}false{% endif %}">{{ option.label }}</button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-table-wrap">
+                            <table class="report-table report-table--blue-header ui-table--compact min-w-[720px]" data-breakdown-table-grid>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">{{ table.row_label }}</th>
+                                        {% for year in table.years %}
+                                            <th scope="col" class="is-numeric">{{ year }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody data-breakdown-table-body>
+                                    {% for row in table.rows %}
+                                        <tr>
+                                            <th scope="row">{{ row.label }}</th>
+                                            {% for value in row.metrics.value %}
+                                                <td class="is-numeric">{% if value != None %}{{ value|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    <tr class="dashboard-breakdown-total-row">
+                                        <th scope="row">Total</th>
+                                        {% for value in table.totals.value %}
+                                            <td class="is-numeric">{% if value != None %}{{ value|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </article>
+                {% endfor %}
+            </section>
+        {% endif %}
+
         {% include 'partials/chart_table_modal.html' %}
 
         <div id="dashboard-chart-fallback" class="dashboard-card-group hidden bg-amber-50 border border-amber-200 rounded-xl p-4 text-left">
@@ -907,6 +957,7 @@
 
 {{ chart_data|json_script:"dashboard-chart-data" }}
 {{ quarterly_breakdown|json_script:"dashboard-quarterly-breakdown-data" }}
+{{ breakdown_tables|json_script:"dashboard-breakdown-tables-data" }}
 
 <script src="{% static 'js/analytics_filters.js' %}?v=20260825-outside-dismiss-v4"></script>
 <script src="{% static 'js/dashboard_annual_summary_pagination.js' %}"></script>
@@ -915,4 +966,5 @@
 <script src="{% static 'js/maps/dashboard_quarterly_breakdown.js' %}?v=20260914-quarterly-all-metrics-v1" defer></script>
 <script src="{% static 'js/analytics/interactions.js' %}?v=20260915-subgroup-drilldown-v1" defer></script>
 <script src="{% static 'js/analytics/dashboard.js' %}?v=20260920-flat-axis-bars-v1" defer></script>
+<script src="{% static 'js/analytics/dashboard_breakdown_tables.js' %}?v=20260922-breakdown-tables-v1" defer></script>
 {% endblock %}

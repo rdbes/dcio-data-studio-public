@@ -48,6 +48,7 @@ from reports.dashboard import (
     build_commodity_pie,
     build_hazard_pie,
     build_kpi_card,
+    build_metric_breakdown_tables,
     build_monthly_line,
     build_province_chart,
     build_quarterly_breakdown,
@@ -397,6 +398,20 @@ def analytics(request):
             }
         )
 
+    breakdown_tables = build_metric_breakdown_tables(
+        selected_observations,
+        sorted(windows),
+    )
+    breakdown_metric_options = [
+        {"key": key, "label": label}
+        for key, label in (
+            ("value", "Value"),
+            ("area", "Area"),
+            ("volume", "Volume"),
+            ("farmers", "Farmers"),
+        )
+    ]
+
     kpi_history = [row for row in observations if row["analysis_date"].year not in lumped_years]
     previous_year, previous_reference, kpi_reference = previous_period_references(
         kpi_history,
@@ -609,6 +624,8 @@ def analytics(request):
             "annual_summary_empty_rows": annual_summary_empty_rows,
             "annual_summary_querystring": annual_summary_query_params.urlencode(),
             "top_incidents": top_incidents,
+            "breakdown_tables": breakdown_tables,
+            "breakdown_metric_options": breakdown_metric_options,
             "active_filter_chips": active_filter_chips,
             "map_navigation_url": _preserved_url(
                 request,
