@@ -6,7 +6,7 @@ from django.views.generic import RedirectView
 
 from reports.views.bulletin_checker import bulletin_checker
 from reports.views.crop_production import crop_production
-from reports.views.dam_water_levels import dam_water_levels
+from reports.views.dam_water_levels import dam_water_levels, dam_water_levels_data
 from reports.views.damage_losses import damage_losses_incident_options, dashboard
 from reports.views.dashboard import analytics
 from reports.views.incidents import hazard_incidents
@@ -21,6 +21,7 @@ public_patterns = [
     path("analytics/", require_safe(analytics), name="analytics"),
     path("crop-production/", require_safe(crop_production), name="crop_production"),
     path("dam-water-levels/", require_safe(dam_water_levels), name="dam_water_levels"),
+    path("dam-water-levels/data/", require_safe(dam_water_levels_data), name="dam_water_levels_data"),
     path("incidents/", require_safe(hazard_incidents), name="hazard_incidents"),
     path("tropical-cyclone-tracks/", require_safe(tropical_cyclone_tracks), name="tropical_cyclone_tracks"),
     path("tropical-cyclone-frequency/", require_safe(tropical_cyclone_frequency), name="tropical_cyclone_frequency"),

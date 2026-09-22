@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block content %}
-<section class="w-full space-y-3" aria-labelledby="dam-water-levels-title" data-dam-water-levels data-static-app="true" data-auto-refresh-times="09:00,21:00" data-static-data-url="{% static 'data/dam_water_levels.json' %}" data-dam-chart-api="{% static 'data/dam_water_levels.json' %}">
+<section class="w-full space-y-3" aria-labelledby="dam-water-levels-title" data-dam-water-levels data-static-app="true" data-auto-refresh-times="09:00,21:00" data-static-data-url="{% static 'data/dam_water_levels.json' %}" data-dam-chart-api="{% url 'reports:dam_water_levels_data' %}">
                         <header class="module-page-header">
                             <div class="module-page-header__top">
                                 <div class="module-page-heading min-w-0">
