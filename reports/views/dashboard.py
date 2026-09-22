@@ -401,7 +401,12 @@ def analytics(request):
     # Breakdown tables are historical views like the annual summary. Keep the
     # active scope filters, but expose every available year instead of using
     # the latest-year dashboard window as the table's only column.
-    breakdown_years = sorted({row["analysis_date"].year for row in observations})
+    observed_breakdown_years = sorted({row["analysis_date"].year for row in observations})
+    breakdown_years = (
+        list(range(observed_breakdown_years[0], observed_breakdown_years[-1] + 1))
+        if observed_breakdown_years
+        else []
+    )
     breakdown_tables = build_metric_breakdown_tables(
         observations,
         breakdown_years,
