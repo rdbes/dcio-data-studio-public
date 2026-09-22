@@ -3013,24 +3013,26 @@ dialog.incident-dashboard-dialog:not([open]) {
 .dashboard-breakdown-table-grid tbody th:first-child {
     position: sticky;
     left: 0;
+    isolation: isolate;
 }
 
 .dashboard-breakdown-table-grid thead th:first-child {
-    z-index: 4;
+    z-index: 20 !important;
+    background-color: var(--color-brand) !important;
 }
 
 .dashboard-breakdown-table-grid tbody th:first-child {
-    z-index: 4;
-    background: var(--utility-white);
+    z-index: 19 !important;
+    background-color: var(--utility-white) !important;
     box-shadow: 2px 0 4px rgb(0 0 0 / 0.06);
 }
 
 .dashboard-breakdown-table-grid tbody tr:nth-child(even) > th:first-child {
-    background: var(--ash-light);
+    background-color: var(--ash-light) !important;
 }
 
 .dashboard-breakdown-table-grid tbody tr.dashboard-breakdown-total-row > th:first-child {
-    background: #fef2f2;
+    background-color: #fef2f2 !important;
 }
 
 .dashboard-chart-card > .p-5 {
