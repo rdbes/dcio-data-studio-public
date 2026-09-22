@@ -2986,7 +2986,13 @@ dialog.incident-dashboard-dialog:not([open]) {
 }
 
 .dashboard-breakdown-table-grid th:first-child {
-    min-width: 13rem;
+    box-sizing: border-box;
+    width: 14rem;
+    min-width: 14rem;
+    max-width: 14rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .dashboard-breakdown-table-grid thead th:first-child,
@@ -2996,12 +3002,13 @@ dialog.incident-dashboard-dialog:not([open]) {
 }
 
 .dashboard-breakdown-table-grid thead th:first-child {
-    z-index: 3;
+    z-index: 4;
 }
 
 .dashboard-breakdown-table-grid tbody th:first-child {
-    z-index: 2;
+    z-index: 4;
     background: var(--utility-white);
+    box-shadow: 2px 0 4px rgb(0 0 0 / 0.06);
 }
 
 .dashboard-breakdown-table-grid tbody tr:nth-child(even) > th:first-child {
