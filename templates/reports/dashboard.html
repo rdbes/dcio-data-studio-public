@@ -897,19 +897,20 @@
                         </div>
                         <div class="report-table-wrap dashboard-breakdown-table-wrap">
                             <table class="report-table report-table--blue-header ui-table--compact dashboard-breakdown-table-grid" data-breakdown-table-grid>
-                                <colgroup>
+                                <colgroup data-breakdown-table-colgroup>
                                     <col class="dashboard-breakdown-label-column">
                                     {% for year in table.years %}
                                         <col class="dashboard-breakdown-year-column">
                                     {% endfor %}
                                 </colgroup>
-                                <thead>
-                                    <tr>
+                                <thead data-breakdown-table-head>
+                                    <tr data-breakdown-table-head-row>
                                         <th scope="col">{{ table.row_label }}</th>
                                         {% for year in table.years %}
                                             <th scope="col" class="is-numeric">{{ year }}</th>
                                         {% endfor %}
                                     </tr>
+                                    <tr data-breakdown-table-detail-row hidden></tr>
                                 </thead>
                                 <tbody data-breakdown-table-body>
                                     {% for row in table.rows %}

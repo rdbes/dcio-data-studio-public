@@ -206,6 +206,7 @@ def build_metric_breakdown_tables(rows, years):
 
     for table_key, title, row_label in table_specs:
         grouped = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        farmer_grouped = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
         labels = {}
         for row in rows:
             year = row["analysis_date"].year
@@ -227,6 +228,17 @@ def build_metric_breakdown_tables(rows, years):
                 value = row.get(field)
                 if value is not None:
                     grouped[key][metric_key][year].append(value)
+                    if metric_key == "farmers":
+                        source_labels = " ".join(
+                            str(row.get(field_name) or "")
+                            for field_name in (
+                                "commodity_key__main_sector",
+                                "commodity_key__level_2_group",
+                                "commodity_key__level_3_group",
+                            )
+                        ).casefold()
+                        farmer_group = "fisherfolk" if "fish" in source_labels else "farmers"
+                        farmer_grouped[key][farmer_group][year].append(value)
 
         table_rows = []
         for key, metric_values in grouped.items():
@@ -238,7 +250,20 @@ def build_metric_breakdown_tables(rows, years):
                     else None
                     for year in years
                 ]
-            table_rows.append({"label": labels[key], "metrics": metrics})
+            farmer_breakdown = {
+                farmer_group: [
+                    float(nullable_sum(farmer_grouped[key][farmer_group].get(year, [])))
+                    if farmer_grouped[key][farmer_group].get(year)
+                    else None
+                    for year in years
+                ]
+                for farmer_group in ("farmers", "fisherfolk")
+            }
+            table_rows.append({
+                "label": labels[key],
+                "metrics": metrics,
+                "farmer_breakdown": farmer_breakdown,
+            })
 
         table_rows.sort(
             key=lambda row: (
@@ -262,6 +287,22 @@ def build_metric_breakdown_tables(rows, years):
             ]
             for metric_key in metric_keys
         }
+        farmer_breakdown_totals = {
+            farmer_group: [
+                float(nullable_sum(
+                    row["farmer_breakdown"][farmer_group][year_index]
+                    for row in table_rows
+                    if row["farmer_breakdown"][farmer_group][year_index] is not None
+                ))
+                if any(
+                    row["farmer_breakdown"][farmer_group][year_index] is not None
+                    for row in table_rows
+                )
+                else None
+                for year_index, _year in enumerate(years)
+            ]
+            for farmer_group in ("farmers", "fisherfolk")
+        }
         tables.append({
             "key": table_key,
             "title": title,
@@ -269,6 +310,7 @@ def build_metric_breakdown_tables(rows, years):
             "years": years,
             "rows": table_rows,
             "totals": totals,
+            "farmer_breakdown_totals": farmer_breakdown_totals,
         })
     return tables
 

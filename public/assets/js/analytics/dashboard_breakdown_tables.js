@@ -23,6 +23,69 @@
             : formatter.format(Number(value));
     }
 
+    function renderColumns(card, table, metric) {
+        const colgroup = card.querySelector("[data-breakdown-table-colgroup]");
+        if (!colgroup) {
+            return;
+        }
+        const splitFarmers = metric === "farmers" && table.farmer_breakdown_totals;
+        colgroup.replaceChildren();
+        const labelColumn = document.createElement("col");
+        labelColumn.className = "dashboard-breakdown-label-column";
+        colgroup.append(labelColumn);
+        (table.years || []).forEach(() => {
+            [0, ...(splitFarmers ? [1] : [])].forEach(() => {
+                const yearColumn = document.createElement("col");
+                yearColumn.className = "dashboard-breakdown-year-column";
+                colgroup.append(yearColumn);
+            });
+        });
+    }
+
+    function renderHeader(card, table, metric) {
+        const row = card.querySelector("[data-breakdown-table-head-row]");
+        const head = card.querySelector("[data-breakdown-table-head]");
+        if (!row || !head) {
+            return;
+        }
+        const splitFarmers = metric === "farmers" && table.farmer_breakdown_totals;
+        row.replaceChildren();
+        const label = document.createElement("th");
+        label.scope = "col";
+        label.textContent = table.row_label;
+        if (splitFarmers) {
+            label.rowSpan = 2;
+        }
+        row.append(label);
+        (table.years || []).forEach((year) => {
+            const yearCell = document.createElement("th");
+            yearCell.scope = "col";
+            yearCell.className = "is-numeric";
+            yearCell.textContent = year;
+            if (splitFarmers) {
+                yearCell.colSpan = 2;
+            }
+            row.append(yearCell);
+        });
+        const detailRow = head.querySelector("[data-breakdown-table-detail-row]");
+        if (!detailRow) {
+            return;
+        }
+        detailRow.replaceChildren();
+        detailRow.hidden = !splitFarmers;
+        if (splitFarmers) {
+            (table.years || []).forEach(() => {
+                ["Farmers", "Fisherfolk"].forEach((labelText) => {
+                    const detailCell = document.createElement("th");
+                    detailCell.scope = "col";
+                    detailCell.className = "is-numeric dashboard-breakdown-detail-header";
+                    detailCell.textContent = labelText;
+                    detailRow.append(detailCell);
+                });
+            });
+        }
+    }
+
     function renderTable(card, table, metric) {
         const body = card.querySelector("[data-breakdown-table-body]");
         const heading = card.querySelector("[data-breakdown-table-heading]");
@@ -32,6 +95,9 @@
         if (heading) {
             heading.textContent = `${metricDetails[metric]?.label || metricDetails.value.label} ${table.title}`;
         }
+        renderColumns(card, table, metric);
+        renderHeader(card, table, metric);
+        const splitFarmers = metric === "farmers" && table.farmer_breakdown_totals;
         const rows = [...(table.rows || [])].sort((left, right) => {
             const leftValue = Number(left.metrics?.[metric]?.reduce((sum, value) => sum + (Number(value) || 0), 0) || 0);
             const rightValue = Number(right.metrics?.[metric]?.reduce((sum, value) => sum + (Number(value) || 0), 0) || 0);
@@ -44,12 +110,23 @@
             label.scope = "row";
             label.textContent = row.label || "Unclassified";
             tableRow.append(label);
-            (row.metrics?.[metric] || []).forEach((value) => {
-                const cell = document.createElement("td");
-                cell.className = "is-numeric";
-                cell.textContent = formatValue(value);
-                tableRow.append(cell);
-            });
+            if (splitFarmers) {
+                (table.years || []).forEach((_, index) => {
+                    ["farmers", "fisherfolk"].forEach((farmerGroup) => {
+                        const cell = document.createElement("td");
+                        cell.className = "is-numeric";
+                        cell.textContent = formatValue(row.farmer_breakdown?.[farmerGroup]?.[index]);
+                        tableRow.append(cell);
+                    });
+                });
+            } else {
+                (row.metrics?.[metric] || []).forEach((value) => {
+                    const cell = document.createElement("td");
+                    cell.className = "is-numeric";
+                    cell.textContent = formatValue(value);
+                    tableRow.append(cell);
+                });
+            }
             body.append(tableRow);
         });
         const totalRow = document.createElement("tr");
@@ -58,12 +135,23 @@
         totalLabel.scope = "row";
         totalLabel.textContent = "Total";
         totalRow.append(totalLabel);
-        (table.totals?.[metric] || []).forEach((value) => {
-            const cell = document.createElement("td");
-            cell.className = "is-numeric";
-            cell.textContent = formatValue(value);
-            totalRow.append(cell);
-        });
+        if (splitFarmers) {
+            (table.years || []).forEach((_, index) => {
+                ["farmers", "fisherfolk"].forEach((farmerGroup) => {
+                    const cell = document.createElement("td");
+                    cell.className = "is-numeric";
+                    cell.textContent = formatValue(table.farmer_breakdown_totals?.[farmerGroup]?.[index]);
+                    totalRow.append(cell);
+                });
+            });
+        } else {
+            (table.totals?.[metric] || []).forEach((value) => {
+                const cell = document.createElement("td");
+                cell.className = "is-numeric";
+                cell.textContent = formatValue(value);
+                totalRow.append(cell);
+            });
+        }
         body.append(totalRow);
     }
 
