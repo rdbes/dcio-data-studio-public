@@ -2970,6 +2970,48 @@ dialog.incident-dashboard-dialog:not([open]) {
     font-weight: 600;
 }
 
+/* Keep long year series readable: the label column stays visible while the
+ * year columns use their natural width inside an independent scroll area. */
+.dashboard-breakdown-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
+}
+
+.dashboard-breakdown-table-grid {
+    width: max-content;
+    min-width: 100%;
+    table-layout: auto;
+}
+
+.dashboard-breakdown-table-grid th:first-child {
+    min-width: 13rem;
+}
+
+.dashboard-breakdown-table-grid thead th:first-child,
+.dashboard-breakdown-table-grid tbody th:first-child {
+    position: sticky;
+    left: 0;
+}
+
+.dashboard-breakdown-table-grid thead th:first-child {
+    z-index: 3;
+}
+
+.dashboard-breakdown-table-grid tbody th:first-child {
+    z-index: 2;
+    background: var(--utility-white);
+}
+
+.dashboard-breakdown-table-grid tbody tr:nth-child(even) > th:first-child {
+    background: var(--ash-light);
+}
+
+.dashboard-breakdown-table-grid tbody tr.dashboard-breakdown-total-row > th:first-child {
+    background: #fef2f2;
+}
+
 .dashboard-chart-card > .p-5 {
     min-height: 0;
 }
