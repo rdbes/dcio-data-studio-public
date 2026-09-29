@@ -5,6 +5,7 @@
     const periodLabel = document.getElementById("dashboard-quarterly-breakdown-period");
     const emptyState = document.getElementById("dashboard-quarterly-breakdown-empty");
     const dataElement = document.getElementById("dashboard-quarterly-breakdown-data");
+    const filterContextElement = document.getElementById("dashboard-filter-context");
     const mapConfigElement = document.getElementById("map-spatial-config");
     const metricSelect = document.getElementById("dashboard-quarterly-breakdown-metric");
     const legendElement = document.getElementById("dashboard-quarterly-breakdown-legend");
@@ -22,6 +23,7 @@
     let breakdown = {};
     let baseBreakdown = {};
     let mapConfig = {};
+    let filterContext = {};
     try {
         breakdown = JSON.parse(dataElement.textContent || "{}");
         baseBreakdown = breakdown;
@@ -32,6 +34,11 @@
         mapConfig = JSON.parse(mapConfigElement?.textContent || "{}");
     } catch (error) {
         mapConfig = {};
+    }
+    try {
+        filterContext = JSON.parse(filterContextElement?.textContent || "{}");
+    } catch (error) {
+        filterContext = {};
     }
 
     const numberFormatter = new Intl.NumberFormat("en-PH", {
@@ -324,36 +331,33 @@
             scopeDetail.locationLabel
             || scopeDetail.provinceLabel
             || scopeDetail.regionName
+            || filterContext.location_label
             || mapConfig.location_label
             || "National"
         ).trim();
         const hazard = String(
             scopeDetail.hazardLabel
+            || filterContext.hazard_label
             || mapConfig.incident_label
             || mapConfig.hazard_label
-            || ""
+            || "All Hazards"
         ).trim();
         const commodity = String(
             scopeDetail.commodityLabel
+            || filterContext.commodity_label
             || mapConfig.commodity_label
-            || ""
+            || "All Commodities"
         ).trim();
         const period = String(
             mapConfig.period_label || breakdown.period_label || "Selected period"
         ).trim().replace(/^Latest Year\s*(?:[·:—-]\s*)?/i, "");
 
-        if (location) {
-            parts.push(location);
-        }
-        if (hazard && !/^all hazards$/i.test(hazard)) {
-            parts.push(hazard);
-        }
-        if (commodity && !/^all commodities$/i.test(commodity)) {
-            parts.push(commodity);
-        }
         if (period) {
             parts.push(period);
         }
+        parts.push(location || "National");
+        parts.push(hazard || "All Hazards");
+        parts.push(commodity || "All Commodities");
 
         const label = parts.join(" · ") || "Selected reporting period";
         periodLabel.textContent = label;

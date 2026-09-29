@@ -1,0 +1,192 @@
+/*
+ * Shared application design contract.
+ *
+ * Data Studio owns the component vocabulary. The other app workspaces may
+ * provide a theme, but they consume the same surfaces, geometry, type roles,
+ * focus treatment, and control states from this file.
+ */
+:root {
+    --ds-font-interface: var(--font-family-interface, "Inter", sans-serif);
+    --ds-font-data: var(--font-family-data, "IBM Plex Mono", monospace);
+    --ds-color-page: var(--color-background, #f7f7f2);
+    --ds-color-surface: var(--color-surface, #ffffff);
+    --ds-color-surface-muted: var(--color-surface-muted, #f7f7f2);
+    --ds-color-text: var(--color-text, #3a3a35);
+    --ds-color-text-muted: var(--color-text-muted, #73736b);
+    --ds-color-text-strong: var(--color-text-strong, #171715);
+    --ds-color-border: var(--color-border, #e7e7de);
+    --ds-color-border-strong: var(--color-control-border, #d2d2c6);
+    --ds-color-accent: var(--platform-theme, #0f7196);
+    --ds-color-accent-soft: var(--platform-theme-soft, #e8f6fa);
+    --ds-color-accent-ink: #fff;
+    --ds-color-focus: var(--color-focus-ring, #3578b8);
+    --ds-radius-control: var(--control-radius, 0.5rem);
+    --ds-radius-card: var(--card-radius, 0.75rem);
+    --ds-radius-pill: 9999px;
+    --ds-space-1: var(--space-1, 0.25rem);
+    --ds-space-2: var(--space-2, 0.5rem);
+    --ds-space-3: var(--space-3, 0.75rem);
+    --ds-space-4: var(--space-4, 1rem);
+    --ds-space-5: var(--space-5, 1.25rem);
+    --ds-control-height: var(--control-height-default, 2.5rem);
+    --ds-control-height-compact: var(--control-height-compact, 2rem);
+    --ds-shadow-card: var(--elevation-flat, none);
+    --ds-shadow-overlay: var(--elevation-overlay, 0 4px 12px rgb(24 24 27 / 10%));
+    --ds-transition: var(--farm-transition-standard, color 100ms ease, background-color 100ms ease, border-color 100ms ease, box-shadow 100ms ease);
+}
+
+body[data-platform-app="drought-monitor"] {
+    --ds-color-accent: #f67714;
+    --ds-color-accent-soft: #fff0d6;
+    --ds-color-accent-ink: #171715;
+}
+
+body[data-platform-app="map-studio"] {
+    --ds-color-accent: var(--stalk-base, #006633);
+    --ds-color-accent-soft: #e8f3ec;
+}
+
+body[data-platform-app="crop-studio"] {
+    --ds-color-accent: #fade5a;
+    --ds-color-accent-soft: #fff7d6;
+    --ds-color-accent-ink: #171715;
+}
+
+body[data-platform-app="hazard-studio"] {
+    --ds-color-accent: #be0b25;
+    --ds-color-accent-soft: #fff0e6;
+}
+
+/* Canonical primitives. Existing Data Studio ui-* components can adopt these
+ * roles incrementally while standalone workspaces use the ds-* names directly. */
+.ds-card {
+    background: var(--ds-color-surface);
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-card);
+    box-shadow: var(--ds-shadow-card);
+    color: var(--ds-color-text);
+}
+
+.ds-section-header {
+    align-items: center;
+    border-bottom: 1px solid var(--ds-color-border);
+    display: flex;
+    gap: var(--ds-space-3);
+    justify-content: space-between;
+    min-height: var(--ds-control-height);
+    padding: var(--ds-space-3) var(--ds-space-4);
+}
+
+.ds-section-header__title {
+    color: var(--ds-color-text-strong);
+    font-family: var(--ds-font-interface);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.ds-section-header__subtitle {
+    color: var(--ds-color-text-muted);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    margin: var(--ds-space-1) 0 0;
+}
+
+.ds-button {
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: var(--ds-radius-control);
+    cursor: pointer;
+    display: inline-flex;
+    font: 500 0.875rem/1.25 var(--ds-font-interface);
+    gap: var(--ds-space-2);
+    justify-content: center;
+    min-height: var(--ds-control-height-compact);
+    padding: 0 var(--ds-space-3);
+    transition: var(--ds-transition);
+}
+
+.ds-button:focus-visible,
+.ds-control:focus-visible,
+.ds-icon-button:focus-visible {
+    outline: 2px solid var(--ds-color-focus);
+    outline-offset: 2px;
+}
+
+.ds-button--primary {
+    background: var(--ds-color-accent);
+    border-color: var(--ds-color-accent);
+    color: var(--ds-color-accent-ink);
+}
+
+.ds-button--primary:hover { filter: brightness(0.94); }
+
+.ds-button--secondary {
+    background: var(--ds-color-surface);
+    border-color: var(--ds-color-border-strong);
+    color: var(--ds-color-text);
+}
+
+.ds-button--secondary:hover { background: var(--ds-color-surface-muted); }
+
+.ds-icon-button {
+    align-items: center;
+    background: var(--ds-color-surface);
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-control);
+    color: var(--ds-color-text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    height: var(--ds-control-height-compact);
+    justify-content: center;
+    transition: var(--ds-transition);
+    width: var(--ds-control-height-compact);
+}
+
+.ds-icon-button:hover {
+    background: var(--ds-color-accent-soft);
+    border-color: var(--ds-color-accent);
+    color: var(--ds-color-accent);
+}
+
+.ds-control {
+    background: var(--ds-color-surface);
+    border: 1px solid var(--ds-color-border-strong);
+    border-radius: var(--ds-radius-control);
+    color: var(--ds-color-text);
+    font: 400 0.875rem/1.25 var(--ds-font-interface);
+    min-height: var(--ds-control-height-compact);
+    padding: 0 var(--ds-space-3);
+    transition: var(--ds-transition);
+    width: 100%;
+}
+
+.ds-control:hover { border-color: var(--ds-color-accent); }
+
+.ds-table {
+    border-collapse: collapse;
+    color: var(--ds-color-text);
+    font: 400 0.8125rem/1.25 var(--ds-font-interface);
+    width: 100%;
+}
+
+.ds-table th {
+    background: var(--ds-color-surface-muted);
+    color: var(--ds-color-text-muted);
+    font-weight: 600;
+    text-align: left;
+}
+
+.ds-table th,
+.ds-table td {
+    border-bottom: 1px solid var(--ds-color-border);
+    padding: var(--ds-space-2) var(--ds-space-3);
+}
+
+.ds-table tr:last-child td { border-bottom: 0; }
+
+@media (max-width: 47.999rem) {
+    .ds-section-header { align-items: flex-start; flex-direction: column; }
+    .ds-section-header__title { font-size: 0.9375rem; }
+}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Map Studio · RRDBES{% endblock %}
+
+{% block workspace_topbar_class %}platform-workspace-topbar--map{% endblock %}
+{% block breadcrumbs %}
+    <span class="truncate text-sm font-medium" data-map-studio-workspace-label>Boundary Mapping</span>
+{% endblock %}
+
+{% block workspace_header_actions %}
+    <span class="platform-map-privacy-pill" title="Uploaded data is processed locally and resets when the map page refreshes">
+        Your data is temporary · App resets on refresh
+    </span>
+{% endblock %}
+
+{% block page_body_overflow_class %}overflow-hidden{% endblock %}
+{% block page_body_spacing_class %}p-0{% endblock %}
+{% block page_body_inner_class %}h-full max-w-none{% endblock %}
+
+{% block content %}
+    <div
+        class="app-content map-studio-inline-content"
+        aria-label="Map Studio workspace"
+        data-map-studio-asset-base="{% static 'map_studio/assets/' %}"
+        data-map-studio-pagasa-track-url="{% url 'map_studio:pagasa_track' %}"
+    >
+        {% include "map_studio/workspace_dialogs.html" %}
+        <main id="map-studio-content" class="page-shell" tabindex="-1">
+            {% include "map_studio/workspace_panels.html" %}
+        </main>
+    </div>
+{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}?v=1.9.4">
+    <link rel="stylesheet" href="{% static 'map_studio/styles.css' %}?v=20260927-secondary-columns-v1">
+    <script defer src="{% static 'vendor/leaflet/leaflet.js' %}?v=1.9.4"></script>
+    <script defer src="{% static 'vendor/chartjs/chart.umd.js' %}?v=4.4.7"></script>
+    <script defer src="{% static 'map_studio/csv.js' %}?v=20260923-inline-v1"></script>
+    <script defer src="{% static 'map_studio/app.js' %}?v=20260927-secondary-columns-v1"></script>
+{% endblock %}

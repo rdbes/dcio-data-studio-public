@@ -4,7 +4,7 @@
 {% load batch_tags %}
 {% load filter_tags %}
 
-{% block title %}Analytics - DCIO Data Studio{% endblock %}
+{% block title %}Analytics - RRDBES · Data Studio{% endblock %}
 
 {% block workspace_topbar_class %}farm-workspace-topbar--filter-only{% endblock %}
 
@@ -23,7 +23,7 @@
 
 {% block content %}
 <h1 class="sr-only">Analytics</h1>
-<div class="relative flex h-full min-h-0 w-full flex-col">
+<div data-analytics-page class="relative flex h-full min-h-0 w-full flex-col">
     <div class="map-filter-layer relative shrink-0">
 
         <details id="dashboard-filter-panel" data-analytics-filter-panel class="group relative bg-white border border-zinc-200/80 rounded-xl shadow-xs text-left">
@@ -338,9 +338,9 @@
     </section>
 
     {% if annual_summary_rows %}
-        <div data-annual-summary-grid class="ui-main-grid dashboard-card-group grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
-            <!-- Left Side: Annual Summary Table (spans 3 columns) -->
-            <section id="annual-summary" data-annual-summary-card class="ui-main-card xl:col-span-3 self-start bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col">
+        <div data-annual-summary-grid class="ui-main-grid dashboard-card-group grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+            <!-- Temporary comparison: give Annual Summary and Annual Trends equal width. -->
+            <section id="annual-summary" data-annual-summary-card class="ui-main-card xl:col-span-1 self-start bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col">
                 <div class="border-b border-zinc-100 bg-white py-3 px-5">
                     <div class="dashboard-chart-header flex flex-row items-center justify-between gap-3">
                         <div class="min-w-0 flex-1">
@@ -348,7 +348,7 @@
                                 Annual Summary
                             </h2>
                             <p id="annual-summary-subtitle" class="text-xs text-zinc-400 mt-1 font-medium truncate">
-                                {{ filter_context.commodity_label }} · {{ filter_context.location_label }}
+                                {{ filter_context.historical_scope_summary }}
                             </p>
                         </div>
                         <div class="dashboard-chart-actions flex items-center gap-1 shrink-0">
@@ -366,19 +366,22 @@
                 </div>
                 <div
                     data-annual-summary-table-wrap
-                    class="report-table-wrap"
+                    class="report-table-wrap annual-summary-table-scroll"
                 >
-                    <table class="report-table report-table--blue-header ui-table--compact min-w-[920px]">
+                    <table class="annual-summary-table report-table report-table--blue-header ui-table--compact min-w-[920px]">
                         <thead>
                             <tr>
                                 <th scope="col" class="w-14">
                                     <span class="sr-only">Row</span>
                                 </th>
                                 <th scope="col">Year</th>
-                                <th scope="col" class="is-numeric">Affected Farmers/Fisherfolk<span aria-hidden="true">*</span><span class="sr-only">; see footnote</span></th>
-                                <th scope="col" class="is-numeric">Area Affected (HA)</th>
-                                <th scope="col" class="is-numeric">Volume Loss (MT)</th>
-                                <th scope="col" class="is-numeric">Value Loss (PHP)</th>
+                                <th scope="col" class="annual-summary-table__farmers-header is-numeric">
+                                    <span aria-hidden="true">Affected<br>Farmers/Fisherfolk*</span>
+                                    <span class="sr-only">Affected Farmers/Fisherfolk; see footnote</span>
+                                </th>
+                                <th scope="col" class="is-numeric">Area Affected<br><span>(HA)</span></th>
+                                <th scope="col" class="is-numeric">Volume Loss<br><span>(MT)</span></th>
+                                <th scope="col" class="is-numeric">Value Loss<br><span>(PHP)</span></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -392,7 +395,6 @@
                                 </td>
                                 <th scope="row">
                                     Total
-                                    <span class="font-normal text-zinc-500">({{ annual_summary_year_count }} years)</span>
                                 </th>
                                 <td class="is-numeric">{% if annual_summary_total.affected_farmers %}{{ annual_summary_total.affected_farmers|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
                                 <td class="is-numeric text-zinc-700">{% if annual_summary_total.area_affected %}{{ annual_summary_total.area_affected|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
@@ -415,14 +417,14 @@
                                 <td class="is-numeric text-zinc-700">{% if annual_summary_average.volume_loss %}{{ annual_summary_average.volume_loss|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
                                 <td class="is-numeric text-zinc-700">{% if annual_summary_average.value_loss %}{{ annual_summary_average.value_loss|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
                             </tr>
-                            {% for row in annual_summary_page.object_list %}
+                            {% for row in annual_summary_rows %}
                                 <tr
                                     data-annual-summary-row
                                     {% if row.flagged and row.affected_farmers > 0 %}
                                         data-farmer-reporting-warning="true"
                                     {% endif %}
                                 >
-                                    <td class="text-zinc-500">{{ annual_summary_page.start_index|add:forloop.counter0 }}</td>
+                                    <td class="text-zinc-500">{{ forloop.counter }}</td>
                                     <td>{{ row.year }}</td>
                                     <td
                                         class="is-numeric{% if row.flagged and row.affected_farmers > 0 %} text-zinc-400{% endif %}"
@@ -460,23 +462,12 @@
                                     </td>
                                 </tr>
                             {% endfor %}
-                            {% for _ in annual_summary_empty_rows %}
-                                <tr
-                                    data-annual-summary-placeholder-row
-                                    aria-hidden="true"
-                                >
-                                    <td class="text-zinc-500">&nbsp;</td>
-                                    <td>&nbsp;</td>
-                                    <td class="is-numeric">&nbsp;</td>
-                                    <td class="is-numeric text-zinc-700">&nbsp;</td>
-                                    <td class="is-numeric text-zinc-700">&nbsp;</td>
-                                    <td class="is-numeric text-zinc-700">&nbsp;</td>
-                                </tr>
-                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                {% include 'partials/annual_summary_pagination.html' with page_obj=annual_summary_page pagination_querystring=annual_summary_querystring pagination_anchor="annual-summary" pagination_label="Annual summary pages" pagination_note="* Averages exclude the current year; general averages also exclude 1998, which is retained for El Niño-specific analysis. Farmer/fisherfolk averages start in 2021." %}
+                <p class="annual-summary-footnote px-4 py-2.5">
+                    * Averages exclude the current year; general averages also exclude 1998, which is retained for El Niño-specific analysis. Farmer/fisherfolk averages start in 2021.
+                </p>
             </section>
 
             <!-- Right Side: 3 Annual Trend Charts in a single card -->
@@ -488,7 +479,7 @@
                                 Annual Trends
                             </h2>
                             <p id="annual-trends-subtitle" class="text-xs text-zinc-400 mt-1 font-medium truncate">
-                                {{ filter_context.commodity_label }} · {{ filter_context.location_label }}
+                                {{ filter_context.historical_scope_summary }}
                             </p>
                         </div>
                     </div>
@@ -540,7 +531,7 @@
                         <div class="min-w-0 flex-1">
                             <h2 class="text-base font-semibold text-zinc-900 leading-tight">Historical Period Averages</h2>
                             <p class="text-xs text-zinc-400 mt-1 font-medium truncate">
-                                {{ filter_context.commodity_label }} · {{ filter_context.location_label }}
+                                {{ filter_context.historical_scope_summary }}
                             </p>
                         </div>
                     </div>
@@ -597,7 +588,7 @@
                         <div class="min-w-0 flex-1">
                             <h2 class="text-base font-semibold text-zinc-900 leading-tight">Five-Year Period Averages</h2>
                             <p class="text-xs text-zinc-400 mt-1 font-medium truncate">
-                                {{ filter_context.commodity_label }} · {{ filter_context.location_label }}
+                                {{ filter_context.historical_scope_summary }}
                             </p>
                         </div>
                     </div>
@@ -668,150 +659,170 @@
     {% endif %}
 
     {% if record_count %}
-        <section id="dashboard-region-commodity-grid" class="ui-main-grid dashboard-card-group grid grid-cols-1 lg:grid-cols-2 lg:auto-rows-[36rem] gap-4">
+        <section id="dashboard-region-commodity-grid" class="ui-main-grid dashboard-card-group grid grid-cols-1 lg:grid-cols-2 gap-4">
             <!-- Cell 1: Region Chart -->
-            <article id="dashboard-region-card" class="ui-main-card dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col h-full">
+            <article id="dashboard-region-chart-card" class="ui-main-card analytics-chart-card--compact dashboard-analysis-chart-card dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col h-full">
                 <div class="border-b border-zinc-100 bg-white py-3 px-5">
                     <div class="dashboard-chart-header flex flex-row items-center justify-between gap-3">
                         <div class="min-w-0 flex-1">
                             <h2 id="region-chart-title" class="text-base font-semibold text-zinc-900 leading-tight">
-                                Value Loss by Region
+                                Total Value Loss (PHP) by Region
                             </h2>
                             <p id="region-chart-subtitle" class="text-xs text-zinc-400 mt-1 font-medium truncate"></p>
                         </div>
                         <div class="dashboard-chart-actions flex items-center gap-1 shrink-0">
+                            <div class="ui-select-wrap dashboard-region-level-select-wrap">
+                                <label class="sr-only" for="region-chart-level">Region chart level</label>
+                                <select id="region-chart-level" class="ui-select ui-select--compact dashboard-region-level-select" aria-label="Region chart level">
+                                    <option value="region">Region</option>
+                                    <option value="province">Province</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                            </div>
+                            <div class="ui-select-wrap dashboard-metric-select-wrap">
+                                <label class="sr-only" for="region-chart-metric">Region chart metric</label>
+                                <select id="region-chart-metric" class="ui-select ui-select--compact dashboard-metric-select" data-chart-switcher="region" aria-label="Region chart metric">
+                                    <option value="value">Value</option>
+                                    <option value="volume">Volume</option>
+                                    <option value="area">Area</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                            </div>
                             <div class="dashboard-chart-utility-group">
-                                <button type="button" data-chart-table-trigger="region" class="ui-icon-button dashboard-chart-icon-button" aria-label="Show region chart data table">
+                                <button type="button" data-chart-table-trigger="region" class="ui-icon-button dashboard-chart-icon-button" aria-label="Show region chart data table" title="Show region chart data table">
                                     <i class="fa-solid fa-table text-xs" aria-hidden="true"></i>
                                 </button>
-                                <button type="button" data-chart-image-copy="region" class="ui-icon-button dashboard-chart-icon-button" aria-label="Copy region chart as PNG">
+                                <button type="button" data-chart-image-copy="region" class="ui-icon-button dashboard-chart-icon-button" aria-label="Copy region chart as PNG" title="Copy region chart as PNG">
                                     <i class="fa-regular fa-image text-xs" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="p-0 flex-1 flex flex-col justify-center">
-                    <div class="h-64 sm:h-72 lg:h-auto lg:flex-1 relative w-full">
-                        <canvas id="regionBarChart" aria-label="Region horizontal bar chart"></canvas>
+                <div class="analytics-chart-card--compact__body dashboard-analysis-chart-card__body dashboard-region-chart-body p-0 flex-1 flex min-h-0 flex-col">
+                    <div id="region-chart-legend" class="dashboard-region-chart-legend" aria-label="Region chart legend"></div>
+                    <div id="region-chart-scroll" class="dashboard-region-chart-scroll">
+                        <div class="analytics-chart-card--compact__canvas dashboard-analysis-chart-card__canvas dashboard-region-chart-canvas relative w-full">
+                            <canvas id="regionBarChart" aria-label="Region horizontal bar chart"></canvas>
+                        </div>
                     </div>
-                </div>
-                <div class="dashboard-chart-footer flex items-center justify-center border-t border-zinc-100 bg-white px-5 pt-3 pb-5">
-                    <div class="dashboard-metric-switcher flex items-center gap-1 bg-zinc-100 p-1 rounded-lg text-xs" data-chart-switcher="region">
-                        <button type="button" data-metric="value" class="dashboard-metric-option is-active" aria-pressed="true">Value</button>
-                        <button type="button" data-metric="volume" class="dashboard-metric-option" aria-pressed="false">Volume</button>
-                        <button type="button" data-metric="area" class="dashboard-metric-option" aria-pressed="false">Area</button>
-                    </div>
+                    <div id="region-chart-axis" class="dashboard-region-chart-axis" aria-hidden="true"></div>
                 </div>
             </article>
 
             <!-- Cell 2: Commodity Share -->
-            <article id="dashboard-commodity-card" class="ui-main-card dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col h-full">
+            <article id="dashboard-commodity-chart-card" class="ui-main-card analytics-chart-card--compact dashboard-analysis-chart-card dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col h-full">
                 <div class="border-b border-zinc-100 bg-white py-3 px-5">
                     <div class="dashboard-chart-header flex flex-row items-center justify-between gap-3">
                         <div class="min-w-0 flex-1">
                             <h2 id="commodity-chart-title" class="text-base font-semibold text-zinc-900 leading-tight">
-                                Value Loss by Commodity
+                                Total Value Loss (PHP) by Commodity
                             </h2>
                             <p id="commodity-chart-subtitle" class="text-xs text-zinc-400 mt-1 font-medium truncate"></p>
                         </div>
                         <div class="dashboard-chart-actions flex items-center gap-1 shrink-0">
+                            <div class="ui-select-wrap dashboard-metric-select-wrap">
+                                <label class="sr-only" for="commodity-chart-metric">Commodity chart metric</label>
+                                <select id="commodity-chart-metric" class="ui-select ui-select--compact dashboard-metric-select" data-chart-switcher="commodity" aria-label="Commodity chart metric">
+                                    <option value="value">Value</option>
+                                    <option value="volume">Volume</option>
+                                    <option value="area">Area</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                            </div>
                             <div class="dashboard-chart-utility-group">
-                                <button type="button" data-chart-table-trigger="commodity" class="ui-icon-button dashboard-chart-icon-button" aria-label="Show commodity chart data table">
+                                <button type="button" data-chart-table-trigger="commodity" class="ui-icon-button dashboard-chart-icon-button" aria-label="Show commodity chart data table" title="Show commodity chart data table">
                                     <i class="fa-solid fa-table text-xs" aria-hidden="true"></i>
                                 </button>
-                                <button type="button" data-chart-image-copy="commodity" class="ui-icon-button dashboard-chart-icon-button" aria-label="Copy commodity chart as PNG">
+                                <button type="button" data-chart-image-copy="commodity" class="ui-icon-button dashboard-chart-icon-button" aria-label="Copy commodity chart as PNG" title="Copy commodity chart as PNG">
                                     <i class="fa-regular fa-image text-xs" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="p-5 flex-1 flex flex-col justify-center">
-                    <div class="h-64 sm:h-72 lg:h-auto lg:flex-1 relative w-full">
+                <div class="analytics-chart-card--compact__body dashboard-analysis-chart-card__body p-5 flex-1 flex flex-col justify-center">
+                    <div class="analytics-chart-card--compact__canvas dashboard-analysis-chart-card__canvas h-64 sm:h-72 lg:h-auto lg:flex-1 relative w-full">
                         <canvas id="commodityPieChart" aria-label="Commodity pie chart"></canvas>
-                    </div>
-                </div>
-                <div class="dashboard-chart-footer flex items-center justify-center border-t border-zinc-100 bg-white px-5 pt-3 pb-5">
-                    <div class="dashboard-metric-switcher flex items-center gap-1 bg-zinc-100 p-1 rounded-lg text-xs" data-chart-switcher="commodity">
-                        <button type="button" data-metric="value" class="dashboard-metric-option is-active" aria-pressed="true">Value</button>
-                        <button type="button" data-metric="volume" class="dashboard-metric-option" aria-pressed="false">Volume</button>
-                        <button type="button" data-metric="area" class="dashboard-metric-option" aria-pressed="false">Area</button>
                     </div>
                 </div>
             </article>
 
             <!-- Cell 3: Monthly Analysis -->
-            <article id="dashboard-monthly-card" class="ui-main-card dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col h-full">
+            <article id="dashboard-monthly-card" class="ui-main-card analytics-chart-card--compact dashboard-analysis-chart-card dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col h-full">
                 <div class="border-b border-zinc-100 bg-white py-3 px-5">
                     <div class="dashboard-chart-header flex flex-row items-center justify-between gap-3">
                         <div class="min-w-0 flex-1">
                             <h2 id="monthly-chart-title" class="text-base font-semibold text-zinc-900 leading-tight">
-                                Value Loss by Month
+                                Total Value Loss (PHP) by Month
                             </h2>
                             <p id="monthly-chart-subtitle" class="text-xs text-zinc-400 mt-1 font-medium truncate"></p>
                         </div>
                         <div class="dashboard-chart-actions flex items-center gap-1 shrink-0">
+                            <div class="ui-select-wrap dashboard-metric-select-wrap">
+                                <label class="sr-only" for="monthly-chart-metric">Monthly chart metric</label>
+                                <select id="monthly-chart-metric" class="ui-select ui-select--compact dashboard-metric-select" data-chart-switcher="monthly" aria-label="Monthly chart metric">
+                                    <option value="value">Value</option>
+                                    <option value="volume">Volume</option>
+                                    <option value="area">Area</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                            </div>
                             <div class="dashboard-chart-utility-group">
-                                <button type="button" data-chart-table-trigger="monthly" class="ui-icon-button dashboard-chart-icon-button" aria-label="Show monthly chart data table">
+                                <button type="button" data-chart-table-trigger="monthly" class="ui-icon-button dashboard-chart-icon-button" aria-label="Show monthly chart data table" title="Show monthly chart data table">
                                     <i class="fa-solid fa-table text-xs" aria-hidden="true"></i>
                                 </button>
-                                <button type="button" data-chart-image-copy="monthly" class="ui-icon-button dashboard-chart-icon-button" aria-label="Copy monthly chart as PNG">
+                                <button type="button" data-chart-image-copy="monthly" class="ui-icon-button dashboard-chart-icon-button" aria-label="Copy monthly chart as PNG" title="Copy monthly chart as PNG">
                                     <i class="fa-regular fa-image text-xs" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="p-5 flex-1 flex flex-col justify-between">
-                    <div class="h-64 sm:h-72 lg:h-auto lg:flex-1 relative">
+                <div class="analytics-chart-card--compact__body dashboard-analysis-chart-card__body p-5 flex-1 flex flex-col justify-between">
+                    <div class="analytics-chart-card--compact__canvas dashboard-analysis-chart-card__canvas h-64 sm:h-72 lg:h-auto lg:flex-1 relative">
                         <canvas id="monthlyLineChart" aria-label="Monthly line chart"></canvas>
                     </div>
                     <p class="mt-3 border-t border-zinc-100 pt-2 text-center text-xs font-medium leading-relaxed text-zinc-400">
                         Monthly reported totals only; historical comparisons are deferred. Gaps are unavailable values.
                     </p>
                 </div>
-                <div class="dashboard-chart-footer flex items-center justify-center border-t border-zinc-100 bg-white px-5 pt-3 pb-5">
-                    <div class="dashboard-metric-switcher flex items-center gap-1 bg-zinc-100 p-1 rounded-lg text-xs" data-chart-switcher="monthly">
-                        <button type="button" data-metric="value" class="dashboard-metric-option is-active" aria-pressed="true">Value</button>
-                        <button type="button" data-metric="volume" class="dashboard-metric-option" aria-pressed="false">Volume</button>
-                        <button type="button" data-metric="area" class="dashboard-metric-option" aria-pressed="false">Area</button>
-                    </div>
-                </div>
             </article>
 
             <!-- Cell 4: Hazard Share -->
-            <article id="dashboard-hazard-card" class="ui-main-card dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col h-full">
+            <article id="dashboard-hazard-card" class="ui-main-card analytics-chart-card--compact dashboard-analysis-chart-card dashboard-chart-card bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col h-full">
                 <div class="border-b border-zinc-100 bg-white py-3 px-5">
                     <div class="dashboard-chart-header flex flex-row items-center justify-between gap-3">
                         <div class="min-w-0 flex-1">
                             <h2 id="hazard-chart-title" class="text-base font-semibold text-zinc-900 leading-tight">
-                                Value Loss by Hazard
+                                Total Value Loss (PHP) by Hazard
                             </h2>
                             <p id="hazard-chart-subtitle" class="text-xs text-zinc-400 mt-1 font-medium truncate"></p>
                         </div>
                         <div class="dashboard-chart-actions flex items-center gap-1 shrink-0">
+                            <div class="ui-select-wrap dashboard-metric-select-wrap">
+                                <label class="sr-only" for="hazard-chart-metric">Hazard chart metric</label>
+                                <select id="hazard-chart-metric" class="ui-select ui-select--compact dashboard-metric-select" data-chart-switcher="hazard" aria-label="Hazard chart metric">
+                                    <option value="value">Value</option>
+                                    <option value="volume">Volume</option>
+                                    <option value="area">Area</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                            </div>
                             <div class="dashboard-chart-utility-group">
-                                <button type="button" data-chart-table-trigger="hazard" class="ui-icon-button dashboard-chart-icon-button" aria-label="Show hazard chart data table">
+                                <button type="button" data-chart-table-trigger="hazard" class="ui-icon-button dashboard-chart-icon-button" aria-label="Show hazard chart data table" title="Show hazard chart data table">
                                     <i class="fa-solid fa-table text-xs" aria-hidden="true"></i>
                                 </button>
-                                <button type="button" data-chart-image-copy="hazard" class="ui-icon-button dashboard-chart-icon-button" aria-label="Copy hazard chart as PNG">
+                                <button type="button" data-chart-image-copy="hazard" class="ui-icon-button dashboard-chart-icon-button" aria-label="Copy hazard chart as PNG" title="Copy hazard chart as PNG">
                                     <i class="fa-regular fa-image text-xs" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="p-5 flex-1 flex flex-col justify-center">
-                    <div class="h-64 sm:h-72 lg:h-auto lg:flex-1 relative w-full">
+                <div class="analytics-chart-card--compact__body dashboard-analysis-chart-card__body p-5 flex-1 flex flex-col justify-center">
+                    <div class="analytics-chart-card--compact__canvas dashboard-analysis-chart-card__canvas h-64 sm:h-72 lg:h-auto lg:flex-1 relative w-full">
                         <canvas id="hazardPieChart" aria-label="Hazard distribution pie chart"></canvas>
-                    </div>
-                </div>
-                <div class="dashboard-chart-footer flex items-center justify-center border-t border-zinc-100 bg-white px-5 pt-3 pb-5">
-                    <div class="dashboard-metric-switcher flex items-center gap-1 bg-zinc-100 p-1 rounded-lg text-xs" data-chart-switcher="hazard">
-                        <button type="button" data-metric="value" class="dashboard-metric-option is-active" aria-pressed="true">Value</button>
-                        <button type="button" data-metric="volume" class="dashboard-metric-option" aria-pressed="false">Volume</button>
-                        <button type="button" data-metric="area" class="dashboard-metric-option" aria-pressed="false">Area</button>
                     </div>
                 </div>
             </article>
@@ -823,7 +834,7 @@
         <!-- Top 10 Incidents by Value Loss -->
         {% if top_incidents %}
             <section class="ui-main-card dashboard-card-group bg-white border border-zinc-200/80 rounded-xl shadow-xs overflow-hidden text-left flex flex-col">
-                {% include 'partials/section_card_header.html' with title="Top 10 Incidents by Value Loss" wrapper_class="px-5 py-4" %}
+                {% include 'partials/section_card_header.html' with title="Top 10 Incidents by Value Loss" subtitle=top_incidents_subtitle wrapper_class="px-5 py-4" %}
                 <div class="report-table-wrap">
                     <table class="report-table report-table--blue-header ui-table--compact min-w-[920px]">
                         <thead>
@@ -887,11 +898,16 @@
                             <div class="dashboard-chart-header flex flex-row flex-wrap items-center justify-between gap-3">
                                 <div class="min-w-0">
                                     <h2 class="text-base font-semibold text-zinc-900 leading-tight" data-breakdown-table-heading>Value Loss (PHP) {{ table.title }}</h2>
+                                    <p class="text-xs text-zinc-500 mt-1 font-medium" data-breakdown-table-subtitle>{{ breakdown_tables_subtitle }}</p>
                                 </div>
-                                <div class="dashboard-metric-switcher flex items-center gap-1 bg-zinc-100 p-1 rounded-lg text-xs" data-breakdown-table-switcher>
-                                    {% for option in breakdown_metric_options %}
-                                        <button type="button" data-breakdown-table-metric="{{ option.key }}" class="dashboard-metric-option{% if option.key == 'value' %} is-active{% endif %}" aria-pressed="{% if option.key == 'value' %}true{% else %}false{% endif %}">{{ option.label }}</button>
-                                    {% endfor %}
+                                <div class="ui-select-wrap dashboard-breakdown-metric-select-wrap" data-breakdown-table-switcher>
+                                    <label class="sr-only" for="breakdown-{{ table.key }}-metric">{{ table.title }} table metric</label>
+                                    <select id="breakdown-{{ table.key }}-metric" class="ui-select ui-select--compact dashboard-metric-select dashboard-breakdown-metric-select" data-breakdown-table-metric-select aria-label="{{ table.title }} table metric">
+                                        {% for option in breakdown_metric_options %}
+                                            <option value="{{ option.key }}"{% if option.key == 'value' %} selected{% endif %}>{{ option.label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
                                 </div>
                             </div>
                         </div>
@@ -913,20 +929,20 @@
                                     <tr data-breakdown-table-detail-row hidden></tr>
                                 </thead>
                                 <tbody data-breakdown-table-body>
+                                    <tr class="dashboard-breakdown-total-row">
+                                        <th scope="row">Total</th>
+                                        {% for value in table.totals.value %}
+                                            <td class="is-numeric{% if value == None %} dashboard-breakdown-missing-value{% endif %}">{% if value != None %}{{ value|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
+                                        {% endfor %}
+                                    </tr>
                                     {% for row in table.rows %}
                                         <tr>
                                             <th scope="row">{{ row.label }}</th>
                                             {% for value in row.metrics.value %}
-                                                <td class="is-numeric">{% if value != None %}{{ value|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
+                                                <td class="is-numeric{% if value == None %} dashboard-breakdown-missing-value{% endif %}">{% if value != None %}{{ value|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
                                             {% endfor %}
                                         </tr>
                                     {% endfor %}
-                                    <tr class="dashboard-breakdown-total-row">
-                                        <th scope="row">Total</th>
-                                        {% for value in table.totals.value %}
-                                            <td class="is-numeric">{% if value != None %}{{ value|floatformat:0|intcomma }}{% else %}-{% endif %}</td>
-                                        {% endfor %}
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -962,15 +978,15 @@
 </div>
 
 {{ chart_data|json_script:"dashboard-chart-data" }}
+{{ filter_context|json_script:"dashboard-filter-context" }}
 {{ quarterly_breakdown|json_script:"dashboard-quarterly-breakdown-data" }}
 {{ breakdown_tables|json_script:"dashboard-breakdown-tables-data" }}
 
 <script src="{% static 'js/analytics_filters.js' %}?v=20260825-outside-dismiss-v4"></script>
-<script src="{% static 'js/dashboard_annual_summary_pagination.js' %}"></script>
 <script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
-<script src="{% static 'js/analytics/chart_presets.js' %}?v=20260920-flat-axis-bars-v1"></script>
-<script src="{% static 'js/maps/dashboard_quarterly_breakdown.js' %}?v=20260914-quarterly-all-metrics-v1" defer></script>
+<script src="{% static 'js/analytics/chart_presets.js' %}?v=20260927-donut-legend-gap-v2"></script>
+<script src="{% static 'js/maps/dashboard_quarterly_breakdown.js' %}?v=20260926-filter-subtitles-v1" defer></script>
 <script src="{% static 'js/analytics/interactions.js' %}?v=20260915-subgroup-drilldown-v1" defer></script>
-<script src="{% static 'js/analytics/dashboard.js' %}?v=20260920-flat-axis-bars-v1" defer></script>
-<script src="{% static 'js/analytics/dashboard_breakdown_tables.js' %}?v=20260922-breakdown-tables-v1" defer></script>
+<script src="{% static 'js/analytics/dashboard.js' %}?v=20260928-annual-summary-sticky-stack-v1" defer></script>
+<script src="{% static 'js/analytics/dashboard_breakdown_tables.js' %}?v=20260926-breakdown-table-metric-select-v1" defer></script>
 {% endblock %}

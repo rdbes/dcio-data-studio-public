@@ -23,6 +23,17 @@
             : formatter.format(Number(value));
     }
 
+    function isMissingValue(value) {
+        return value === null || value === undefined || value === "";
+    }
+
+    function applyValueClass(cell, value) {
+        cell.className = "is-numeric";
+        if (isMissingValue(value)) {
+            cell.classList.add("dashboard-breakdown-missing-value");
+        }
+    }
+
     function renderColumns(card, table, metric) {
         const colgroup = card.querySelector("[data-breakdown-table-colgroup]");
         if (!colgroup) {
@@ -104,31 +115,6 @@
             return rightValue - leftValue || String(left.label).localeCompare(String(right.label));
         });
         body.replaceChildren();
-        rows.forEach((row) => {
-            const tableRow = document.createElement("tr");
-            const label = document.createElement("th");
-            label.scope = "row";
-            label.textContent = row.label || "Unclassified";
-            tableRow.append(label);
-            if (splitFarmers) {
-                (table.years || []).forEach((_, index) => {
-                    ["farmers", "fisherfolk"].forEach((farmerGroup) => {
-                        const cell = document.createElement("td");
-                        cell.className = "is-numeric";
-                        cell.textContent = formatValue(row.farmer_breakdown?.[farmerGroup]?.[index]);
-                        tableRow.append(cell);
-                    });
-                });
-            } else {
-                (row.metrics?.[metric] || []).forEach((value) => {
-                    const cell = document.createElement("td");
-                    cell.className = "is-numeric";
-                    cell.textContent = formatValue(value);
-                    tableRow.append(cell);
-                });
-            }
-            body.append(tableRow);
-        });
         const totalRow = document.createElement("tr");
         totalRow.className = "dashboard-breakdown-total-row";
         const totalLabel = document.createElement("th");
@@ -139,7 +125,7 @@
             (table.years || []).forEach((_, index) => {
                 ["farmers", "fisherfolk"].forEach((farmerGroup) => {
                     const cell = document.createElement("td");
-                    cell.className = "is-numeric";
+                    applyValueClass(cell, table.farmer_breakdown_totals?.[farmerGroup]?.[index]);
                     cell.textContent = formatValue(table.farmer_breakdown_totals?.[farmerGroup]?.[index]);
                     totalRow.append(cell);
                 });
@@ -147,12 +133,37 @@
         } else {
             (table.totals?.[metric] || []).forEach((value) => {
                 const cell = document.createElement("td");
-                cell.className = "is-numeric";
+                applyValueClass(cell, value);
                 cell.textContent = formatValue(value);
                 totalRow.append(cell);
             });
         }
         body.append(totalRow);
+        rows.forEach((row) => {
+            const tableRow = document.createElement("tr");
+            const label = document.createElement("th");
+            label.scope = "row";
+            label.textContent = row.label || "Unclassified";
+            tableRow.append(label);
+            if (splitFarmers) {
+                (table.years || []).forEach((_, index) => {
+                    ["farmers", "fisherfolk"].forEach((farmerGroup) => {
+                        const cell = document.createElement("td");
+                        applyValueClass(cell, row.farmer_breakdown?.[farmerGroup]?.[index]);
+                        cell.textContent = formatValue(row.farmer_breakdown?.[farmerGroup]?.[index]);
+                        tableRow.append(cell);
+                    });
+                });
+            } else {
+                (row.metrics?.[metric] || []).forEach((value) => {
+                    const cell = document.createElement("td");
+                    applyValueClass(cell, value);
+                    cell.textContent = formatValue(value);
+                    tableRow.append(cell);
+                });
+            }
+            body.append(tableRow);
+        });
     }
 
     document.querySelectorAll("[data-breakdown-table]").forEach((card) => {
@@ -160,16 +171,16 @@
         if (!table) {
             return;
         }
+        const metricSelect = card.querySelector("[data-breakdown-table-metric-select]");
         const setMetric = (metric) => {
             const selected = metricDetails[metric] ? metric : "value";
-            card.querySelectorAll("[data-breakdown-table-metric]").forEach((button) => {
-                const active = button.dataset.breakdownTableMetric === selected;
-                button.classList.toggle("is-active", active);
-                button.setAttribute("aria-pressed", String(active));
-            });
+            if (metricSelect && metricSelect.value !== selected) {
+                metricSelect.value = selected;
+            }
             renderTable(card, table, selected);
         };
 
+        metricSelect?.addEventListener("change", () => setMetric(metricSelect.value));
         card.querySelectorAll("[data-breakdown-table-metric]").forEach((button) => {
             button.addEventListener("click", () => setMetric(button.dataset.breakdownTableMetric));
         });

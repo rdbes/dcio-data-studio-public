@@ -590,6 +590,164 @@ class ReportAuditLog(models.Model):
         return f"{self.action_type} - {self.action_status} - {self.created_at}"
 
 
+class ClimateLocation(models.Model):
+    """A geography exactly as published by a climate-data source."""
+
+    class GeographicScope(models.TextChoices):
+        REGION = "region", "Region"
+        PROVINCE_HUC = "province_huc", "Province or HUC"
+        LEGACY_COMPOSITE = "legacy_composite", "Legacy composite geography"
+
+    climate_location_key = models.CharField(primary_key=True, max_length=64)
+    published_label = models.CharField(max_length=160)
+    display_label = models.CharField(max_length=160)
+    published_region_label = models.CharField(max_length=160, blank=True)
+    geographic_scope = models.CharField(max_length=32, choices=GeographicScope.choices)
+    source_agency = models.CharField(max_length=160, default="DOST-PAGASA")
+    mapping_notes = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "climate_location"
+        db_table_comment = "Climate-source geography preserved independently from current PSGC boundaries."
+        ordering = ["display_label", "climate_location_key"]
+
+    def __str__(self):
+        return self.display_label
+
+
+class ClimateLocationPsgc(models.Model):
+    """Map a published climate geography to current PSGC locations."""
+
+    class MappingRole(models.TextChoices):
+        PRIMARY = "primary", "Primary representation"
+        COMPONENT = "component", "Composite component"
+
+    climate_location_psgc_key = models.BigAutoField(primary_key=True)
+    climate_location = models.ForeignKey(
+        ClimateLocation,
+        on_delete=models.CASCADE,
+        related_name="psgc_mappings",
+        db_column="climate_location_key",
+    )
+    psgc_location = models.ForeignKey(
+        RefPsgcLocation,
+        on_delete=models.PROTECT,
+        related_name="climate_location_mappings",
+        db_column="psgc_key",
+    )
+    mapping_role = models.CharField(
+        max_length=16,
+        choices=MappingRole.choices,
+        default=MappingRole.PRIMARY,
+    )
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "climate_location_psgc"
+        db_table_comment = "Reviewed mapping between published climate geographies and current PSGC locations."
+        ordering = ["climate_location_id", "mapping_role", "psgc_location_id"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["climate_location", "psgc_location"],
+                name="uq_climate_location_psgc",
+            ),
+            models.UniqueConstraint(
+                fields=["climate_location"],
+                condition=models.Q(mapping_role="primary"),
+                name="uq_climate_location_primary_psgc",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.climate_location_id} → {self.psgc_location_id}"
+
+
+class DryDayNormal(models.Model):
+    """One monthly dry-day climatological normal for a climate location."""
+
+    class ThresholdRule(models.TextChoices):
+        LESS_THAN = "lt", "Rainfall less than threshold"
+
+    dry_day_normal_key = models.BigAutoField(primary_key=True)
+    climate_location = models.ForeignKey(
+        ClimateLocation,
+        on_delete=models.PROTECT,
+        related_name="dry_day_normals",
+        db_column="climate_location_key",
+    )
+    month = models.PositiveSmallIntegerField()
+    normal_dry_days = models.PositiveSmallIntegerField()
+    climatology_start_year = models.PositiveSmallIntegerField(default=1991)
+    climatology_end_year = models.PositiveSmallIntegerField(default=2020)
+    rainfall_threshold_mm = models.DecimalField(max_digits=5, decimal_places=2, default="1.00")
+    threshold_rule = models.CharField(
+        max_length=8,
+        choices=ThresholdRule.choices,
+        default=ThresholdRule.LESS_THAN,
+    )
+    source_document_title = models.CharField(max_length=255)
+    source_document_url = models.URLField(max_length=500, blank=True)
+    source_issue_date = models.DateField()
+    source_page = models.PositiveSmallIntegerField()
+    source_notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "dry_day_normal"
+        db_table_comment = "Monthly DOST-PAGASA dry-day climatological normals preserved by published climate geography."
+        ordering = ["climate_location_id", "month"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "climate_location",
+                    "month",
+                    "climatology_start_year",
+                    "climatology_end_year",
+                    "rainfall_threshold_mm",
+                    "threshold_rule",
+                ],
+                name="uq_dry_day_normal",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(month__gte=1, month__lte=12),
+                name="ck_dry_day_month",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(normal_dry_days__lte=31),
+                name="ck_dry_day_count",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(rainfall_threshold_mm__gt=0),
+                name="ck_dry_day_threshold",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(source_page__gte=1),
+                name="ck_dry_day_source_page",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(
+                    climatology_end_year__gte=models.F("climatology_start_year")
+                ),
+                name="ck_dry_day_period",
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=["climate_location", "month"],
+                name="idx_dry_day_location_month",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.climate_location_id} month {self.month}: {self.normal_dry_days} dry days"
+
+
 
 
 class TropicalCyclone(models.Model):

@@ -1,12 +1,12 @@
 {% load batch_tags %}
-<div class="ui-section-header border-b border-zinc-100 bg-white {% if wrapper_class %}{{ wrapper_class }}{% else %}p-6{% endif %}">
+<div class="ds-section-header ui-section-header border-b border-zinc-100 bg-white {% if wrapper_class %}{{ wrapper_class }}{% else %}p-6{% endif %}">
     <div class="{% if right_content or primary_label or secondary_label or tertiary_label %}flex flex-col gap-3 md:flex-row md:items-center md:justify-between{% endif %}">
         <div>
-            <h2 class="ui-section-title {% if compact %}text-sm{% else %}text-base{% endif %} font-semibold text-zinc-900">
+            <h2 class="ds-section-header__title ui-section-title {% if compact %}text-sm{% else %}text-base{% endif %} font-semibold text-zinc-900">
                 {% if icon %}<i class="{{ icon }} text-zinc-500 {% if compact %}mr-2 text-xs{% else %}mr-2{% endif %}"></i>{% endif %}{{ title }}
             </h2>
             {% if subtitle %}
-                <p class="ui-section-subtitle {% if compact %}text-xs{% else %}text-xs{% endif %} text-zinc-500 mt-1 {{ subtitle_class }}">{{ subtitle }}</p>
+                <p class="ds-section-header__subtitle ui-section-subtitle {% if compact %}text-xs{% else %}text-xs{% endif %} text-zinc-500 mt-1 {{ subtitle_class }}">{{ subtitle }}</p>
             {% endif %}
         </div>
 

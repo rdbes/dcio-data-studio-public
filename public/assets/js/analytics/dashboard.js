@@ -1,4 +1,45 @@
 (function () {
+    function syncAnnualSummaryStickyRows() {
+        const card = document.querySelector("[data-annual-summary-card]");
+        const table = card?.querySelector(".annual-summary-table");
+        const headerRow = table?.tHead?.rows[0];
+        const totalRow = table?.querySelector('tbody > tr[data-summary-type="total"]');
+        const averageRow = table?.querySelector('tbody > tr[data-summary-type="average"]');
+
+        if (!card || !headerRow || !totalRow || !averageRow) {
+            return;
+        }
+
+        card.style.setProperty(
+            "--annual-summary-header-height",
+            `${headerRow.getBoundingClientRect().height}px`
+        );
+        card.style.setProperty(
+            "--annual-summary-total-height",
+            `${totalRow.getBoundingClientRect().height}px`
+        );
+        card.style.setProperty(
+            "--annual-summary-average-height",
+            `${averageRow.getBoundingClientRect().height}px`
+        );
+    }
+
+    syncAnnualSummaryStickyRows();
+
+    if (window.ResizeObserver) {
+        const annualSummaryTable = document.querySelector(
+            "[data-annual-summary-card] .annual-summary-table"
+        );
+        if (annualSummaryTable) {
+            const annualSummaryResizeObserver = new ResizeObserver(
+                syncAnnualSummaryStickyRows
+            );
+            annualSummaryResizeObserver.observe(annualSummaryTable);
+        }
+    }
+
+    window.addEventListener("resize", syncAnnualSummaryStickyRows, { passive: true });
+
     const dataNode = document.getElementById("dashboard-chart-data");
     const fallback = document.getElementById("dashboard-chart-fallback");
     const notesOpenButton = document.getElementById("dashboard-data-notes-open");
@@ -160,6 +201,16 @@
         return labelWithUnit(m.label, m.unit);
     }
 
+    function selectedYearLabel() {
+        const context = dashboardData.filter_context || {};
+        return periodYearRange(context.time_label || "All Years") || "All Years";
+    }
+
+    function comparisonYearLabel() {
+        const label = periodYearRange(comparisonMeta.label);
+        return label ? `Average (${label})` : "Historical average";
+    }
+
     function formatValueForMetric(value, metricKey) {
         if (value === null || value === undefined) return "Not available";
         const m = METRIC_DETAILS[metricKey] || METRIC_DETAILS.value;
@@ -170,11 +221,9 @@
         return `${formatted}${m.suffix}`;
     }
 
-    function tableMetricLabel(metricKey) {
-        if (metricKey === "value") {
-            return "Value Loss (PHP)";
-        }
-        return getMetricLabel(metricKey);
+    function formatChartValue(value) {
+        if (value === null || value === undefined) return "Not available";
+        return numberFormatter.format(Number(value || 0));
     }
 
     function formatTableValue(value) {
@@ -185,9 +234,31 @@
         return formatTableValue(value);
     }
 
-    function formatPercent(value, total) {
-        if (value === null || value === undefined || !total) return "—";
-        return `${percentageFormatter.format((Number(value) / total) * 100)}%`;
+    function formatComparisonPercent(currentValue, averageValue) {
+        if (
+            currentValue === null
+            || currentValue === undefined
+            || averageValue === null
+            || averageValue === undefined
+            || Number(averageValue) === 0
+        ) {
+            return { label: "—", tone: "muted" };
+        }
+        const delta = (
+            (Number(currentValue) - Number(averageValue))
+            / Math.abs(Number(averageValue))
+        ) * 100;
+        const sign = delta > 0 ? "+" : "";
+        return {
+            label: `${sign}${percentageFormatter.format(delta)}%`,
+            tone: delta < 0 ? "decrease" : delta > 0 ? "increase" : "flat",
+        };
+    }
+
+    function comparisonPercentClass(tone) {
+        if (tone === "decrease") return "dashboard-chart-table-comparison--decrease";
+        if (tone === "increase") return "dashboard-chart-table-comparison--increase";
+        return "dashboard-chart-table-comparison--muted";
     }
 
     function convertHexToRgba(hex, alpha) {
@@ -434,7 +505,7 @@
                 if (!value) {
                     return;
                 }
-                const label = formatValueForMetric(value, metricKey);
+                const label = formatChartValue(value);
                 const textWidth = ctx.measureText(label).width;
                 const labelX = Math.min(bar.x + 8, chartArea.right - textWidth - 4);
                 ctx.fillText(label, labelX, bar.y);
@@ -653,8 +724,64 @@
         return compactRegionScale(rows, metric).stepSize;
     }
 
+    const REGION_CHART_ROW_HEIGHT = 34;
+    const REGION_CHART_VERTICAL_PADDING = 56;
+
+    function syncRegionChartContentHeight(chart, rows) {
+        const canvasWrapper = chart?.canvas?.parentElement;
+        if (!canvasWrapper) return;
+        const rowCount = Array.isArray(rows) ? rows.length : 0;
+        const contentHeight = rowCount > 0
+            ? rowCount * REGION_CHART_ROW_HEIGHT + REGION_CHART_VERTICAL_PADDING
+            : 300;
+        canvasWrapper.style.height = `${contentHeight}px`;
+        canvasWrapper.style.minHeight = `${contentHeight}px`;
+        canvasWrapper.style.flex = "0 0 auto";
+    }
+
+    function syncRegionChartChrome(chart) {
+        if (!chart) return;
+
+        const legend = document.getElementById("region-chart-legend");
+        if (legend) {
+            legend.replaceChildren();
+            chart.data.datasets
+                .filter((dataset) => !dataset.hidden)
+                .forEach((dataset) => {
+                    const item = document.createElement("span");
+                    item.className = "dashboard-region-chart-legend__item";
+
+                    const swatch = document.createElement("span");
+                    swatch.className = "dashboard-region-chart-legend__swatch";
+                    swatch.style.backgroundColor = Array.isArray(dataset.backgroundColor)
+                        ? dataset.backgroundColor[0]
+                        : dataset.backgroundColor;
+                    swatch.setAttribute("aria-hidden", "true");
+
+                    const label = document.createElement("span");
+                    label.textContent = dataset.label || "Series";
+                    item.append(swatch, label);
+                    legend.appendChild(item);
+                });
+        }
+
+        const axis = document.getElementById("region-chart-axis");
+        const xScale = chart.scales?.x;
+        if (!axis || !xScale) return;
+
+        axis.replaceChildren();
+        (xScale.ticks || []).forEach((tick, index, ticks) => {
+            const item = document.createElement("span");
+            item.className = "dashboard-region-chart-axis__tick";
+            item.textContent = tick.label ?? formatChartValue(tick.value);
+            item.style.left = `${xScale.getPixelForValue(tick.value)}px`;
+            if (index === 0) item.style.transform = "translateX(0)";
+            if (index === ticks.length - 1) item.style.transform = "translateX(-100%)";
+            axis.appendChild(item);
+        });
+    }
+
     const filterCtx = dashboardData.filter_context || {};
-    const locationMode = filterCtx.location_mode || "national";
     const commodityMode = filterCtx.commodity_mode || "all";
 
     const hasSubgroups = Boolean(dashboardData.has_subgroups);
@@ -675,27 +802,18 @@
             && (commodityMode === "group" || commodityMode === "subgroup");
     }
 
-    function pieComparisonTooltip(rows, context) {
-        if (!comparisonEnabled) return [];
-        const row = rows[context.dataIndex] || {};
-        const metricKey = context.chart.activeMetric || "value";
-        const lines = [
-            `Full-year historical average: ${formatValueForMetric(nullableNumber(row.comparison_metric_value), metricKey)}`,
-            `${row.comparison_years || "No reported years"} · ${row.comparison_year_count || 0} reporting years`,
-        ];
-        if (row.share_delta !== null && row.share_delta !== undefined) {
-            const delta = Number(row.share_delta);
-            lines.push(`Share change: ${delta > 0 ? "+" : ""}${fullNumberFormatter.format(delta)} pp`);
-        } else {
-            lines.push("Share comparison unavailable for unequal reporting coverage");
-        }
-        return lines;
+    let regionChartLevel = "region";
+    function regionChartSource(level = regionChartLevel) {
+        return level === "province"
+            ? (dashboardData.province_bar || [])
+            : (dashboardData.region_bar || []);
     }
 
-    const useProvinceData = locationMode === "region" || locationMode === "province";
-    const initialRegionSource = useProvinceData
-        ? (dashboardData.province_bar || [])
-        : dashboardData.region_bar;
+    function regionChartDimension() {
+        return regionChartLevel === "province" ? "Province" : "Region";
+    }
+
+    const initialRegionSource = regionChartSource();
     const initialRegionData = [...initialRegionSource]
         .sort((a, b) => (b.value || 0) - (a.value || 0))
         ;
@@ -704,7 +822,7 @@
         canvasId: "regionBarChart",
         rows: initialRegionData,
         metricKey: "value",
-        datasetLabel: getMetricLabel("value"),
+        datasetLabel: selectedYearLabel(),
         valueAccessor: function (row) {
             return nullableNumber(row.value);
         },
@@ -712,9 +830,7 @@
             return nullableNumber(row.comparison_value);
         },
         comparisonEnabled,
-        comparisonLabel: (
-            `Comparison (${comparisonMeta.label || "None"})`
-        ),
+        comparisonLabel: comparisonYearLabel(),
         backgroundColor: DASHBOARD_CHART_COLORS.value,
         comparisonBackgroundColor: (
             "rgba(100, 116, 139, 0.45)"
@@ -722,12 +838,12 @@
         comparisonBorderColor: "#64748b",
         compactValueScale: true,
         compactValueScaleRightPadding: 4,
-        xAxisTitle: METRIC_DETAILS.value.unit,
+        showLegend: false,
         formatTick: function (value) {
             return numberFormatter.format(Number(value || 0));
         },
         formatValue: function (value) {
-            return formatValueForMetric(value, chartInstances.regionBarChart?.activeMetric || "value");
+            return formatChartValue(value);
         },
         baseOptions: sharedOptions,
         onHover: pointerOnHover,
@@ -747,6 +863,9 @@
     if (regionChart) {
         regionChart.activeRegionData = initialRegionData;
         regionChart.activeMetric = "value";
+        regionChart.options.plugins.legend.display = false;
+        regionChart.options.scales.x.ticks.display = false;
+        syncRegionChartContentHeight(regionChart, initialRegionData);
         regionChart.options.scales.x.max = compactRegionScaleMax(
             initialRegionData,
             "value"
@@ -756,6 +875,7 @@
             "value"
         );
         regionChart.update("none");
+        syncRegionChartChrome(regionChart);
         regionChart.options.plugins.tooltip.callbacks.afterLabel = context => {
             const row = regionChart.activeRegionData[context.dataIndex];
             const metric = regionChart.activeMetric;
@@ -791,13 +911,6 @@
             return formatValueForMetric(value, chartInstances.commodityPieChart?.activeMetric || "value");
         },
         baseOptions: sharedOptions,
-        tooltipAfterLabel: function (context) {
-            const rows = (
-                commodityChart.activeCommodityData
-                || initialCommoditySource
-            );
-            return pieComparisonTooltip(rows, context);
-        },
         onHover: pointerOnHover,
         onClick: function (_event, elements) {
             const activeCommodityData = (
@@ -831,7 +944,7 @@
     function monthlySeriesLabel(series, metric) {
         const metricDetails = METRIC_DETAILS[metric] || METRIC_DETAILS.value;
         const isHistorical = series === "historical";
-        const selectedPeriod = monthlyMeta.selected_period_label || "Period";
+        const selectedPeriod = periodYearRange(monthlyMeta.selected_period_label) || "All Years";
         const historicalPeriod = periodYearRange(
             monthlyMeta.historical_period_label
         );
@@ -934,17 +1047,12 @@
                 drillDown(row);
             },
             scales: {
-                y: {
-                    ticks: {
-                        callback: function (value) {
-                            const metric = chartInstances["monthlyLineChart"] ? chartInstances["monthlyLineChart"].activeMetric : "value";
-                            const m = METRIC_DETAILS[metric] || METRIC_DETAILS.value;
-                            if (m.format === "money") {
-                                return `PHP ${numberFormatter.format(Number(value || 0))}`;
+                    y: {
+                        ticks: {
+                            callback: function (value) {
+                                return formatChartValue(value);
                             }
-                            return numberFormatter.format(value || 0);
                         }
-                    }
                 }
             }
         }
@@ -986,17 +1094,8 @@
                 ...sharedOptions.plugins,
                 legend: {
                     ...sharedOptions.plugins.legend,
-                    position: "bottom"
-                },
-                tooltip: {
-                    ...sharedOptions.plugins.tooltip,
-                    callbacks: {
-                        ...sharedOptions.plugins.tooltip.callbacks,
-                        afterLabel: function (context) {
-                            const rows = hazardChart.activeHazardData || initialHazardData;
-                            return pieComparisonTooltip(rows, context);
-                        }
-                    }
+                    position: "bottom",
+                    title: chartPresets.doughnutLegendTitle()
                 }
             },
             onClick: function (_event, elements) {
@@ -1012,40 +1111,50 @@
 
     function buildMainTitle(chartType, metric) {
         const m = METRIC_DETAILS[metric] || METRIC_DETAILS.value;
+        const metricTitle = m.unit
+            ? `${m.label} (${String(m.unit).toUpperCase()})`
+            : m.label;
 
         if (chartType === "monthly") {
-            const monthlyPrefix = dashboardData.is_multi_year ? "Average " : "";
-            return `${monthlyPrefix}${m.label} by Month`;
+            const monthlyPrefix = dashboardData.is_multi_year ? "Average " : "Total ";
+            return `${monthlyPrefix}${metricTitle} by Month`;
         }
 
         const prefix = chartType === "region"
-            ? (dashboardData.is_multi_year ? "Reported-Year Average " : "Reported ")
-            : "Reported Total ";
+            ? (dashboardData.is_multi_year ? "Year Average " : "Total ")
+            : "Total ";
 
         const dimensionMap = {
-            region: useProvinceData
-                ? (locationMode === "province" ? "Province" : "Province")
-                : "Region",
+            region: regionChartDimension(),
             commodity: useCommoditySubgroupData(metric) ? "Commodity Subgroup" : "Commodity",
             hazard: "Hazard"
         };
         const dimension = dimensionMap[chartType] || "";
-        return `${prefix}${m.label} by ${dimension}`;
+        return `${prefix}${metricTitle} by ${dimension}`;
     }
 
     function buildSubLabel(chartType) {
         const ctx = dashboardData.filter_context || {};
+        const selectedPeriodSource = chartType === "monthly"
+            ? (monthlyMeta.selected_period_label || ctx.time_label || "All Years")
+            : (ctx.time_label || "All Years");
+        const selectedPeriod = periodYearRange(selectedPeriodSource) || "All Years";
+        // Keep every chart subtitle in the same filter order: period, location,
+        // hazard, then commodity. This makes the region, commodity, and hazard
+        // cards readable as one coordinated dashboard.
         const parts = [
-            ctx.commodity_label || "All Commodities",
+            selectedPeriod,
             ctx.location_label || "National",
             ctx.hazard_label || "All Hazards",
-            `Selected: ${chartType === "monthly" ? monthlyMeta.selected_period_label : ctx.time_label || "All Years"}`,
+            ctx.commodity_label || "All Commodities",
         ];
-        parts.push(
-            chartType === "monthly" ? "Monthly totals only" : ctx.comparison_enabled
-                ? `Comparison: ${ctx.comparison_label}`
-                : "Comparison: None"
-        );
+        if (chartType === "monthly") {
+            parts.push(
+                dashboardData.is_multi_year
+                    ? "Monthly year averages"
+                    : "Monthly totals"
+            );
+        }
         return parts.join(" \u2022 ");
     }
 
@@ -1071,7 +1180,7 @@
 
     function chartTableDimensionLabel(chartType) {
         if (chartType === "region") {
-            return useProvinceData ? "Province" : "Region";
+            return regionChartDimension();
         }
         if (chartType === "commodity") {
             return useCommoditySubgroupData(
@@ -1132,7 +1241,6 @@
         const metric = activeTableMetric(chartType);
         const rows = activeTableRows(chartType);
         const dimensionLabel = chartTableDimensionLabel(chartType);
-        const metricLabel = tableMetricLabel(metric);
         titleEl.textContent = buildMainTitle(chartType, metric);
         subtitleEl.textContent = buildSubLabel(chartType);
         chartTableCopyText = "";
@@ -1147,62 +1255,65 @@
             const showComparison = comparisonEnabled && (
                 chartType !== "monthly" || monthlyMeta.has_historical_comparison
             );
-            const metricColumnCount = 1 + (showComparison ? 1 : 0);
-            const showPercentageSummary = false;
-            const comparisonHeaderLabel = chartType === "monthly"
-                ? `Historical average (${monthlyMeta.historical_period_label || comparisonMeta.label})`
-                : `Full-year historical average (${comparisonMeta.label})`;
+            const selectedHeaderLabel = chartType === "monthly"
+                ? periodYearRange(monthlyMeta.selected_period_label || dashboardData.filter_context?.time_label)
+                : selectedYearLabel();
+            const comparisonPeriodLabel = chartType === "monthly"
+                ? periodYearRange(monthlyMeta.historical_period_label || comparisonMeta.label)
+                : periodYearRange(comparisonMeta.label);
+            const comparisonHeaderLabel = comparisonPeriodLabel
+                ? `Average (${comparisonPeriodLabel})`
+                : "Historical average";
+            const comparisonHeaderContent = comparisonPeriodLabel
+                ? `<span class="chart-table-dialog__header-stack"><span>Average</span><span>(${escapeHtml(comparisonPeriodLabel)})</span></span>`
+                : `<span class="chart-table-dialog__header-stack"><span>Historical</span><span>average</span></span>`;
             const comparisonHeader = showComparison
-                ? `<th class="whitespace-nowrap px-2 py-1.5 text-right font-semibold">${escapeHtml(comparisonHeaderLabel)} (${escapeHtml(metricLabel)})</th>`
+                ? `<th class="chart-table-dialog__header chart-table-dialog__numeric-header is-numeric whitespace-nowrap px-2 py-1.5 text-center font-semibold">${comparisonHeaderContent}</th>`
                 : "";
             const copyHeaders = [
                 dimensionLabel,
-                metricLabel,
-                "Percent of total",
-                ...(showComparison ? [`${comparisonHeaderLabel} (${metricLabel})`] : []),
+                selectedHeaderLabel || "Selected period",
+                ...(showComparison ? [comparisonHeaderLabel] : []),
+                "%",
             ];
             const copyRows = [copyHeaders];
             const body = rows.map(function (row, index) {
                 const value = rowValues[index];
-                const percent = formatPercent(value, totalValue);
                 const comparisonValue = tableComparisonValue(row, chartType, metric);
+                const comparisonPercent = showComparison
+                    ? formatComparisonPercent(value, comparisonValue)
+                    : { label: "—", tone: "muted" };
                 const comparisonCell = showComparison
-                    ? `<td class="px-3 py-1.5 text-right tabular-nums text-zinc-700">${escapeHtml(formatTableValue(comparisonValue, metric))}</td>`
+                    ? `<td class="chart-table-dialog__numeric-cell is-numeric px-3 py-1.5 text-right tabular-nums text-zinc-700">${escapeHtml(formatTableValue(comparisonValue, metric))}</td>`
                     : "";
                 copyRows.push([
                     row.full_label || row.label || "—",
                     rawTableValue(value, metric),
-                    percent,
                     ...(showComparison ? [rawTableValue(comparisonValue, metric)] : []),
+                    comparisonPercent.label,
                 ]);
                 return `
                     <tr class="${index % 2 ? "bg-zinc-50/50" : "bg-white"}">
                         <td class="px-3 py-1.5 text-zinc-800">${escapeHtml(row.full_label || row.label || "—")}</td>
-                        <td class="px-3 py-1.5 text-right tabular-nums text-zinc-700">${escapeHtml(formatTableValue(value, metric))}</td>
-                        <td class="px-3 py-1.5 text-right tabular-nums text-zinc-700">${escapeHtml(percent)}</td>
+                        <td class="chart-table-dialog__numeric-cell is-numeric px-3 py-1.5 text-right tabular-nums text-zinc-700">${escapeHtml(formatTableValue(value, metric))}</td>
                         ${comparisonCell}
+                        <td class="chart-table-dialog__numeric-cell is-numeric px-3 py-1.5 text-right tabular-nums font-semibold ${comparisonPercentClass(comparisonPercent.tone)}">${escapeHtml(comparisonPercent.label)}</td>
                     </tr>
                 `;
             }).join("");
             const comparisonTotal = showComparison
                 ? observedTotal(rows.map(row => tableComparisonValue(row, chartType, metric))) : null;
+            const totalComparisonPercent = showComparison
+                ? formatComparisonPercent(totalValue, comparisonTotal)
+                : { label: "—", tone: "muted" };
             const totalLabel = (chartType === "monthly" || (chartType === "region" && dashboardData.is_multi_year)) ? "Sum of displayed averages" : "Reported total";
             const totalRow = [
                 totalLabel,
                 rawTableValue(totalValue, metric),
-                totalValue ? "100%" : "-",
                 ...(showComparison ? [rawTableValue(comparisonTotal, metric)] : []),
-            ];
-            const percentageRow = [
-                "Percentage",
-                "-",
-                totalValue ? "100%" : "-",
-                ...(showComparison ? ["-"] : []),
+                totalComparisonPercent.label,
             ];
             copyRows.push(totalRow);
-            if (showPercentageSummary) {
-                copyRows.push(percentageRow);
-            }
             chartTableCopyText = copyRows.map(function (row) {
                 return row.join("\t");
             }).join("\n");
@@ -1211,10 +1322,10 @@
                 <table class="report-table report-table--blue-header min-w-max divide-y divide-zinc-200 text-xs">
                     <thead class="bg-zinc-50 text-xs uppercase tracking-wide text-zinc-500">
                         <tr>
-                            <th class="whitespace-nowrap px-2 py-1.5 text-left font-semibold">${escapeHtml(dimensionLabel)}</th>
-                            <th class="whitespace-nowrap px-2 py-1.5 text-right font-semibold">${escapeHtml(metricLabel)}</th>
-                            <th class="whitespace-nowrap px-2 py-1.5 text-right font-semibold">%</th>
+                            <th class="chart-table-dialog__header whitespace-nowrap px-2 py-1.5 text-center font-semibold">${escapeHtml(dimensionLabel)}</th>
+                            <th class="chart-table-dialog__header chart-table-dialog__numeric-header is-numeric whitespace-nowrap px-2 py-1.5 text-center font-semibold">${escapeHtml(selectedHeaderLabel || "Selected period")}</th>
                             ${comparisonHeader}
+                            <th class="chart-table-dialog__header chart-table-dialog__numeric-header is-numeric whitespace-nowrap px-2 py-1.5 text-center font-semibold">%</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100">
@@ -1223,18 +1334,10 @@
                     <tfoot class="border-t-2 border-zinc-200 bg-zinc-50 font-semibold text-zinc-800">
                         <tr>
                             <th class="px-3 py-1.5 text-left">${escapeHtml(totalLabel)}</th>
-                            <td class="px-3 py-1.5 text-right tabular-nums">${escapeHtml(rawTableValue(totalValue, metric))}</td>
-                            <td class="px-3 py-1.5 text-right tabular-nums">${totalValue ? "100%" : "-"}</td>
-                            ${showComparison ? `<td class="px-3 py-1.5 text-right tabular-nums">${escapeHtml(rawTableValue(comparisonTotal, metric))}</td>` : ""}
+                            <td class="chart-table-dialog__numeric-cell is-numeric px-3 py-1.5 text-right tabular-nums">${escapeHtml(rawTableValue(totalValue, metric))}</td>
+                            ${showComparison ? `<td class="chart-table-dialog__numeric-cell is-numeric px-3 py-1.5 text-right tabular-nums">${escapeHtml(rawTableValue(comparisonTotal, metric))}</td>` : ""}
+                            <td class="chart-table-dialog__numeric-cell is-numeric px-3 py-1.5 text-right tabular-nums font-semibold ${comparisonPercentClass(totalComparisonPercent.tone)}">${escapeHtml(totalComparisonPercent.label)}</td>
                         </tr>
-                        ${showPercentageSummary ? `
-                            <tr>
-                                <th class="px-3 py-1.5 text-left">Percentage</th>
-                                <td class="px-3 py-1.5 text-right tabular-nums">-</td>
-                                <td class="px-3 py-1.5 text-right tabular-nums">${totalValue ? "100%" : "-"}</td>
-                                ${showComparison ? '<td class="px-3 py-1.5 text-right tabular-nums">-</td>' : ""}
-                            </tr>
-                        ` : ""}
                     </tfoot>
                 </table>
             `;
@@ -1271,7 +1374,8 @@
             region: "regionBarChart",
             commodity: "commodityPieChart",
             monthly: "monthlyLineChart",
-            hazard: "hazardPieChart"
+            hazard: "hazardPieChart",
+            quarterly: "dashboardQuarterlyBreakdownChart"
         }[chartType] || "";
     }
 
@@ -1379,16 +1483,15 @@
             const chart = chartInstances["regionBarChart"];
             if (!chart) return;
             chart.activeMetric = metric;
-            const source = useProvinceData
-                ? (dashboardData.province_bar || [])
-                : dashboardData.region_bar;
+            const source = regionChartSource();
             const sortedData = [...source]
                 .sort((a, b) => (b[metric] || 0) - (a[metric] || 0))
                 ;
             chart.activeRegionData = sortedData;
+            syncRegionChartContentHeight(chart, sortedData);
             chart.data.labels = labels(sortedData);
             chart.data.datasets[0].data = sortedData.map(row => nullableNumber(row[metric]));
-            chart.data.datasets[0].label = getMetricLabel(metric);
+            chart.data.datasets[0].label = selectedYearLabel();
             chart.data.datasets[0].backgroundColor = METRIC_DETAILS[metric].color;
             chart.data.datasets[0].borderColor = chartStrokeColor(
                 METRIC_DETAILS[metric].color
@@ -1401,14 +1504,21 @@
                 sortedData,
                 metric
             );
-            chart.options.scales.x.title.text = METRIC_DETAILS[metric].unit;
-            chart.options.scales.x.title.display = true;
+            chart.options.scales.x.title.text = "";
+            chart.options.scales.x.title.display = false;
+            chart.options.plugins.legend.display = false;
+            chart.options.scales.x.ticks.display = false;
             chart.data.datasets[1].data = sortedData.map(
                 row => nullableNumber(row[`comparison_${metric}`])
             );
-            chart.data.datasets[1].label = `Comparison (${comparisonMeta.label || "None"})`;
+            chart.data.datasets[1].label = comparisonYearLabel();
             chart.data.datasets[1].hidden = !comparisonEnabled;
+            chart.canvas?.setAttribute(
+                "aria-label",
+                `${regionChartDimension()} horizontal bar chart`
+            );
             chart.update();
+            syncRegionChartChrome(chart);
         } else if (chartType === "commodity") {
             const chart = chartInstances["commodityPieChart"];
             if (!chart) return;
@@ -1472,26 +1582,57 @@
         window.history.replaceState(null, "", url.toString());
     }
 
-    document.querySelectorAll("[data-chart-switcher] button").forEach((button) => {
-        button.addEventListener("click", () => {
-            const parent = button.closest("[data-chart-switcher]");
-            const chartType = parent.dataset.chartSwitcher;
-            const metric = button.dataset.metric;
-            parent.querySelectorAll("[data-metric]").forEach((btn) => {
-                const isActive = btn === button;
-                btn.classList.toggle("is-active", isActive);
-                btn.setAttribute("aria-pressed", String(isActive));
+    document.querySelectorAll("[data-chart-switcher]").forEach((switcher) => {
+        const chartType = switcher.dataset.chartSwitcher;
+        if (switcher.matches("select")) {
+            switcher.addEventListener("change", () => {
+                updateChartMetric(chartType, switcher.value);
             });
-            updateChartMetric(chartType, metric);
+            return;
+        }
+        switcher.querySelectorAll("[data-metric]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const metric = button.dataset.metric;
+                switcher.querySelectorAll("[data-metric]").forEach((btn) => {
+                    const isActive = btn === button;
+                    btn.classList.toggle("is-active", isActive);
+                    btn.setAttribute("aria-pressed", String(isActive));
+                });
+                updateChartMetric(chartType, metric);
+            });
         });
     });
+
+    const regionLevelSelect = document.getElementById("region-chart-level");
+    regionLevelSelect?.addEventListener("change", function () {
+        regionChartLevel = this.value === "province" ? "province" : "region";
+        updateChartMetric(
+            "region",
+            chartInstances.regionBarChart?.activeMetric || "value"
+        );
+    });
+
+    window.addEventListener("resize", function () {
+        const chart = chartInstances.regionBarChart;
+        if (!chart) return;
+        window.requestAnimationFrame(function () {
+            syncRegionChartChrome(chart);
+        });
+    });
+
     const restoredMetrics = interactions.chartMetrics(window.location.href);
     for (const [chartType, metric] of Object.entries(restoredMetrics)) {
-        document.querySelectorAll(`[data-chart-switcher="${chartType}"] [data-metric]`).forEach(button => {
-            const active = button.dataset.metric === metric;
-            button.classList.toggle("is-active", active);
-            button.setAttribute("aria-pressed", String(active));
+        document.querySelectorAll(`[data-chart-switcher="${chartType}"]`).forEach((switcher) => {
+            if (switcher.matches("select")) {
+                switcher.value = metric;
+            } else {
+                switcher.querySelectorAll("[data-metric]").forEach((button) => {
+                    const active = button.dataset.metric === metric;
+                    button.classList.toggle("is-active", active);
+                    button.setAttribute("aria-pressed", String(active));
+                });
+            }
+            updateChartMetric(chartType, metric);
         });
-        updateChartMetric(chartType, metric);
     }
 })();

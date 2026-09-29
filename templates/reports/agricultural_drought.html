@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load batch_tags %}
+{% load filter_tags %}
+
+{% block title %}Agricultural Drought · RRDBES · Drought Monitor{% endblock %}
+
+{% block breadcrumbs %}
+<span class="truncate">Agri Drought Maps</span>
+{% endblock %}
+
+{% block workspace_topbar_class %}platform-workspace-topbar--drought{% if not public_static_export %} farm-workspace-topbar--filter-only{% endif %}{% endblock %}
+{% block workspace_header_actions %}
+    {% if not public_static_export %}
+    <div data-filter-header-slot data-filter-panel-target="agricultural-drought-filter-panel"></div>
+    {% endif %}
+{% endblock %}
+
+{% block page_body_overflow_class %}overflow-y-auto lg:overflow-hidden{% endblock %}
+{% block page_body_spacing_class %}analytics-workspace-page-body map-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none lg:h-full{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+    <link rel="stylesheet" href="{% static 'css/agricultural-drought.css' %}?v=20260926-svtr-header-two-row-controls-v1">
+{% endblock %}
+
+{% block content %}
+<h1 class="sr-only">Agricultural Drought</h1>
+<div class="relative flex min-h-0 w-full flex-col gap-3 lg:h-full" data-agricultural-drought-module>
+    {% if not public_static_export %}
+    <div class="map-filter-layer relative shrink-0">
+        <details
+            id="agricultural-drought-filter-panel"
+            data-analytics-filter-panel
+            data-agricultural-drought-filter-panel
+            class="group relative rounded-xl border border-zinc-200/80 bg-white text-left shadow-xs"
+        >
+            {% include 'partials/filter_card_summary.html' with map_filter_summary=True server_filter_chips=True chip_marker_label=selected_product_menu_label filter_title=filter_panel_title filter_chips=filter_panel_chips chips_sr_label='Active agricultural drought filters' summary_as_div=public_static_export hide_filter_toggle=public_static_export hide_filter_icon=True only %}
+
+            <div class="absolute left-0 right-0 top-full z-50 hidden max-h-[calc(100dvh-8rem)] overflow-y-auto rounded-b-xl border-t border-zinc-200/80 bg-white shadow-xl group-open:block xl:max-h-none xl:overflow-visible">
+                <form method="get" class="space-y-3 px-4 pb-3 pt-4">
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-2">
+                        <div class="space-y-2 lg:border-r lg:border-zinc-100 lg:pr-3">
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Dataset</h2>
+                            <div class="grid gap-3 xl:grid-cols-2">
+
+                            <div>
+                                <span class="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Issue date</span>
+                                <details id="issue_date" class="relative group/filter" data-filter-dropdown data-filter-kind="issue_date">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_release %}{{ selected_release_reporting_month|date:"F Y" }}{% else %}No Published Releases{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="issue_date" value="{% if selected_release_reporting_month %}{{ selected_release_reporting_month|date:'Y-m-d' }}{% endif %}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                        {% for option in release_filter_options %}
+                                            <button type="button" data-filter-option data-value="{{ option.reporting_month|date:'Y-m-d' }}" data-label="{{ option.reporting_month|date:'F Y' }}" class="block w-full rounded-md px-2 py-2 text-left text-sm font-normal text-zinc-700 hover:bg-zinc-50">{{ option.reporting_month|date:"F Y" }}</button>
+                                        {% empty %}
+                                            <div class="px-2 py-2 text-sm text-zinc-500">No Published Releases Available</div>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+
+                            <div>
+                                <span class="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Product</span>
+                                <details id="product" class="relative group/filter" data-filter-dropdown data-filter-kind="product">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{{ selected_product_label }}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="product" value="{{ selected_product }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                        {% for value, label in product_options %}
+                                            {% render_filter_option label value %}
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 lg:border-r lg:border-zinc-100 lg:pr-3">
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Location</h2>
+                            <div class="grid gap-3 xl:grid-cols-2">
+
+                            <div>
+                                <span class="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Region</span>
+                                <details id="region" class="relative group/filter" data-filter-dropdown data-filter-kind="region">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_filters.region %}{{ selected_filters.region }}{% else %}All Regions{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="region" value="{{ selected_filters.region }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                        {% render_filter_option "All Regions" "" %}
+                                        {% for region in region_options %}
+                                            {% render_filter_option region region %}
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+
+                            <div>
+                                <span class="mb-1 block text-xs font-bold uppercase tracking-wider text-zinc-500">Province</span>
+                                <details id="province" class="relative group/filter" data-filter-dropdown data-filter-kind="province" data-cascade-parent="region" data-disabled-label="Select a Region First" data-disabled="{% if selected_filters.region %}false{% else %}true{% endif %}">
+                                    <summary class="flex w-full cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-normal text-zinc-800 shadow-2xs focus:outline-none focus:ring-1 focus:ring-zinc-950">
+                                        <span class="truncate" data-filter-label>{% if selected_filters.province %}{{ selected_filters.province }}{% elif selected_filters.region %}All Provinces{% else %}Select a Region First{% endif %}</span>
+                                        <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform group-open/filter:rotate-180" aria-hidden="true"></i>
+                                    </summary>
+                                    <input type="hidden" name="province" value="{{ selected_filters.province }}" data-filter-input>
+                                    <div class="absolute left-0 right-0 z-50 mt-1 max-h-56 overflow-y-auto rounded-lg border border-zinc-200 bg-white p-2 shadow-xl">
+                                        {% render_filter_option "All Provinces" "" parent="" %}
+                                        {% for option in province_options %}
+                                            {% render_filter_option option.label option.value parent=option.region %}
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% url 'agri_drought:agricultural_drought' as drought_maps_url %}
+                    {% include 'partials/filter_card_actions.html' with reset_url=drought_maps_url only %}
+                </form>
+            </div>
+        </details>
+    </div>
+    {% endif %}
+
+        {% include 'reports/partials/agricultural_drought_map_workspace.html' %}
+</div>
+
+{% if selected_release and selected_product != 'svtr' and not public_static_export %}
+    <dialog data-drought-report-modal class="drought-report-modal" aria-labelledby="drought-report-modal-title">
+        <div class="drought-report-modal__chrome border-b border-zinc-200 px-5 py-4">
+            <div class="min-w-0">
+                <h2 id="drought-report-modal-title">Report Preview</h2>
+                <p data-drought-report-status class="sr-only" aria-live="polite"></p>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+                <button type="button" data-drought-report-excel class="ui-button ui-icon-button ui-button--primary filter-card-apply shrink-0 disabled:cursor-not-allowed disabled:opacity-50" aria-label="Download Excel report" title="Download Excel report" disabled>
+                    <i class="fa-solid fa-file-excel" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-drought-report-export class="ui-button ui-icon-button ui-button--primary filter-card-apply shrink-0 disabled:cursor-not-allowed disabled:opacity-50" aria-label="Download PDF report" title="Download PDF report" disabled>
+                    <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-drought-report-close class="ui-button ui-icon-button filter-card-reset shrink-0" aria-label="Close report preview" title="Close report preview">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div data-drought-report-preview class="drought-report-modal__body" aria-live="polite"></div>
+    </dialog>
+    <dialog data-drought-map-report-modal class="drought-map-report-modal" aria-labelledby="drought-map-report-modal-title">
+        <div class="drought-map-report-modal__chrome border-b border-zinc-200 px-5 py-4">
+            <div class="min-w-0">
+                <h2 id="drought-map-report-modal-title">Map Export Preview</h2>
+                <p data-drought-map-report-status class="sr-only" aria-live="polite"></p>
+                <div data-drought-map-report-progress class="drought-map-report-progress" hidden>
+                    <div class="drought-map-report-progress__header">
+                        <span>Preparing map pages…</span>
+                        <strong data-drought-map-report-progress-value>0%</strong>
+                    </div>
+                    <div
+                        data-drought-map-report-progress-track
+                        class="drought-map-report-progress__track"
+                        role="progressbar"
+                        aria-label="Map export preparation progress"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="0"
+                        aria-valuetext="0%"
+                    >
+                        <span data-drought-map-report-progress-fill class="drought-map-report-progress__fill"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+                <fieldset data-drought-map-report-level class="drought-map-report-level" aria-label="Map export level">
+                    <legend class="sr-only">Map export level</legend>
+                    <label>
+                        <input type="radio" name="drought-map-report-level" value="region" checked>
+                        <span>Regional</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="drought-map-report-level" value="province">
+                        <span>Provincial</span>
+                    </label>
+                </fieldset>
+                <button type="button" data-drought-map-report-print class="ui-button ui-icon-button ui-button--primary filter-card-apply shrink-0 disabled:cursor-not-allowed disabled:opacity-50" aria-label="Download map PDF" title="Download all map pages as one PDF" disabled>
+                    <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-drought-map-report-close class="ui-button ui-icon-button filter-card-reset shrink-0" aria-label="Close map export preview" title="Close map export preview">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+        <div data-drought-map-report-preview class="drought-map-report-modal__body" aria-live="polite"></div>
+    </dialog>
+{% endif %}
+
+{{ map_data|json_script:'agricultural-drought-map-data' }}
+{{ map_config|json_script:'agricultural-drought-map-config' }}
+{{ legend|json_script:'agricultural-drought-legend' }}
+{{ mask_data|json_script:'agricultural-drought-mask-data' }}
+{{ pagasa_overlay|json_script:'agricultural-drought-pagasa-data' }}
+{{ drought_tooltip_data|json_script:'agricultural-drought-tooltip-data' }}
+{% if public_static_export %}
+{{ public_map_data_by_product|json_script:'public-agricultural-drought-map-data' }}
+{{ public_tooltip_data_by_product|json_script:'public-agricultural-drought-tooltip-data' }}
+{% endif %}
+<div
+    id="agricultural-drought-static-urls"
+    data-outline-url="{% static 'geo/ph/philippines_outline.geojson' %}?v=a44a7309-adm3-3pct-sga-hd"
+    data-regions-url="{% static 'geo/ph/regions.geojson' %}?v=2026-q2"
+    data-boundaries-url="{% static 'geo/ph/provinces.geojson' %}?v=2026-q2-adm2"
+    data-municipalities-url="{% static 'geo/ph/municipalities.geojson' %}?v=20260922-migrated-v1"
+    hidden
+></div>
+<script src="{% static 'js/analytics_filters.js' %}?v=20260905-dropdown-selection-v1"></script>
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
+<script src="{% static 'js/map_browser_fullscreen.js' %}?v=20260924-map-studio-fullscreen-v1" defer></script>
+<script src="{% static 'js/maps/map_appearance.js' %}?v=20260810-ash-boundary-v1" defer></script>
+<script src="{% static 'js/maps/map_export.js' %}?v=20260810-canvas-export-v2" defer></script>
+<script src="{% static 'js/maps/map_keyboard_navigation.js' %}" defer></script>
+<script src="{% static 'js/maps/map_administrative_base.js' %}?v=20260925-national-extent-v1" defer></script>
+<script src="{% static 'js/maps/drought/drought_rules.js' %}?v=20260922-migrated-v1" defer></script>
+<script src="{% static 'js/maps/drought/drought_raster.js' %}?v=20260922-migrated-v1" defer></script>
+<script src="{% static 'js/maps/drought/drought_svtr.js' %}?v=20260922-migrated-v1" defer></script>
+<script src="{% static 'js/maps/drought/drought_report_layout.js' %}?v=20260922-migrated-v1" defer></script>
+    <script src="{% static 'js/maps/map_report_pdf.js' %}?v=20260910-v2" defer></script>
+<script src="{% static 'js/maps/agricultural_drought.js' %}?v=20260926-drought-product-control-v1" defer></script>
+{% endblock %}

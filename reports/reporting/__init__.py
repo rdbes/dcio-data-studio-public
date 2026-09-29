@@ -1,4 +1,4 @@
-"""Public services for DCIO Data Studio report generation."""
+"""Public services for RRDBES report generation."""
 
 from __future__ import annotations
 

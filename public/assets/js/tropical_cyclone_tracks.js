@@ -56,7 +56,10 @@
         return;
     }
 
-    const map = L.map(mapNode, {
+    const map = administrativeBaseMap?.createMap?.(mapNode, {
+        minZoom: 3,
+        maxZoom: 12
+    }) || L.map(mapNode, {
         attributionControl: false,
         minZoom: 3,
         preferCanvas: true,
@@ -850,12 +853,20 @@
         }
     }
 
-    function fitPhilippines() {
+    function fitPhilippines(animate) {
         if (philippinesBounds?.isValid?.()) {
-            map.fitBounds(philippinesBounds, {
-                maxZoom: 5,
-                padding: [24, 24]
-            });
+            if (administrativeBaseMap?.fitNationalExtent) {
+                administrativeBaseMap.fitNationalExtent(
+                    map,
+                    philippinesBounds,
+                    {animate: animate !== false}
+                );
+            } else {
+                map.fitBounds(philippinesBounds, {
+                    padding: [8, 8],
+                    animate: animate !== false
+                });
+            }
             return;
         }
 
@@ -877,7 +888,9 @@
     zoomOutButton?.addEventListener("click", function () {
         map.zoomOut();
     });
-    resetViewButton?.addEventListener("click", fitPhilippines);
+    resetViewButton?.addEventListener("click", function () {
+        fitPhilippines(true);
+    });
     [zoomInButton, zoomOutButton, resetViewButton, fullscreenButton]
         .filter(Boolean)
         .forEach(function (button) {
@@ -899,7 +912,7 @@
         position: "bottomright",
         metric: true,
         imperial: false,
-        maxWidth: 96,
+        maxWidth: 72,
         updateWhenIdle: true
     }).addTo(map);
     const scaleHost = page.querySelector("#map-scale-host");
@@ -1020,7 +1033,11 @@
                         return dashboardProvinceStyle(null, false);
                     }
                 }).addTo(map);
-                philippinesBounds = provinceLayer.getBounds();
+                philippinesBounds = administrativeBaseMap?.clippedNationalBounds
+                    ? administrativeBaseMap.clippedNationalBounds(
+                        provinceLayer.getBounds()
+                    )
+                    : provinceLayer.getBounds();
                 refreshDamageLossLayer();
             }
             fitPhilippines();

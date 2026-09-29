@@ -10,10 +10,10 @@
 .tc-tracks-filters,
 .tc-tracks-map-card,
 .tc-tracks-list-card {
-    border: 1px solid rgb(228 228 231 / 0.85);
-    border-radius: 0.9rem;
-    background: #fff;
-    box-shadow: 0 1px 2px rgb(24 24 27 / 0.04);
+    border: var(--farm-outline-width) solid var(--farm-outline-color);
+    border-radius: var(--ui-card-radius);
+    background: var(--ui-surface);
+    box-shadow: var(--elevation-flat);
 }
 
 .tc-tracks-page__header {
@@ -669,14 +669,14 @@ dialog.tc-tracks-climatology-dialog:not([open]) {
         flex-wrap: wrap;
     }
 
-    .tc-tracks-search-row .tc-tracks-search,
-    .tc-tracks-search-row .tc-tracks-climatology-trigger {
+    .tc-tracks-search-row .tc-tracks-search {
         width: 100%;
         flex-basis: 100%;
     }
 
     .tc-tracks-climatology-trigger {
-        width: 100%;
+        width: var(--button-height-sm);
+        flex: 0 0 var(--button-height-sm);
     }
 
     .tc-tracks-climatology-dialog {
@@ -738,4 +738,10 @@ dialog.tc-tracks-climatology-dialog:not([open]) {
         min-height: 19rem;
         height: 19rem;
     }
+}
+
+/* Match the compact Data Studio card rhythm used by Dashboard and Analytics. */
+body[data-platform-app="data-studio"] .tc-tracks-page,
+body[data-platform-app="data-studio"] .tc-tracks-workspace {
+    gap: var(--ui-card-gap, var(--space-3, 0.75rem));
 }

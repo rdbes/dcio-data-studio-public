@@ -1,0 +1,72 @@
+<div data-map-boundary-control{% if drought_layers %} data-drought-layers-control{% endif %} class="add-map-boundary-control{% if drought_layers %} drought-map-layers-control{% endif %}">
+    <button id="map-boundary-toggle" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="{% if drought_layers %}Map layers{% else %}Boundary layer: Province boundaries{% endif %}" aria-controls="map-boundary-panel" aria-expanded="false" title="{% if drought_layers %}Map layers{% else %}Boundary layer: Province boundaries{% endif %}">
+        <i data-map-boundary-icon class="fa-solid {% if drought_layers %}fa-layer-group{% else %}fa-border-all{% endif %} text-xs" aria-hidden="true"></i>
+    </button>
+
+    <div id="map-boundary-panel" data-map-control-popover="boundary" class="add-map-metric-panel add-map-layer-panel hidden" role="dialog" aria-label="{% if drought_layers %}Map layers{% else %}Boundary layer selection{% endif %}">
+        {% if not drought_layers %}
+        <div class="add-map-metric-panel__heading">Map boundaries</div>
+        {% endif %}
+
+        {% if drought_layers %}
+        <section class="drought-map-layer-section" aria-labelledby="drought-map-boundary-heading">
+            <h3 id="drought-map-boundary-heading" class="drought-map-layer-section__heading">Boundaries</h3>
+        {% endif %}
+
+        <div class="add-map-metric-options" role="radiogroup" aria-label="Map boundary layer">
+            {% if show_region_boundary %}
+            <button type="button" data-map-boundary-option="region" class="add-map-metric-option" role="radio" aria-checked="false">
+                <span>{% if drought_layers %}Region{% else %}Regions{% endif %}</span>
+                {% if not drought_layers %}<span class="add-map-metric-option__detail">Dark regional outlines</span>{% endif %}
+            </button>
+            {% endif %}
+
+            <button type="button" data-map-boundary-option="province" class="add-map-metric-option" role="radio" aria-checked="true">
+                <span>Province</span>
+                {% if not drought_layers %}<span class="add-map-metric-option__detail">Dark reporting-area outlines</span>{% endif %}
+            </button>
+
+            <button type="button" data-map-boundary-option="municipality" class="add-map-metric-option" role="radio" aria-checked="false">
+                <span>{% if drought_layers %}Municipality{% else %}Municipalities{% endif %}</span>
+                {% if not drought_layers %}<span class="add-map-metric-option__detail">Fine dark municipality and city outlines</span>{% endif %}
+            </button>
+        </div>
+
+        {% if drought_layers %}
+        </section>
+        {% endif %}
+
+        {% if show_drought_mask_option %}
+        <div class="drought-map-layer-toggle-wrap">
+            <button type="button" data-drought-mask-toggle class="drought-map-layer-toggle" role="switch" aria-checked="true" aria-pressed="true" aria-label="Hide Mask" title="Hide Mask">
+                <span>
+                    <span class="drought-map-layer-toggle__label drought-map-layer-toggle__label--primary">Mask</span>
+                </span>
+                <i data-drought-toggle-icon class="drought-toggle-icon fa-solid fa-toggle-on" aria-hidden="true"></i>
+            </button>
+        </div>
+        {% endif %}
+
+        {% if drought_layers and show_pagasa_overlay_option %}
+        <div class="drought-map-layer-toggle-wrap">
+            <button type="button" data-pagasa-overlay-toggle class="drought-map-layer-toggle" role="switch" aria-checked="false" aria-pressed="false" aria-label="Show percent-normal rainfall overlay" title="Show percent-normal rainfall overlay">
+                <span>
+                    <span class="drought-map-layer-toggle__label">Percent normal</span>
+                </span>
+                <i data-drought-toggle-icon class="drought-toggle-icon fa-solid fa-toggle-off" aria-hidden="true"></i>
+            </button>
+        </div>
+        {% endif %}
+        {% if drought_layers and show_pagasa_condition_option %}
+        <div class="drought-map-layer-toggle-wrap">
+            <button type="button" data-pagasa-condition-toggle class="drought-map-layer-toggle" role="switch" aria-checked="false" aria-pressed="false" aria-label="Show monthly meteorological drought overlay" title="Show monthly meteorological drought overlay">
+                <span>
+                    <span class="drought-map-layer-toggle__label">Meteorological Drought</span>
+                </span>
+                <i data-drought-toggle-icon class="drought-toggle-icon fa-solid fa-toggle-off" aria-hidden="true"></i>
+            </button>
+        </div>
+        {% endif %}
+
+    </div>
+</div>

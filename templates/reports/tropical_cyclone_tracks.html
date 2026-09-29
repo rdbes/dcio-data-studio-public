@@ -4,19 +4,19 @@
 {% block extra_head %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
-    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-tracks.css' %}?v=20260920-tracks-responsive-v1">
+    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-tracks.css' %}?v=20260928-track-selection-nav-v3">
     <script defer src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
     <script defer src="{% static 'js/maps/map_appearance.js' %}?v=20260909-map-legend-glass-v3"></script>
-    <script defer src="{% static 'js/maps/map_administrative_base.js' %}?v=20260810-ash-boundary-v1"></script>
+    <script defer src="{% static 'js/maps/map_administrative_base.js' %}?v=20260925-national-extent-v1"></script>
     <script defer src="{% static 'js/maps/map_legend_scale.js' %}?v=20260803-low-bound-v1"></script>
     <script defer src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
     <script defer src="{% static 'js/maps/map_keyboard_navigation.js' %}?v=20260725a"></script>
-    <script defer src="{% static 'js/map_browser_fullscreen.js' %}?v=20260825-map-control-popovers-v1"></script>
+    <script defer src="{% static 'js/map_browser_fullscreen.js' %}?v=20260924-map-studio-fullscreen-v1"></script>
     <script defer src="{% static 'js/maps/tropical_cyclone_utils.js' %}?v=20260921-shared-v1"></script>
-<script defer src="{% static 'js/tropical_cyclone_tracks.js' %}?v=20260915-track-month-source-v2"></script>
+<script defer src="{% static 'js/tropical_cyclone_tracks.js' %}?v=20260928-track-selection-nav-v3"></script>
 {% endblock %}
 
-{% block title %}Tropical Cyclone Tracks - DCIO Data Studio{% endblock %}
+{% block title %}Tropical Cyclone Tracks - RRDBES · Hazard Studio{% endblock %}
 
 {% block breadcrumbs %}
 <span>Tropical Cyclone</span>
@@ -108,14 +108,14 @@
                     </label>
                     <button
                         type="button"
-                        class="ui-button ui-button--outline ui-button--small tc-tracks-climatology-trigger"
+                        class="ui-icon-button tc-tracks-climatology-trigger"
                         data-dialog-open="tc-tracks-climatology-modal"
                         aria-controls="tc-tracks-climatology-modal"
                         aria-expanded="false"
+                        aria-label="Open tropical cyclone track climatology"
                         title="Open tropical cyclone track climatology"
                     >
                         <i class="fa-solid fa-map" aria-hidden="true"></i>
-                        <span>Climatology</span>
                     </button>
                 </div>
             </div>
@@ -176,8 +176,12 @@
                                 </details>
                             </div>
 
-                            {% url 'reports:tropical_cyclone_tracks' as tracks_url %}
-                            {% include 'partials/filter_card_actions.html' with reset_url=tracks_url apply_label='Apply filters' actions_class='flex h-full items-end justify-end gap-2 border-0 pt-0' only %}
+                            {% if platform_active_app.key == 'hazard_studio' %}
+                                {% url 'hazard_studio:tropical_cyclone_tracks' as tracks_url %}
+                            {% else %}
+                                {% url 'reports:tropical_cyclone_tracks' as tracks_url %}
+                            {% endif %}
+                            {% include 'partials/filter_card_actions.html' with reset_url=tracks_url apply_label='Apply' actions_class='flex h-full items-end justify-end gap-2 border-0 pt-0' only %}
 
                         </div>
                     </form>

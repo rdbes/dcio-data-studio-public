@@ -55,6 +55,7 @@
         farmers: document.getElementById("dashboard-analysis-farmers"),
         regionTitle: document.getElementById("dashboard-region-chart-title"),
         regionSubtitle: document.getElementById("dashboard-region-chart-subtitle"),
+        regionLevel: document.getElementById("dashboard-region-chart-level"),
         commodityTitle: document.getElementById("dashboard-commodity-chart-title"),
         commoditySubtitle: document.getElementById("dashboard-commodity-chart-subtitle"),
         hazardTitle: document.getElementById("dashboard-hazard-chart-title"),
@@ -103,6 +104,29 @@
     let commodityChart = null;
     let hazardChart = null;
 
+    const REGION_CHART_ROW_HEIGHT = 28;
+    const REGION_CHART_VERTICAL_PADDING = 44;
+
+    function syncRegionChartContentHeight(rows) {
+        const canvasWrapper = (
+            elements.regionCanvas?.parentElement
+        );
+        if (!canvasWrapper) {
+            return;
+        }
+
+        const rowCount = Array.isArray(rows)
+            ? rows.length
+            : 0;
+        const contentHeight = rowCount > 0
+            ? rowCount * REGION_CHART_ROW_HEIGHT
+                + REGION_CHART_VERTICAL_PADDING
+            : 300;
+        canvasWrapper.style.height = `${contentHeight}px`;
+        canvasWrapper.style.minHeight = "";
+        canvasWrapper.style.flex = "0 0 auto";
+    }
+
     const METRIC_DETAILS = {
         value: {
             title: "Value Loss",
@@ -138,6 +162,7 @@
      * analytical charts.
      */
     let currentMetric = "value";
+    let regionChartLevel = "region";
     let regionScopeState = {
         items: [],
         selected: null,
@@ -759,7 +784,7 @@
     }
 
     function provinceLevelChartIsActive() {
-        return Boolean(activeRegionName());
+        return regionChartLevel === "province";
     }
 
     function provincesForActiveRegion() {
@@ -846,7 +871,7 @@
 
 
     function chartScopeLabel(locationLabel) {
-        const parts = [];
+        const parts = [periodLabel()];
         const location = String(
             locationLabel
             || scopeLocationLabel()
@@ -866,23 +891,8 @@
             parts.push(location);
         }
 
-        if (
-            hazardOrIncident
-            && !/^all hazards$/i.test(hazardOrIncident)
-        ) {
-            parts.push(hazardOrIncident);
-        }
-
-        if (
-            commodity
-            && !/^all commodities$/i.test(
-                commodity
-            )
-        ) {
-            parts.push(commodity);
-        }
-
-        parts.push(periodLabel());
+        parts.push(hazardOrIncident || "All Hazards");
+        parts.push(commodity || "All Commodities");
 
         return parts.join(" · ");
     }
@@ -1254,58 +1264,9 @@
             byLabel.set(key, current);
         });
 
-        const includeZeroRegions = (
-            !useProvinceLabels
-            && !activeRegionName()
-            && Array.isArray(mapConfig.region_options)
-        );
-        if (includeZeroRegions) {
-            const existingRegions = new Set(
-                Array.from(byLabel.values()).map(function (row) {
-                    return normalizeScopeName(row.regionName);
-                })
-            );
-            mapConfig.region_options.forEach(function (option) {
-                const regionName = String(
-                    option?.value
-                    || option?.name
-                    || option?.label
-                    || ""
-                ).trim();
-                const normalizedRegion = normalizeScopeName(regionName);
-                if (
-                    !normalizedRegion
-                    || existingRegions.has(normalizedRegion)
-                ) {
-                    return;
-                }
-
-                byLabel.set(
-                    `__region__${normalizedRegion}`,
-                    {
-                        key: `__region__${normalizedRegion}`,
-                        label: String(
-                            option?.label || regionName
-                        ).trim(),
-                        fullLabel: regionName,
-                        regionName,
-                        province: null,
-                        value: 0,
-                        volume: 0,
-                        area: 0,
-                        selected: false,
-                        interactive: true
-                    }
-                );
-            });
-        }
-
         return Array.from(byLabel.values())
             .filter(function (row) {
-                return (
-                    includeZeroRegions
-                    || number(row[metricKey]) > 0
-                );
+                return number(row[metricKey]) > 0;
             })
             .sort(function (left, right) {
                 return (
@@ -1535,6 +1496,69 @@
         });
     }
 
+    function collapseSmallCommodityRows(rows, metricKey) {
+        const total = rows.reduce(function (sum, row) {
+            return sum + number(row[metricKey]);
+        }, 0);
+
+        if (!total) {
+            return rows;
+        }
+
+        const isExplicitOthers = function (row) {
+            return normalizeScopeName(row.label) === "others";
+        };
+        const isOther = function (row) {
+            const label = normalizeScopeName(row.label);
+            const share = number(row[metricKey]) / total * 100;
+            return (
+                label === "amef"
+                || isExplicitOthers(row)
+                || share < 3
+            );
+        };
+
+        const others = rows.filter(isOther);
+        const named = rows.filter(function (row) {
+            return !isOther(row);
+        });
+
+        // Keep one small named category visible; combine only when there is
+        // a meaningful group of small categories or explicit Others data.
+        if (others.length === 1 && !isExplicitOthers(others[0])) {
+            named.push(others.pop());
+        }
+
+        named.sort(function (left, right) {
+            return number(right[metricKey])
+                - number(left[metricKey])
+                || left.label.localeCompare(right.label);
+        });
+
+        if (!others.length) {
+            return named;
+        }
+
+        const other = others.reduce(function (summary, row) {
+            summary.value += number(row.value);
+            summary.volume += number(row.volume);
+            summary.area += number(row.area);
+            summary.members.push(...(row.members || [row.label]));
+            return summary;
+        }, {
+            label: "Others",
+            fullLabel: "All other commodities",
+            value: 0,
+            volume: 0,
+            area: 0,
+            members: [],
+            interactive: false,
+            subgroups: []
+        });
+
+        return [...named, other];
+    }
+
     function commodityRows(items, metricKey) {
         const totals = new Map();
 
@@ -1569,35 +1593,7 @@
             return selectedCommodityRows(rows, metricKey, selectedLabel);
         }
 
-        if (rows.length <= 6) {
-            return rows;
-        }
-
-        const leading = rows.slice(0, 5);
-        const other = rows.slice(5).reduce(
-            function (summary, row) {
-                summary.value += number(row.value);
-                summary.volume += number(row.volume);
-                summary.area += number(row.area);
-                summary.members.push(...row.members);
-                return summary;
-            },
-            {
-                label: "Others",
-                fullLabel: "All other commodities",
-                value: 0,
-                volume: 0,
-                area: 0,
-                members: [],
-                interactive: false,
-                subgroups: []
-            }
-        );
-
-        return [
-            ...leading,
-            other
-        ];
+        return collapseSmallCommodityRows(rows, metricKey);
     }
 
     function commodityTableRows(items, metricKey) {
@@ -1771,7 +1767,7 @@
             });
         }
 
-        return rows
+        rows = rows
             .filter(function (row) {
                 return (
                     row.metricValue > 0
@@ -1787,6 +1783,72 @@
                     || left.label.localeCompare(right.label)
                 );
             });
+
+        if (interactionState.hazardKey) {
+            return rows;
+        }
+
+        const total = rows.reduce(function (sum, row) {
+            return sum + number(row.metricValue);
+        }, 0);
+        if (!total) {
+            return rows;
+        }
+
+        const isExplicitOthers = function (row) {
+            const label = normalizeScopeName(row.label);
+            return (
+                label === "others"
+                || label === "other hazards"
+                || String(row.hazardKey || "").trim().toUpperCase()
+                    === "HZD_GEOLOGIC_OTHERS"
+            );
+        };
+        const isOther = function (row) {
+            return (
+                isExplicitOthers(row)
+                || number(row.metricValue) / total * 100 < 3
+            );
+        };
+        const others = rows.filter(isOther);
+        const named = rows.filter(function (row) {
+            return !isOther(row);
+        });
+
+        // Preserve one small named hazard; combine only a real group of
+        // small categories or explicitly aggregated hazard records.
+        if (others.length === 1 && !isExplicitOthers(others[0])) {
+            named.push(others.pop());
+        }
+
+        named.sort(function (left, right) {
+            return number(right.metricValue)
+                - number(left.metricValue)
+                || left.label.localeCompare(right.label);
+        });
+
+        if (!others.length) {
+            return named;
+        }
+
+        const other = others.reduce(function (summary, row) {
+            summary.value += number(row.value);
+            summary.volume += number(row.volume);
+            summary.area += number(row.area);
+            summary.metricValue += number(row.metricValue);
+            return summary;
+        }, {
+            label: "Others",
+            fullLabel: "All other hazards",
+            hazardKey: "",
+            value: 0,
+            volume: 0,
+            area: 0,
+            metricValue: 0,
+            interactive: false
+        });
+
+        return [...named, other];
     }
 
     function setEmptyState(canvas, message, isEmpty) {
@@ -1826,11 +1888,7 @@
             (
                 details.title
                 + " by "
-                + (
-                    activeRegionName()
-                        ? "Province"
-                        : "Region"
-                )
+                + (provinceLevelChartIsActive() ? "Province" : "Region")
             )
         );
         text(
@@ -1848,6 +1906,7 @@
             elements.regionEmpty,
             isEmpty
         );
+        syncRegionChartContentHeight(rows);
 
         if (
             isEmpty
@@ -1903,7 +1962,7 @@
                     );
                 },
                 outsideValueLabels: true,
-                valueLabelFont: '500 9px "IBM Plex Mono", monospace',
+                valueLabelFont: '500 12px "IBM Plex Mono", monospace',
                 valueLabelRightPadding: 8,
                 tooltipLabel: function (context) {
                     return (
@@ -1928,7 +1987,7 @@
                         return;
                     }
                     const row = rows[index];
-                    if (activeRegionName()) {
+                    if (provinceLevelChartIsActive()) {
                         selectProvince(row.province);
                         return;
                     }
@@ -2651,6 +2710,13 @@
     const chartTableDialog = document.querySelector(
         "[data-chart-table-dialog]"
     );
+
+    elements.regionLevel?.addEventListener("change", function () {
+        regionChartLevel = this.value === "province"
+            ? "province"
+            : "region";
+        renderWorkspace();
+    });
     chartTableDialog?.addEventListener("click", function (event) {
         if (event.target === chartTableDialog) {
             chartTableDialog.close?.();

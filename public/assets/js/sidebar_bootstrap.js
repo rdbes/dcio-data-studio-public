@@ -6,7 +6,7 @@
     var open = desktop;
 
     try {
-        var stored = window.localStorage.getItem("dcio.sidebarOpen");
+        var stored = window.localStorage.getItem("rrdbes.sidebarOpen");
         open = desktop && (stored === null || stored === "true");
     } catch (error) {
         open = desktop;

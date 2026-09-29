@@ -1,28 +1,41 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Dam Water Levels Monitoring - DCIO Data Studio{% endblock %}
+{% block title %}Dam Water Levels Monitoring - RRDBES · {{ platform_active_app.name|default:'Hazard Studio' }}{% endblock %}
 {% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
 {% block breadcrumbs %}<span>Dam Water Levels</span>{% endblock %}
 
 {% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/dam-water-levels.css' %}?v=20260922-dam-module-v2">
+<link rel="stylesheet" href="{% static 'css/dam-water-levels.css' %}?v=20260927-card-gaps-v1">
 <script defer src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
-<script defer src="{% static 'js/dam_water_levels.js' %}?v=20260922-dam-live-source-v3"></script>
+<script defer src="{% static 'js/dam_water_levels.js' %}?v=20260924-summary-label-v1"></script>
 {% endblock %}
 
 {% block content %}
-<section class="w-full space-y-3" aria-labelledby="dam-water-levels-title" data-dam-water-levels data-static-app="true" data-auto-refresh-times="09:00,21:00" data-static-data-url="{% static 'data/dam_water_levels.json' %}" data-dam-chart-api="{% url 'reports:dam_water_levels_data' %}">
+{% if platform_active_app.key == 'hazard_studio' %}
+    {% url 'hazard_studio:dam_water_levels_data' as dam_water_levels_data_url %}
+    {% url 'hazard_studio:dam_water_levels_report' as dam_water_levels_report_url %}
+{% else %}
+    {% url 'reports:dam_water_levels_data' as dam_water_levels_data_url %}
+    {% url 'reports:dam_water_levels_report' as dam_water_levels_report_url %}
+{% endif %}
+<section class="flex w-full flex-col gap-4" aria-labelledby="dam-water-levels-title" data-dam-water-levels data-static-app="true" data-auto-refresh-times="09:00,21:00" data-static-data-url="{% static 'data/dam_water_levels.json' %}" data-dam-chart-api="{{ dam_water_levels_data_url }}">
                         <header class="module-page-header">
                             <div class="module-page-header__top">
                                 <div class="module-page-heading min-w-0">
                                     <div class="min-w-0">
                                         <h1 id="dam-water-levels-title" class="module-page-title">Dam Water Levels Monitoring</h1>
-                                        <p class="module-page-subtitle">Source: <a href="https://www.pagasa.dost.gov.ph/flood" target="_blank" rel="noopener noreferrer" class="font-semibold underline decoration-zinc-300 underline-offset-2 hover:text-zinc-950">DOST-PAGASA</a></p>
+                                        <div class="dam-water-level-source-row">
+                                            <p class="module-page-subtitle">Source: <a href="https://www.pagasa.dost.gov.ph/flood" target="_blank" rel="noopener noreferrer" class="font-semibold underline decoration-zinc-300 underline-offset-2 hover:text-zinc-950">DOST-PAGASA</a></p>
+                                            <div class="module-page-header-meta" aria-label="PAGASA source update details">
+                                                <div class="module-page-header-meta__item"><span class="module-page-header-meta__label">Observed</span><span class="module-page-header-meta__value" data-source-observed>—</span></div>
+                                                <div class="module-page-header-meta__item"><span class="module-page-header-meta__label" data-source-retrieved-label>Synced</span><span class="module-page-header-meta__value" data-source-retrieved>—</span></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="module-page-header-meta__actions">
-                                    <a href="{% url 'reports:dam_water_levels_report' %}" data-dam-report-download aria-label="Download report" title="Download report" class="ui-button ui-button--primary ui-button--small inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold shadow-2xs transition-colors">
+                                    <a href="{{ dam_water_levels_report_url }}" data-dam-report-download aria-label="Download report" title="Download report" class="ui-button ui-button--primary ui-button--small inline-flex items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold shadow-2xs transition-colors">
                                         <i data-dam-report-icon class="fa-solid fa-download" aria-hidden="true"></i>
                                         <span data-dam-report-label>Download Report</span>
                                     </a>
@@ -30,10 +43,6 @@
                                         <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
                                     </button>
                                 </div>
-                            </div>
-                            <div class="module-page-header-meta" aria-label="PAGASA source update details">
-                                <div class="module-page-header-meta__item"><span class="module-page-header-meta__label">Observed</span><span class="module-page-header-meta__value" data-source-observed>—</span></div>
-                                <div class="module-page-header-meta__item"><span class="module-page-header-meta__label" data-source-retrieved-label>Synced</span><span class="module-page-header-meta__value" data-source-retrieved>—</span></div>
                             </div>
                             <p class="sr-only" data-dam-source-status role="status" aria-live="polite" aria-atomic="true">Loading the latest PAGASA dam readings…</p>
                         </header>

@@ -333,15 +333,12 @@
 
         const toggle = document.querySelector("[data-tc-frequency-toggle]");
         if (toggle) {
-            const icon = toggle.querySelector("[data-tc-frequency-toggle-icon]");
             toggle.addEventListener("click", () => {
                 const damageActive = toggle.getAttribute("aria-checked") !== "true";
                 const metric = damageActive ? "damage" : "all";
                 chartEntries.forEach((entry) => updateMetric(entry, metric));
                 toggle.setAttribute("aria-checked", String(damageActive));
                 toggle.classList.toggle("is-active", damageActive);
-                icon?.classList.toggle("fa-toggle-on", damageActive);
-                icon?.classList.toggle("fa-toggle-off", !damageActive);
             });
         }
 

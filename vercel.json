@@ -1,6 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
+  "env": {
+    "SUPABASE_AUTH_REQUIRED": "1",
+    "PUBLIC_DATA_SOURCE": "supabase"
+  },
   "builds": [
     { "src": "api/index.py", "use": "@vercel/python", "config": { "excludeFiles": "public/**" } },
     { "src": "public/**", "use": "@vercel/static" }
@@ -21,8 +25,8 @@
     { "src": "/(?:public-build|deployment-manifest)\\.json", "status": 404 },
     { "src": "/assets/(.*)", "methods": ["GET", "HEAD"], "dest": "/public/assets/$1" },
     { "src": "/static/(.*)", "methods": ["GET", "HEAD"], "dest": "/public/assets/$1" },
-    { "src": "/data/releases/current\\.json", "methods": ["GET", "HEAD"], "headers": { "Cache-Control": "no-store, max-age=0" }, "dest": "/public/data/releases/current.json" },
-    { "src": "/data/releases/([A-Za-z0-9][A-Za-z0-9._-]*)\\.json", "methods": ["GET", "HEAD"], "headers": { "Cache-Control": "public, max-age=31536000, immutable" }, "dest": "/public/data/releases/$1.json" },
+    { "src": "/data/drought/current\\.json", "methods": ["GET", "HEAD"], "dest": "/api/index.py" },
+    { "src": "/data/(?:releases|drought)(?:/.*)?", "status": 404 },
     { "src": "/(.*)", "dest": "/api/index.py" }
   ]
 }

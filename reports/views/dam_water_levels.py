@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 def dam_water_levels(request):
-    """Render the Data Studio-owned PAGASA dam monitor."""
+    """Render the Hazard Studio-owned PAGASA dam monitor."""
 
     return render(request, "reports/dam_water_levels.html")
 
@@ -103,7 +103,7 @@ def _live_dam_report(
 
 
 def dam_water_levels_report(request):
-    """Generate the report from direct PAGASA data inside Data Studio."""
+    """Generate the report from direct PAGASA data inside Hazard Studio."""
 
     rendered_chart_images = None
     rendered_summary_image = None

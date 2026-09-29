@@ -765,6 +765,7 @@
 
     const map = L.map("ph-map", {
         attributionControl: false,
+        zoomControl: false,
         scrollWheelZoom: true,
         touchZoom: true,
         zoomDelta: 1,
@@ -1552,12 +1553,29 @@
                 "visible"
             );
             /*
-             * Match the Standing Crops upper-right rail:
-             * 0.75rem from both map edges with no
-             * additional Leaflet control margin.
+             * Leaflet owns the top-right stack, while the shared map
+             * visibility toggle and export actions are positioned outside it.
+             * Reserve one row for the visibility toggle plus every direct
+             * export action so the TC layers button cannot be covered by the
+             * copy, resize, or download controls.
              */
-            container.style.marginTop = "0";
+            const mapCard = mapNode.closest(
+                "[data-map-canvas-card]"
+            );
+            const mapExportControls = mapCard?.querySelector(
+                "[data-map-export-controls]"
+            );
+            const exportActionCount = mapExportControls
+                ? mapExportControls.children.length
+                : 0;
+            const rightRailRows = exportActionCount + 1;
+            container.style.marginTop = (
+                `calc(${rightRailRows} * `
+                + "(var(--map-control-size-static) + "
+                + "var(--map-control-gap-static)))"
+            );
             container.style.marginRight = "0";
+            container.style.zIndex = "1002";
 
             const topRightCorner = (
                 mapNode.querySelector(
@@ -1566,8 +1584,12 @@
             );
 
             if (topRightCorner) {
-                topRightCorner.style.top = "0.75rem";
-                topRightCorner.style.right = "0.75rem";
+                topRightCorner.style.top = (
+                    "var(--map-control-inset-static, 0.625rem)"
+                );
+                topRightCorner.style.right = (
+                    "var(--map-control-inset-static, 0.625rem)"
+                );
             }
 
             L.DomEvent.disableClickPropagation(
@@ -1596,12 +1618,12 @@
             toggleBtn.type = "button";
 
             toggleBtn.className = (
-                "cursor-pointer relative "
+                "ui-icon-button ui-map-icon-button relative "
                 + "inline-flex h-7 w-7 "
-                + "items-center justify-center "
-                + "rounded-md bg-white/80 "
-                + "text-xs backdrop-blur-sm "
-                + "hover:bg-white "
+                + "items-center justify-center rounded-md "
+                + "bg-white/80 text-xs text-zinc-500 "
+                + "backdrop-blur-sm hover:bg-white "
+                + "hover:text-zinc-700 "
                 + "focus-visible:outline-2 "
                 + "focus-visible:outline-offset-2 "
                 + "focus-visible:outline-zinc-400"
@@ -1662,6 +1684,7 @@
             );
 
             panel.dataset.mapControlPopover = "historical-layers";
+            panel.dataset.mapControlUsesHidden = "true";
 
             panel.hidden = true;
             panel.setAttribute(
@@ -1839,31 +1862,6 @@
                 activeDot?.classList.toggle(
                     "hidden",
                     !anyVisible
-                );
-
-                /*
-                 * Layers chrome belongs to the Theme /
-                 * background system, not the Legend
-                 * palette system.
-                 *
-                 * Track visibility is indicated using
-                 * the same theme-derived control color.
-                 */
-                toggleBtn.style.color = (
-                    "var(--map-control-color, #0284c7)"
-                );
-
-                toggleBtn.style.background = (
-                    anyVisible
-                        ? (
-                            "color-mix("
-                            + "in srgb, "
-                            + "var(--map-control-color, "
-                            + "#0284c7) 14%, "
-                            + "rgba(255, 255, 255, 0.80)"
-                            + ")"
-                        )
-                        : ""
                 );
 
                 toggleBtn.setAttribute(
@@ -3315,7 +3313,7 @@
         position: "bottomright",
         metric: true,
         imperial: false,
-        maxWidth: 96,
+        maxWidth: 72,
         updateWhenIdle: true
     }).addTo(map);
     const scaleHost = document.getElementById(

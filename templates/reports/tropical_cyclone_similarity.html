@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-similarity.css' %}?v=20260928-common-month-analysis-v2">
+    <script defer src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+    <script defer src="{% static 'js/maps/map_appearance.js' %}?v=20260909-map-legend-glass-v3"></script>
+    <script defer src="{% static 'js/maps/map_administrative_base.js' %}?v=20260925-national-extent-v1"></script>
+    <script defer src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
+    <script defer src="{% static 'js/map_browser_fullscreen.js' %}?v=20260924-map-studio-fullscreen-v1"></script>
+    <script defer src="{% static 'js/maps/tropical_cyclone_utils.js' %}?v=20260921-shared-v1"></script>
+<script defer src="{% static 'js/tropical_cyclone_similarity.js' %}?v=20260929-similarity-v57"></script>
+{% endblock %}
+
+{% block title %}Similar Tropical Cyclone Occurrences - RRDBES · Hazard Studio{% endblock %}
+
+{% block breadcrumbs %}
+<span>Tropical Cyclone</span>
+<span aria-hidden="true">/</span>
+<span class="text-zinc-900 font-semibold">Similar Track Occurrence</span>
+{% endblock %}
+
+{% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_overflow_class %}overflow-y-auto tc-similarity-page-body{% endblock %}
+{% block page_body_inner_class %}max-w-none h-full min-h-0{% endblock %}
+
+{% block content %}
+<section class="tc-similarity-page" data-tc-similarity-page data-default-climatology-month="{{ default_climatology_month }}" aria-label="Similar Tropical Cyclone Occurrences">
+    <div class="tc-similarity-workspace">
+        <section class="tc-similarity-map-card" data-map-canvas-card aria-labelledby="tc-similarity-map-title">
+            <h2 id="tc-similarity-map-title" class="sr-only">Similar tropical-cyclone track map</h2>
+            <div id="tc-similarity-map" class="tc-similarity-map" data-map-root role="application" aria-label="Map comparing the selected tropical-cyclone track with similar historical tracks"></div>
+            <div data-map-coordinate-labels class="add-map-coordinate-labels" aria-hidden="true"></div>
+            <div class="tc-similarity-map__controls" data-map-control-rail>
+                <button id="map-fullscreen" type="button" class="ui-icon-button ui-map-icon-button" aria-label="Expand map to browser window" title="Expand map to browser window">
+                    <i data-map-fullscreen-icon class="fa-solid fa-expand text-xs" aria-hidden="true"></i>
+                </button>
+                <button id="tc-similarity-map-reset" type="button" class="ui-icon-button ui-map-icon-button" aria-label="Reset map extent" title="Reset map extent">
+                    <i class="fa-solid fa-location-crosshairs text-xs" aria-hidden="true"></i>
+                </button>
+                <button id="tc-similarity-par-toggle" type="button" class="ui-icon-button ui-map-icon-button is-active" data-similarity-par-toggle aria-pressed="true" aria-label="Toggle PAGASA PAR boundary" title="Hide PAGASA PAR boundary">
+                    <i class="fa-solid fa-draw-polygon text-xs" aria-hidden="true"></i>
+                </button>
+                <div class="tc-similarity-map__zoom" role="group" aria-label="Map zoom controls">
+                    <button id="tc-similarity-map-zoom-in" type="button" class="ui-icon-button ui-map-icon-button" aria-label="Zoom in" title="Zoom in"><i class="fa-solid fa-plus text-xs" aria-hidden="true"></i></button>
+                    <button id="tc-similarity-map-zoom-out" type="button" class="ui-icon-button ui-map-icon-button" aria-label="Zoom out" title="Zoom out"><i class="fa-solid fa-minus text-xs" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            <div class="tc-similarity-map__legend" data-similarity-map-legend aria-label="PAGASA tropical-cyclone track legend">
+                <strong class="tc-similarity-map__legend-title">Legend</strong>
+                <div class="tc-similarity-map__legend-list">
+                    <span class="tc-similarity-map__legend-row" data-similarity-par-legend><i class="tc-similarity-map__swatch tc-similarity-map__swatch--par" aria-hidden="true"></i><span>Philippine Area of Responsibility</span></span>
+                    <span class="tc-similarity-map__legend-row" data-similarity-reference-legend><i class="tc-similarity-map__swatch tc-similarity-map__swatch--observed" aria-hidden="true"></i><span data-similarity-reference-legend-label>Reference Track</span></span>
+                    <span class="tc-similarity-map__legend-row" data-similarity-historical-legend><i class="tc-similarity-map__swatch tc-similarity-map__swatch--historical" aria-hidden="true"></i><span data-similarity-historical-legend-label>Common Tracks</span></span>
+                    <span class="tc-similarity-map__legend-row" data-similarity-category-legend="STY"><i class="tc-similarity-map__swatch tc-similarity-map__swatch--category tc-similarity-map__swatch--sty" aria-hidden="true"></i><span>Super Typhoon</span></span>
+                    <span class="tc-similarity-map__legend-row" data-similarity-category-legend="TY"><i class="tc-similarity-map__swatch tc-similarity-map__swatch--category tc-similarity-map__swatch--ty" aria-hidden="true"></i><span>Typhoon</span></span>
+                    <span class="tc-similarity-map__legend-row" data-similarity-category-legend="STS"><i class="tc-similarity-map__swatch tc-similarity-map__swatch--category tc-similarity-map__swatch--sts" aria-hidden="true"></i><span>Severe Tropical Storm</span></span>
+                    <span class="tc-similarity-map__legend-row" data-similarity-category-legend="TS"><i class="tc-similarity-map__swatch tc-similarity-map__swatch--category tc-similarity-map__swatch--ts" aria-hidden="true"></i><span>Tropical Storm</span></span>
+                    <span class="tc-similarity-map__legend-row" data-similarity-category-legend="TD"><i class="tc-similarity-map__swatch tc-similarity-map__swatch--category tc-similarity-map__swatch--td" aria-hidden="true"></i><span>Tropical Depression</span></span>
+                    <span class="tc-similarity-map__legend-row" data-similarity-category-legend="LPA"><i class="tc-similarity-map__swatch tc-similarity-map__swatch--category tc-similarity-map__swatch--lpa" aria-hidden="true"></i><span>Low Pressure Area</span></span>
+                </div>
+            </div>
+            <div id="tc-similarity-map-fallback" class="tc-similarity-map__fallback hidden">Map library could not load. Check the locally served map assets.</div>
+        </section>
+
+        <aside class="tc-similarity-panel" aria-labelledby="tc-similarity-panel-title">
+            <div class="tc-similarity-panel__header">
+                <div>
+                    <h2 id="tc-similarity-panel-title">TC Track Matching</h2>
+                </div>
+            </div>
+
+            <div class="tc-similarity-panel__body">
+                <div class="tc-similarity-selection-card">
+                    <div class="tc-similarity-field tc-similarity-reference-field">
+                        <div class="tc-similarity-reference-field__row">
+                            <label class="tc-similarity-field__label" for="tc-similarity-source-track">Reference track</label>
+                            <div class="tc-similarity-reference-field__toggle">
+                                <span>Active TC</span>
+                                <button type="button" class="tc-similarity-toggle" data-similarity-active-toggle aria-pressed="false" aria-label="Select active TC" title="Select active TC">
+                                    <span class="tc-similarity-toggle__thumb" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="tc-similarity-reference-field__selects">
+                            <span class="ui-select-wrap tc-similarity-select-wrap">
+                                <label class="sr-only" for="tc-similarity-source-year">Reference track year</label>
+                                <select id="tc-similarity-source-year" class="ui-control ui-select ui-select--compact tc-similarity-select" data-similarity-source-year aria-label="Reference track year" disabled>
+                                    <option value="">Year</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                            </span>
+                            <span class="ui-select-wrap tc-similarity-select-wrap">
+                                <label class="sr-only" for="tc-similarity-source-track">Historical tropical cyclone</label>
+                                <select id="tc-similarity-source-track" class="ui-control ui-select ui-select--compact tc-similarity-select" data-similarity-source-track aria-label="Historical tropical cyclone" disabled>
+                                    <option value="">Tropical cyclone</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="tc-similarity-reference-summary-card" data-similarity-reference-label hidden>
+                    <div class="tc-similarity-reference-label">
+                        <strong class="tc-similarity-reference-label__name">
+                            <span class="tc-similarity-reference-label__swatch" data-similarity-reference-label-swatch aria-hidden="true"></span>
+                            <span data-similarity-reference-label-name></span>
+                        </strong>
+                        <span class="tc-similarity-reference-label__meta" data-similarity-reference-label-meta>
+                            <span data-similarity-reference-label-month></span>
+                            <span aria-hidden="true"> - </span>
+                            <span class="tc-similarity-reference-label__category" data-similarity-reference-label-category></span>
+                            <span class="tc-similarity-reference-label__report is-unlinked" data-similarity-reference-label-report role="img" aria-label="No Damage Report" title="No Damage Report">
+                                <i class="fa-solid fa-file-circle-minus" aria-hidden="true"></i>
+                            </span>
+                        </span>
+                    </div>
+                    <div class="tc-similarity-reference-match" data-similarity-reference-match hidden>
+                        <strong data-similarity-reference-match-name></strong>
+                    </div>
+                </div>
+                <div class="tc-similarity-reference-field__row tc-similarity-results-toggle-row" data-similarity-results-toggle-row hidden>
+                    <span class="tc-similarity-field__label">Top 5 Similar Tracks</span>
+                    <button type="button" class="tc-similarity-toggle" data-similarity-show-top-five aria-label="Show Top 5 Similar Tracks" aria-pressed="false" disabled>
+                        <span class="tc-similarity-toggle__thumb" aria-hidden="true"></span>
+                    </button>
+                </div>
+
+                <div class="tc-similarity-results-section" data-similarity-results-section hidden>
+                    <div class="tc-similarity-results" data-similarity-results aria-live="polite">
+                        <p class="tc-similarity-results__empty">No historical tracks are available for comparison.</p>
+                    </div>
+                </div>
+
+                <section class="tc-similarity-common-analysis" aria-labelledby="tc-similarity-common-analysis-title">
+                    <div class="tc-similarity-common-analysis__header">
+                        <div>
+                            <h3 id="tc-similarity-common-analysis-title">Common Month Track Analysis</h3>
+                            <p>Compare the 10 closest historical tracks with a selected monthly common path.</p>
+                        </div>
+                        <span class="tc-similarity-common-analysis__count" data-similarity-common-count>0</span>
+                    </div>
+                    <div class="tc-similarity-common-analysis__selectors">
+                        <div class="tc-similarity-field">
+                            <label class="tc-similarity-field__label" for="tc-similarity-climatology-month">Month</label>
+                            <span class="ui-select-wrap tc-similarity-select-wrap">
+                                <select id="tc-similarity-climatology-month" class="ui-control ui-select ui-select--compact tc-similarity-select" data-similarity-climatology-month>
+                                    <option value="1">January</option>
+                                    <option value="2">February</option>
+                                    <option value="3">March</option>
+                                    <option value="4">April</option>
+                                    <option value="5">May</option>
+                                    <option value="6">June</option>
+                                    <option value="7">July</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                        <div class="tc-similarity-field">
+                            <label class="tc-similarity-field__label" for="tc-similarity-climatology-path">Common path</label>
+                            <span class="ui-select-wrap tc-similarity-select-wrap">
+                                <select id="tc-similarity-climatology-path" class="ui-control ui-select ui-select--compact tc-similarity-select" data-similarity-climatology-path aria-label="Monthly common path">
+                                    <option value="">No common paths available</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down ui-select__icon" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <p class="tc-similarity-common-analysis__detail" data-similarity-common-detail>Select a month and common path to compare historical tracks.</p>
+                    <div class="tc-similarity-results tc-similarity-common-analysis__results" data-similarity-common-results aria-live="polite">
+                        <p class="tc-similarity-results__empty">No common-path analysis is available.</p>
+                    </div>
+                </section>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<dialog
+    id="tc-similarity-damage-report-modal"
+    data-similarity-damage-modal
+    aria-labelledby="tc-similarity-damage-modal-title"
+    class="incident-dashboard-dialog fixed left-1/2 top-1/2 m-0 max-h-[90vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-0 shadow-2xl backdrop:bg-zinc-900/40"
+>
+    <div class="flex min-h-0 flex-col">
+        <header class="flex items-start justify-between gap-4 border-b border-zinc-200 px-5 py-4">
+            <div class="min-w-0">
+                <h2 id="tc-similarity-damage-modal-title" data-similarity-damage-modal-title class="truncate text-base font-bold text-zinc-900">Damage and Losses</h2>
+            </div>
+            <button
+                type="button"
+                data-similarity-damage-modal-close
+                class="ui-icon-button shrink-0 cursor-pointer text-zinc-600"
+                aria-label="Close damage report"
+                title="Close"
+            >
+                <i class="fa-solid fa-xmark text-sm" aria-hidden="true"></i>
+            </button>
+        </header>
+        <div class="incident-dashboard-dialog__body min-h-0">
+            <div data-similarity-damage-modal-status class="sr-only" role="status" aria-live="polite"></div>
+            <iframe
+                data-similarity-damage-modal-frame
+                class="incident-dashboard-frame"
+                title="Damage and Losses dashboard"
+                loading="eager"
+            ></iframe>
+        </div>
+    </div>
+</dialog>
+
+{{ historical_tracks|json_script:"tc-similarity-historical-data" }}
+{{ climatology_paths|json_script:"tc-similarity-climatology-data" }}
+<div hidden data-tc-similarity-map-config
+    data-provinces-url="{% static 'geo/ph/provinces.geojson' %}"
+    data-outline-url="{% static 'geo/ph/philippines_outline.geojson' %}"
+    data-pagasa-track-url="{% url 'map_studio:pagasa_track' %}"
+    data-pagasa-direct-url="https://pubfiles.pagasa.dost.gov.ph/tamss/weather/cyclone.dat"
+    data-dashboard-url="{% url 'reports:dashboard' %}"
+    data-dashboard-hazard="HZD_TROPICAL_CYCLONE"></div>
+<script src="{% static 'js/page_config.js' %}?v=20260912-csp-v2"></script>
+{% endblock %}

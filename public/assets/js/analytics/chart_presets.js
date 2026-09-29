@@ -2,10 +2,37 @@
     "use strict";
 
     const CHART_HAIRLINE_WIDTH = 0.75;
+    const DOUGHNUT_LEGEND_GAP = 14;
     const percentageFormatter = new Intl.NumberFormat("en-PH", {
         minimumFractionDigits: 0,
         maximumFractionDigits: 2
     });
+
+    function doughnutLegendTitle(gap = DOUGHNUT_LEGEND_GAP) {
+        const numericGap = Number(gap);
+        if (!Number.isFinite(numericGap) || numericGap <= 0) {
+            return {display: false};
+        }
+
+        // Chart.js lays out a horizontal legend directly below the plot. An
+        // empty legend title reserves space above the labels, so the gap is
+        // placed between the ring and the legend instead of after the labels.
+        return {
+            display: true,
+            text: "",
+            color: "transparent",
+            font: {
+                size: 1,
+                lineHeight: 1
+            },
+            padding: {
+                top: numericGap,
+                right: 0,
+                bottom: 0,
+                left: 0
+            }
+        };
+    }
 
     const METRIC_COLORS = Object.freeze({
         value: themeColor("--data-metric-value", "#D25353"),
@@ -782,7 +809,7 @@
                     ...basePlugins,
                     legend: {
                         ...(basePlugins.legend || {}),
-                        display: false
+                        display: settings.showLegend === true
                     },
                     tooltip: {
                         ...baseTooltip,
@@ -995,6 +1022,10 @@
                     legend: {
                         ...baseLegend,
                         position: "bottom",
+                        title: {
+                            ...(baseLegend.title || {}),
+                            ...doughnutLegendTitle(settings.legendGap)
+                        },
                         labels: {
                             ...baseLegendLabels,
                             font: {
@@ -1043,6 +1074,7 @@
         commodityColors: COMMODITY_COLORS,
         applyChartTheme,
         createCommodityDoughnutChart,
+        doughnutLegendTitle,
         createRegionalBarChart,
         donutCenterPlugin,
         hazardColor,

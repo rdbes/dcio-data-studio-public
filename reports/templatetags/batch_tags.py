@@ -38,9 +38,10 @@ def render_button(
     confirm_form_id="",
     scroll_target="",
     dialog_id="",
+    default_icon=True,
 ):
     """Render a consistently styled button or link styled as a button."""
-    if variant == "primary" and not icon:
+    if default_icon and variant == "primary" and not icon:
         icon = "fa-solid fa-arrow-right"
 
     variants = {
@@ -53,7 +54,7 @@ def render_button(
     }
     size = "ui-button--small" if small else ""
     classes = (
-        f"ui-button ui-button--{variant} "
+        f"ds-button ds-button--{variant} ui-button ui-button--{variant} "
         f"inline-flex items-center justify-center gap-2 {size} font-semibold "
         f"cursor-pointer {variants.get(variant, variants['primary'])}"
     )

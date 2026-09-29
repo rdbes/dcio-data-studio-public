@@ -4,7 +4,7 @@ import calendar
 import logging
 import ssl
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -87,7 +87,7 @@ def fetch_roni_text(
     """
     request = Request(
         url,
-        headers={"User-Agent": "DCIO Data Studio RONI updater"},
+        headers={"User-Agent": "RRDBES RONI updater"},
     )
     try:
         context = ssl.create_default_context(cafile=certifi.where())
@@ -331,6 +331,81 @@ def classify_roni_episode_phases(
 
     finalize_run()
     return phases
+
+
+def build_roni_calendar_maps(
+    observations,
+    phases: dict[date, str] | None = None,
+) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, float]]]:
+    """Build monthly phase and anomaly maps from overlapping RONI seasons."""
+
+    ordered = sorted(
+        observations,
+        key=lambda observation: _roni_observation_date(
+            observation, "period_center_date"
+        ),
+    )
+    if phases is None:
+        phases = _roni_phases_for_observations(ordered)
+
+    candidates: dict[tuple[str, str], list[tuple[str, Decimal]]] = {}
+    for observation in ordered:
+        center_date = _roni_observation_date(observation, "period_center_date")
+        phase = phases.get(center_date)
+        if phase is None:
+            phase = phases.get(center_date.isoformat(), "neutral")
+        value = Decimal(str(_roni_observation_field(observation, "value")))
+        month_start = _roni_observation_date(observation, "period_start_date")
+        end_date = _roni_observation_date(observation, "period_end_date")
+        while month_start <= end_date:
+            key = (str(month_start.year), str(month_start.month))
+            candidates.setdefault(key, []).append((phase, value))
+            month_start = (
+                month_start.replace(day=28) + timedelta(days=4)
+            ).replace(day=1)
+
+    phase_by_year_month: dict[str, dict[str, str]] = {}
+    anomaly_by_year_month: dict[str, dict[str, float]] = {}
+    for (year, month), monthly_candidates in candidates.items():
+        extreme_candidates = [
+            candidate
+            for candidate in monthly_candidates
+            if candidate[0] in {"warm", "cold"}
+        ]
+        selected_phase, selected_value = max(
+            extreme_candidates or monthly_candidates,
+            key=lambda candidate: abs(candidate[1]),
+        )
+        phase_by_year_month.setdefault(year, {})[month] = (
+            selected_phase if extreme_candidates else "neutral"
+        )
+        anomaly_by_year_month.setdefault(year, {})[month] = float(selected_value)
+
+    return phase_by_year_month, anomaly_by_year_month
+
+
+def _roni_phases_for_observations(observations) -> dict[date, str]:
+    """Resolve phases for model observations or serialized public snapshots."""
+
+    if observations and isinstance(observations[0], dict):
+        return {
+            _roni_observation_date(observation, "period_center_date"): observation.get(
+                "phase", "neutral"
+            )
+            for observation in observations
+        }
+    return classify_roni_episode_phases(observations)
+
+
+def _roni_observation_field(observation, field: str):
+    if isinstance(observation, dict):
+        return observation[field]
+    return getattr(observation, field)
+
+
+def _roni_observation_date(observation, field: str) -> date:
+    value = _roni_observation_field(observation, field)
+    return date.fromisoformat(value) if isinstance(value, str) else value
 
 
 def validate_complete_roni_source(

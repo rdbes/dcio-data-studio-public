@@ -1,0 +1,291 @@
+{% load static %}
+<section class="workspace has-data-summary" data-panel="general">
+      <aside class="control-panel">
+        <div class="panel-heading">
+          <div class="panel-title-row">
+            <h2>General Map</h2>
+          </div>
+          <p>Use column A for the <strong>PSGC Code</strong>, column B for the <strong>Location Name</strong>, and column C onward for <strong>Numeric Values</strong> to map.</p>
+        </div>
+        <form id="general-form" class="upload-form">
+          <label class="file-drop" for="general-file" data-empty-title="Choose a CSV file" data-empty-detail="UTF-8 · maximum 5,000 rows and 5 MB">
+            <span class="upload-icon">↑</span>
+            <span><strong>Choose a CSV file</strong><small>UTF-8 · maximum 5,000 rows and 5 MB</small></span>
+            <input id="general-file" type="file" accept=".csv,text/csv">
+          </label>
+          <div class="upload-actions">
+          <button id="general-view-result" class="ghost-button validation-result-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="map-validation-dialog" disabled>View result</button>
+            <button class="primary-button" type="submit" disabled>Validate</button>
+          </div>
+        </form>
+        <div id="general-status" class="status-message" role="status" aria-live="polite"></div>
+        <div id="general-summary" class="summary-block is-hidden"></div>
+        <div id="general-controls" class="filter-block is-hidden">
+          <div class="filter-group">
+            <label for="general-level">Map level</label>
+            <select id="general-level"></select>
+            <label for="general-metric">Metric</label>
+            <select id="general-metric"></select>
+          </div>
+          <div class="filter-group">
+            <label for="general-legend-label">Legend label</label>
+            <input id="general-legend-label" type="text" maxlength="80" value="Value Loss" placeholder="e.g. Value Loss" autocomplete="off">
+            <label for="general-unit">Unit of measurement</label>
+            <input id="general-unit" type="text" maxlength="32" value="Pesos" placeholder="e.g. Pesos" autocomplete="off">
+            <small class="filter-field-note filter-field-note--warning"><strong>Note:</strong> Update the legend label and unit of measure appropriately.</small>
+          </div>
+        </div>
+      </aside>
+      <section class="visual-panel">
+        <div id="general-map" class="map-canvas" role="region" aria-label="Interactive General Map"></div>
+      </section>
+      <aside id="general-data-summary-panel" class="data-summary-panel" aria-label="Uploaded data summary">
+        <div class="panel-heading data-summary-panel__heading">
+          <div class="panel-title-row">
+            <h2>Column Summary</h2>
+          </div>
+          <p id="general-data-summary-note">Text columns show populated rows above; numeric columns show totals in the chart.</p>
+        </div>
+        <ul id="general-data-summary-text-columns" class="data-summary-text-list is-hidden" aria-label="Text column summary"></ul>
+        <p id="general-data-summary-chart-label" class="data-summary-chart-label is-hidden">Numeric column totals</p>
+        <div id="general-data-summary-chart-wrap" class="data-summary-chart-wrap is-hidden">
+          <canvas id="general-data-summary-chart" role="img" aria-label="Horizontal bar chart summarizing uploaded CSV columns"></canvas>
+        </div>
+        <div class="data-summary-panel__footer">
+          <button id="general-summary-breakdown" class="ghost-button data-summary-panel__breakdown-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="general-breakdown-dialog" disabled hidden>View breakdown</button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="workspace is-hidden" data-panel="standing">
+      <div class="map-studio-secondary-columns" data-map-studio-secondary-columns>
+      <aside class="control-panel">
+        <div class="panel-heading">
+          <div class="panel-title-row">
+            <h2>Standing Crops</h2>
+          </div>
+          <p>Upload the reviewed Corn (<strong>17-column</strong>) or Rice (<strong>22-column</strong>) template for a local summary, chart, and map.</p>
+        </div>
+        <div id="standing-form" class="upload-form standing-upload-stack">
+          <section class="ds-card standing-upload-card" data-standing-upload="corn">
+            <div class="standing-upload-card__heading"><strong>Corn</strong><small>17-column template</small></div>
+            <label class="file-drop" for="standing-file-corn" data-empty-title="Choose corn CSV" data-empty-detail="UTF-8 · maximum 5,000 rows and 5 MB">
+              <span class="upload-icon upload-icon--crop" aria-hidden="true"><img src="{% static 'map_studio/assets/crop-icons/corn.png' %}" alt=""></span>
+              <span><strong>Choose corn CSV</strong><small>UTF-8 · maximum 5,000 rows and 5 MB</small></span>
+              <input id="standing-file-corn" data-standing-crop="corn" type="file" accept=".csv,text/csv">
+            </label>
+            <div class="upload-actions">
+              <button id="standing-view-result-corn" class="ghost-button validation-result-button" type="button" data-standing-view-result="corn" aria-haspopup="dialog" aria-expanded="false" aria-controls="map-validation-dialog" disabled>View result</button>
+              <button class="primary-button" type="button" data-standing-validate="corn" disabled>Validate</button>
+            </div>
+          </section>
+          <section class="ds-card standing-upload-card" data-standing-upload="rice">
+            <div class="standing-upload-card__heading"><strong>Rice</strong><small>22-column template</small></div>
+            <label class="file-drop" for="standing-file-rice" data-empty-title="Choose rice CSV" data-empty-detail="UTF-8 · maximum 5,000 rows and 5 MB">
+              <span class="upload-icon upload-icon--crop" aria-hidden="true"><img src="{% static 'map_studio/assets/crop-icons/rice.png' %}" alt=""></span>
+              <span><strong>Choose rice CSV</strong><small>UTF-8 · maximum 5,000 rows and 5 MB</small></span>
+              <input id="standing-file-rice" data-standing-crop="rice" type="file" accept=".csv,text/csv">
+            </label>
+            <div class="upload-actions">
+              <button id="standing-view-result-rice" class="ghost-button validation-result-button" type="button" data-standing-view-result="rice" aria-haspopup="dialog" aria-expanded="false" aria-controls="map-validation-dialog" disabled>View result</button>
+              <button class="primary-button" type="button" data-standing-validate="rice" disabled>Validate</button>
+            </div>
+          </section>
+        </div>
+        <div id="standing-status" class="status-message" role="status" aria-live="polite"></div>
+        <div id="standing-summary" class="summary-block is-hidden"></div>
+        <div id="standing-controls" class="filter-block is-hidden">
+          <div class="filter-group">
+            <label for="standing-active-crop">Commodity</label>
+            <select id="standing-active-crop" disabled><option value="corn">Corn</option><option value="rice">Rice</option></select>
+            <label for="standing-level">Map level</label>
+            <select id="standing-level"><option value="municipality_city">Municipality / City</option><option value="province_huc">Province / HUC</option><option value="region">Region</option></select>
+          </div>
+          <div class="filter-group">
+            <label for="standing-classification">Classification</label>
+            <select id="standing-classification"></select>
+            <label for="standing-stage">Growth stage</label>
+            <select id="standing-stage"></select>
+          </div>
+        </div>
+      </aside>
+      <aside id="standing-analytics" class="data-summary-panel standing-analytics-panel" aria-label="Standing Crops analysis">
+        <div class="panel-heading data-summary-panel__heading standing-analytics-panel__heading">
+          <div class="panel-title-row">
+            <h3 id="analytics-title">Regional Breakdown</h3>
+          </div>
+          <p id="analytics-subtitle">Upload a <strong>Standing Crops CSV</strong> to view regional area by growth stage.</p>
+        </div>
+        <div id="standing-analytics-content" class="standing-analytics-content is-hidden">
+          <div class="chart-grid">
+            <article class="ds-card chart-card chart-card-wide standing-region-chart-card"><div class="card-heading"><h3 id="region-chart-title">Area by region</h3><span>ha</span></div><div class="chart-wrap standing-region-chart-wrap"><div class="standing-region-chart-inner"><canvas id="region-chart" role="img" aria-label="Area of standing crops by region"></canvas></div></div></article>
+            <article class="ds-card chart-card"><div class="card-heading"><h3 id="stage-chart-title">Area by growth stage</h3><span>ha</span></div><div class="chart-wrap"><canvas id="stage-chart" role="img" aria-label="Area of standing crops by growth stage"></canvas></div></article>
+            <article class="ds-card chart-card chart-card-wide"><div class="card-heading"><h3 id="classification-chart-title">Area by classification</h3><span>ha</span></div><div class="chart-wrap chart-wrap-short"><canvas id="classification-chart" role="img" aria-label="Area of standing crops by classification"></canvas></div></article>
+          </div>
+        </div>
+        <div class="data-summary-panel__footer standing-analytics-panel__footer">
+          <button id="standing-summary-breakdown" class="ghost-button data-summary-panel__breakdown-button" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="standing-breakdown-dialog" disabled hidden>View breakdown</button>
+        </div>
+      </aside>
+      </div>
+      <section class="visual-panel">
+        <div id="standing-map" class="map-canvas" role="region" aria-label="Interactive Standing Crops map"></div>
+      </section>
+    </section>
+    <section class="workspace is-hidden hazards-workspace" data-panel="hazards">
+      <div class="map-studio-secondary-columns" data-map-studio-secondary-columns>
+      <aside class="control-panel">
+        <div class="panel-heading">
+          <div class="panel-title-row">
+            <h2>Hazards Monitor</h2>
+          </div>
+          <p>Combine PHIVOLCS volcano alert levels and detected earthquake events on one Philippine map.</p>
+        </div>
+        <form id="hazards-form" class="upload-form hazards-form">
+          <section class="ds-card hazards-input-card">
+            <div class="hazards-input-card__heading hazards-input-card__heading--volcano"><strong>Volcano alert levels</strong><small>PHIVOLCS scale · 0–5</small></div>
+            <div class="hazards-volcano-fields">
+              <label for="hazards-volcano-bulusan"><span>Bulusan</span><input id="hazards-volcano-bulusan" name="bulusan" type="number" min="0" max="5" step="1" value="0" inputmode="numeric"></label>
+              <label for="hazards-volcano-kanlaon"><span>Kanlaon</span><input id="hazards-volcano-kanlaon" name="kanlaon" type="number" min="0" max="5" step="1" value="0" inputmode="numeric"></label>
+              <label for="hazards-volcano-mayon"><span>Mayon</span><input id="hazards-volcano-mayon" name="mayon" type="number" min="0" max="5" step="1" value="0" inputmode="numeric"></label>
+              <label for="hazards-volcano-pinatubo"><span>Pinatubo</span><input id="hazards-volcano-pinatubo" name="pinatubo" type="number" min="0" max="5" step="1" value="0" inputmode="numeric"></label>
+              <label for="hazards-volcano-taal"><span>Taal</span><input id="hazards-volcano-taal" name="taal" type="number" min="0" max="5" step="1" value="0" inputmode="numeric"></label>
+            </div>
+            <label class="hazards-date-field" for="hazards-as-of"><span>Alert levels as of</span><span class="hazards-date-control"><input id="hazards-as-of" type="date" autocomplete="off" aria-label="Alert levels as of date" title="Select the date these alert levels represent"><span id="hazards-as-of-display" class="hazards-date-control__display is-empty" aria-hidden="true">MMM DD, YYYY</span></span></label>
+          </section>
+          <section class="ds-card hazards-input-card">
+            <div class="hazards-input-card__heading"><strong>Earthquake events</strong><small>CSV · DOST-PHIVOLCS format</small></div>
+            <label class="file-drop" for="hazards-earthquake-file" data-empty-title="Choose earthquake CSV" data-empty-detail="Date, latitude, longitude, depth, magnitude, location">
+              <span class="upload-icon">↑</span>
+              <span><strong>Choose earthquake CSV</strong><small>Date · latitude · longitude · depth · magnitude · location</small></span>
+              <input id="hazards-earthquake-file" type="file" accept=".csv,text/csv">
+            </label>
+          </section>
+          <div class="upload-actions">
+            <button id="hazards-clear-inputs" class="ghost-button" type="button">Clear inputs</button>
+            <button class="primary-button" type="submit">Update map</button>
+          </div>
+        </form>
+        <div id="hazards-status" class="status-message" role="status" aria-live="polite"></div>
+      </aside>
+      <aside id="hazards-summary-panel" class="data-summary-panel hazards-summary-panel" aria-label="Volcano and earthquake summary">
+        <div class="panel-heading data-summary-panel__heading">
+          <div class="panel-title-row">
+            <h3>Summary</h3>
+          </div>
+          <p>Combined DOST-PHIVOLCS monitoring overview.</p>
+        </div>
+        <div id="hazards-summary" class="hazards-summary">
+          <p class="hazards-summary__empty">Enter alert levels or upload an earthquake CSV to populate the map.</p>
+        </div>
+      </aside>
+      </div>
+      <section class="visual-panel">
+        <div id="hazards-map" class="map-canvas" role="region" aria-label="Interactive Volcano and Earthquake map"></div>
+      </section>
+    </section>
+    <section class="workspace is-hidden psgc-reference-workspace" data-panel="psgc">
+      <section class="psgc-reference-panel" aria-labelledby="psgc-reference-title">
+        <header class="psgc-reference-header">
+          <div>
+            <h2 id="psgc-reference-title">PSGC 2Q 2026</h2>
+            <p>Philippine Standard Geographic Code · PSA publication dated 30 June 2026</p>
+          </div>
+          <span id="psgc-reference-count" class="psgc-reference-count">Loading reference…</span>
+        </header>
+        <div class="psgc-reference-toolbar">
+          <label class="psgc-reference-search" for="psgc-reference-search-input">
+            <span>Search reference</span>
+            <input id="psgc-reference-search-input" type="search" placeholder="Code, location, region, or province" autocomplete="off">
+          </label>
+          <label class="psgc-reference-level" for="psgc-reference-level-select">
+            <span>Geographic level</span>
+            <select id="psgc-reference-level-select">
+              <option value="">All levels</option>
+              <option value="region" selected>Region</option>
+              <option value="province_huc">Province / HUC</option>
+              <option value="municipality_city">Municipality / City</option>
+            </select>
+          </label>
+        </div>
+        <p id="psgc-reference-status" class="psgc-reference-status" role="status" aria-live="polite"></p>
+        <div class="psgc-reference-table-wrap" aria-label="PSA PSGC reference table">
+          <table class="psgc-reference-table">
+            <caption class="sr-only">PSA Philippine Standard Geographic Code 2Q 2026 reference data</caption>
+            <thead id="psgc-reference-head">
+              <tr>
+                <th scope="col">PSGC Code</th>
+                <th scope="col">Correspondence Code</th>
+                <th scope="col">Location Name</th>
+                <th scope="col">Geographic Level</th>
+              </tr>
+            </thead>
+            <tbody id="psgc-reference-body">
+              <tr><td class="psgc-reference-empty" colspan="4">Loading PSA PSGC reference…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+    <section id="how-to-use" class="how-to-use-page is-hidden" aria-labelledby="how-to-use-title">
+      <header class="how-to-use-page__header">
+        <div>
+          <h2 id="how-to-use-title">How to use Map Studio</h2>
+          <p id="how-to-use-intro">Choose a workspace guide, follow the upload and map steps, and return to your work whenever you are ready.</p>
+        </div>
+        <div class="how-to-use-page__actions">
+          <button id="how-to-use-page-back" type="button" class="ghost-button how-to-use-page__back" data-how-to-use-close aria-label="Back to workspace">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+            <span data-how-to-use-back-label>Back to workspace</span>
+          </button>
+          <button id="how-to-use-open-module" type="button" class="primary-button" hidden>
+            <span data-how-to-use-open-module-label>Go to module</span>
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+      <div class="how-to-use-page__scroll">
+        <div id="how-to-use-overview" class="how-to-use-overview">
+          <div class="how-to-use-card-grid" role="list" aria-label="Map Studio module guides">
+          <button type="button" class="how-to-use-card" data-how-to-use-module="general">
+            <span class="how-to-use-card__preview how-to-use-preview how-to-use-preview--general" aria-hidden="true">
+              <span class="how-to-use-preview__grid"></span><span class="how-to-use-preview__land how-to-use-preview__land--one"></span><span class="how-to-use-preview__land how-to-use-preview__land--two"></span><span class="how-to-use-preview__control"></span><span class="how-to-use-preview__legend"></span>
+            </span>
+            <span class="how-to-use-card__body"><strong>Boundary Mapping</strong><small>Use CSV measures to shade Philippine boundaries and compare mapped values.</small></span>
+            <span class="how-to-use-card__action">Open guide <span aria-hidden="true">→</span></span>
+          </button>
+          <button type="button" class="how-to-use-card" data-how-to-use-module="standing">
+            <span class="how-to-use-card__preview how-to-use-preview how-to-use-preview--standing" aria-hidden="true">
+              <span class="how-to-use-preview__grid"></span><span class="how-to-use-preview__land how-to-use-preview__land--crop"></span><span class="how-to-use-preview__bars"><i></i><i></i><i></i><i></i></span><span class="how-to-use-preview__control"></span>
+            </span>
+            <span class="how-to-use-card__body"><strong>Standing Crops</strong><small>Map Corn or Rice area by province or municipality boundary, then compare class, stage, and region.</small></span>
+            <span class="how-to-use-card__action">Open guide <span aria-hidden="true">→</span></span>
+          </button>
+          <button type="button" class="how-to-use-card" data-how-to-use-module="hazards">
+            <span class="how-to-use-card__preview how-to-use-preview how-to-use-preview--hazards" aria-hidden="true">
+              <span class="how-to-use-preview__grid"></span><span class="how-to-use-preview__island"></span><span class="how-to-use-preview__triangle"></span><span class="how-to-use-preview__quake how-to-use-preview__quake--one"></span><span class="how-to-use-preview__quake how-to-use-preview__quake--two"></span><span class="how-to-use-preview__legend"></span>
+            </span>
+            <span class="how-to-use-card__body"><strong>Geologic Hazards</strong><small>Use PHIVOLCS alerts and earthquake events to monitor geologic risk.</small></span>
+            <span class="how-to-use-card__action">Open guide <span aria-hidden="true">→</span></span>
+          </button>
+          <button type="button" class="how-to-use-card" data-how-to-use-module="psgc">
+            <span class="how-to-use-card__preview how-to-use-preview how-to-use-preview--psgc" aria-hidden="true">
+              <span class="how-to-use-preview__table"><i></i><i></i><i></i><i></i><i></i></span><span class="how-to-use-preview__search"></span><span class="how-to-use-preview__control"></span>
+            </span>
+            <span class="how-to-use-card__body"><strong>PSGC 2Q 2026</strong><small>Use the PSA reference to search codes and confirm upload locations.</small></span>
+            <span class="how-to-use-card__action">Open guide <span aria-hidden="true">→</span></span>
+          </button>
+          </div>
+        </div>
+        <article id="how-to-use-detail" class="how-to-use-detail" hidden aria-live="polite">
+          <div class="how-to-use-detail__header">
+            <div>
+              <h3 id="how-to-use-detail-title"></h3>
+              <p id="how-to-use-detail-intro"></p>
+            </div>
+            <div id="how-to-use-detail-preview" class="how-to-use-detail__preview" aria-hidden="true"></div>
+          </div>
+          <div id="how-to-use-detail-content" class="how-to-use-detail__content"></div>
+        </article>
+      </div>
+    </section>

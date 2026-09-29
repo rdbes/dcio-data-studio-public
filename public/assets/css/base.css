@@ -34,7 +34,10 @@ html, body {
 }
 
 .farm-page-content {
+    width: 100%;
     min-width: 0;
+    max-width: none !important;
+    margin-inline: 0 !important;
 }
 
 .farm-page-body-spacing {
@@ -92,12 +95,12 @@ html, body {
  * tables, while the visual rails are shown only during interaction. */
 [data-overlay-scrollbar-target] {
     scrollbar-gutter: auto !important;
-    scrollbar-width: none;
+    scrollbar-width: none !important;
 }
 
 [data-overlay-scrollbar-target]::-webkit-scrollbar {
-    width: 0;
-    height: 0;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 .overlay-scrollbar {
@@ -130,8 +133,9 @@ html, body {
     min-width: 0;
     min-height: 0;
     border-radius: 9999px;
-    background: color-mix(in srgb, var(--color-text-muted) 55%, transparent);
+    background: color-mix(in srgb, var(--platform-theme, #0f7196) 78%, transparent);
     cursor: grab;
+    touch-action: none;
 }
 
 .overlay-scrollbar--vertical .overlay-scrollbar__thumb {
@@ -182,6 +186,11 @@ html, body {
 }
 
 @media (max-width: 79.999rem) {
+    html {
+        /* The 232px navigation rail sits inside a 12px inset on both sides. */
+        --sidebar-drawer-width: 16rem;
+    }
+
     html[data-sidebar-open="true"] [data-sidebar-shell] {
         width: 14.5rem;
         padding: 0.75rem;
@@ -248,6 +257,17 @@ label, .important-label, strong {
 }
 
 @media (max-width: 47.999rem) {
+    [data-workspace-topbar] {
+        --topbar-inline-padding: 0.75rem;
+        gap: 0.5rem;
+        padding-inline: var(--topbar-inline-padding) !important;
+    }
+
+    [data-workspace-topbar] > :first-child,
+    [data-workspace-topbar] > [data-filter-header-slot] {
+        min-width: 0;
+    }
+
     .dashboard-chart-header {
         align-items: stretch;
         flex-direction: column;
@@ -414,8 +434,31 @@ label, .important-label, strong {
  * its own shell-level range above both.
  */
 @media (max-width: 79.999rem) {
+    /* Below the persistent-sidebar breakpoint the main workspace owns the
+     * full viewport. Do not let a desktop gap or a wide child force the page
+     * itself to scroll sideways; tables and charts provide their own overflow
+     * affordances instead. */
+    .farm-app-shell {
+        gap: 0;
+        padding: max(0.5rem, env(safe-area-inset-top))
+            max(0.5rem, env(safe-area-inset-right))
+            max(0.5rem, env(safe-area-inset-bottom))
+            max(0.5rem, env(safe-area-inset-left));
+    }
+
+    .farm-main-panel,
+    .farm-page-body,
+    .analytics-workspace-page-body {
+        min-width: 0;
+    }
+
+    [data-page-body] {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
     [data-sidebar-shell] {
-        width: 14.5rem;
+        width: var(--sidebar-drawer-width);
         padding: 0.75rem;
         z-index: 4000;
         transition:
@@ -431,13 +474,13 @@ label, .important-label, strong {
     }
 
     html[data-sidebar-open="true"] [data-sidebar-shell] {
-        width: 14.5rem;
+        width: var(--sidebar-drawer-width);
         padding: 0.75rem;
         transform: translateX(0);
     }
 
     html[data-sidebar-open="false"] [data-sidebar-shell] {
-        width: 14.5rem;
+        width: var(--sidebar-drawer-width);
         padding: 0.75rem;
         transform: translateX(-100%);
     }
@@ -454,6 +497,12 @@ label, .important-label, strong {
 
     [data-sidebar-backdrop] {
         z-index: 3900;
+    }
+
+    /* Keep the drawer outside the backdrop hit area so its links remain
+     * clickable even when the stacking context is constrained by a host. */
+    html[data-sidebar-open="true"] [data-sidebar-backdrop] {
+        left: var(--sidebar-drawer-width);
     }
 }
 

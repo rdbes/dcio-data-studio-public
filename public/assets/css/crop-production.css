@@ -4,66 +4,34 @@
 
 .crop-production-card {
     min-width: 0;
+    border: var(--farm-outline-width) solid var(--farm-outline-color);
+    border-radius: var(--ui-card-radius);
+    box-shadow: var(--elevation-flat);
 }
 
 .crop-production-card__header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
     border-bottom: 1px solid var(--color-zinc-100, #f4f4f5);
     padding-bottom: 0.875rem;
 }
 
-.crop-production-accordion__heading {
+.crop-production-card__title,
+.crop-production-location-card__title-heading {
     display: flex;
     align-items: center;
     margin: 0;
-}
-
-.crop-production-accordion__toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    border: 0;
-    padding: 0;
-    background: transparent;
     color: var(--color-zinc-900, #18181b);
-    cursor: pointer;
-    font: inherit;
-    text-align: left;
-}
-
-.crop-production-accordion__toggle:hover {
-    color: var(--ui-focus, #247ba0);
-}
-
-.crop-production-accordion__toggle:focus-visible {
-    border-radius: 0.25rem;
-    outline: 2px solid var(--ui-focus, #247ba0);
-    outline-offset: 3px;
-}
-
-.crop-production-card .crop-production-accordion__toggle {
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.25;
 }
 
-.crop-production-location-card__title .crop-production-accordion__toggle {
+.crop-production-location-card__title-heading {
     font-size: 1rem;
     font-weight: 700;
-    line-height: 1.25;
-}
-
-.crop-production-accordion__toggle i {
-    color: var(--color-zinc-500, #71717a);
-    font-size: 0.625rem;
-    transition: transform 150ms ease;
-}
-
-.crop-production-accordion__toggle[aria-expanded="false"] i {
-    transform: rotate(180deg);
 }
 
 .crop-production-phase-legend {
@@ -262,7 +230,7 @@
     align-self: start;
     min-width: 0;
     border: 1px solid var(--color-zinc-200, #e4e4e7);
-    border-radius: 0.875rem;
+    border-radius: var(--ui-card-radius);
     background: var(--ui-surface, #fff);
     padding: 0.875rem;
 }
@@ -341,7 +309,7 @@
     min-width: 0;
     height: auto;
     border: 1px solid var(--color-zinc-200, #e4e4e7);
-    border-radius: 0.875rem;
+    border-radius: var(--ui-card-radius);
     background: var(--ui-surface, #fff);
     padding: 0.75rem;
 }
@@ -686,6 +654,9 @@
 
 .crop-production-location-card {
     min-width: 0;
+    border: var(--farm-outline-width) solid var(--farm-outline-color);
+    border-radius: var(--ui-card-radius);
+    box-shadow: var(--elevation-flat);
 }
 
 .crop-production-location-card__header {
@@ -776,7 +747,7 @@
 .crop-production-location-table-panel {
     min-width: 0;
     border: 1px solid var(--color-zinc-200, #e4e4e7);
-    border-radius: 0.875rem;
+    border-radius: var(--ui-card-radius);
     background: #fff;
     padding: 0.625rem;
 }
@@ -902,20 +873,6 @@
     display: none;
 }
 
-.crop-production-location-map-panel:fullscreen {
-    box-sizing: border-box;
-    width: 100vw;
-    height: 100vh;
-    min-height: 100vh;
-    padding: 1rem;
-    border-radius: 0;
-    background: #fff;
-}
-
-.crop-production-location-map-panel:fullscreen .crop-production-location-map-wrap {
-    height: calc(100vh - 5rem);
-}
-
 .crop-production-location-charts {
     display: contents;
     min-width: 0;
@@ -958,7 +915,7 @@
 .crop-production-location-chart-wrap--scrollable {
     overflow-x: hidden;
     overflow-y: auto;
-    scrollbar-gutter: stable;
+    scrollbar-gutter: auto;
 }
 
 .crop-production-location-chart-wrap canvas {
@@ -1093,10 +1050,6 @@
         flex-direction: column;
     }
 
-    .crop-production-accordion__toggle {
-        width: 100%;
-    }
-
     .crop-production-card__controls {
         align-self: flex-start;
         justify-content: flex-start;
@@ -1161,6 +1114,228 @@
 
     .crop-production-location-chart-wrap {
         height: auto;
+    }
+}
+
+/* Year-over-year comparison table. Keep the grouped crop header visually
+   close to the production palette while allowing the complete year series to
+   scroll horizontally on smaller screens. */
+.crop-production-yoy-card {
+    min-width: 0;
+    margin-top: 1rem;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: var(--ui-card-radius, 0.875rem);
+    background: #fff;
+    padding: 0.75rem;
+}
+
+.crop-production-yoy-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.crop-production-yoy-card__title h3 {
+    margin: 0;
+    color: var(--color-zinc-900, #18181b);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.25rem;
+}
+
+.crop-production-yoy-card__title p {
+    margin: 0.25rem 0 0;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+}
+
+.crop-production-yoy-card__controls {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.crop-production-yoy-select-wrap {
+    display: block;
+    width: 9.25rem;
+}
+
+.crop-production-yoy-select-wrap--region,
+.crop-production-yoy-select-wrap--province {
+    width: 13rem;
+}
+
+.crop-production-yoy-select-wrap .ui-select {
+    width: 100%;
+    height: var(--control-height-compact);
+    min-height: var(--control-height-compact);
+    border-color: var(--ui-border-subtle, #e4e4e7);
+    border-radius: var(--ui-control-radius, 0.5rem) !important;
+    background: var(--ui-surface, #fff);
+    color: var(--ui-text, #27272a);
+    font-size: 0.6875rem;
+}
+
+.crop-production-yoy-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-zinc-200, #e4e4e7);
+    border-radius: var(--ui-card-radius);
+}
+
+.crop-production-yoy-table {
+    width: 100%;
+    min-width: 70rem;
+    border-collapse: collapse;
+    color: var(--color-zinc-600, #52525b);
+    font-size: 0.6875rem;
+    line-height: 1rem;
+}
+
+.crop-production-yoy-table th,
+.crop-production-yoy-table td {
+    padding: 0.35rem 0.45rem;
+    border-bottom: 1px solid var(--color-zinc-200, #e4e4e7);
+    white-space: nowrap;
+    text-align: right;
+}
+
+.crop-production-yoy-table thead th {
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.crop-production-yoy-table thead tr:first-child th:not(.crop-production-yoy-table__group) {
+    background: #fafafa;
+}
+
+.crop-production-yoy-table thead tr:nth-child(2) th {
+    background: #fafafa;
+}
+
+.crop-production-yoy-table thead th:first-child,
+.crop-production-yoy-table tbody th {
+    text-align: left;
+}
+
+.crop-production-yoy-table tbody th {
+    color: var(--color-zinc-800, #27272a);
+    font-weight: 700;
+}
+
+.crop-production-yoy-table tbody td,
+.crop-production-yoy-table tbody th {
+    font-variant-numeric: tabular-nums;
+}
+
+.crop-production-yoy-table tbody td:nth-child(n + 5) {
+    font-family: var(--font-family-data, "IBM Plex Mono", monospace);
+}
+
+.crop-production-yoy-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.crop-production-yoy-table tbody tr:hover {
+    background: #f0f9ff;
+}
+
+.crop-production-yoy-table__group {
+    color: #fff !important;
+    border-bottom-color: transparent !important;
+    font-size: 0.6875rem !important;
+    letter-spacing: 0.04em !important;
+    text-align: center !important;
+}
+
+.crop-production-yoy-table__group--palay {
+    background: #176b3a !important;
+}
+
+.crop-production-yoy-table__group--corn {
+    background: #f2a900 !important;
+}
+
+.crop-production-yoy-table__phase,
+.crop-production-yoy-table__strength {
+    font-weight: 600;
+}
+
+.crop-production-yoy-table__phase--warm,
+.crop-production-yoy-table__strength--warm {
+    color: #b45309;
+}
+
+.crop-production-yoy-table__phase--cold,
+.crop-production-yoy-table__strength--cold {
+    color: #2563eb;
+}
+
+.crop-production-yoy-table__phase--neutral,
+.crop-production-yoy-table__strength--neutral {
+    color: #71717a;
+}
+
+.crop-production-yoy-table__phase--unknown,
+.crop-production-yoy-table__strength--unknown {
+    color: #a1a1aa;
+}
+
+.crop-production-yoy-table__phase--transition,
+.crop-production-yoy-table__strength--transition {
+    color: #71717a;
+}
+
+.crop-production-yoy-table__comparison {
+    color: var(--color-zinc-500, #71717a);
+    font-family: var(--font-family-data, "IBM Plex Mono", monospace);
+}
+
+.crop-production-yoy-table__delta--increase {
+    color: #047857;
+    font-weight: 700;
+}
+
+.crop-production-yoy-table__delta--decrease {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.crop-production-yoy-table__delta--flat,
+.crop-production-yoy-table__delta--unavailable {
+    color: #71717a;
+}
+
+.crop-production-yoy-empty {
+    margin: 0.75rem 0 0;
+    color: var(--color-zinc-500, #71717a);
+    font-size: 0.6875rem;
+}
+
+@media (max-width: 760px) {
+    .crop-production-yoy-card__header {
+        flex-direction: column;
+    }
+
+    .crop-production-yoy-card__controls {
+        justify-content: flex-start;
+        width: 100%;
+    }
+
+    .crop-production-yoy-select-wrap,
+    .crop-production-yoy-select-wrap--region,
+    .crop-production-yoy-select-wrap--province {
+        flex: 1 1 11rem;
+        width: auto;
     }
 }
 
@@ -1289,4 +1464,12 @@
     .crop-production-location-map-wrap {
         min-height: 18rem;
     }
+}
+
+/* Keep the Data Studio module's outer card rhythm aligned with Dashboard and
+ * Analytics while leaving the denser internal KPI spacing unchanged. */
+body[data-platform-app="data-studio"] .crop-production-page,
+body[data-platform-app="data-studio"] .crop-production-main-grid,
+body[data-platform-app="data-studio"] .crop-production-location-grid {
+    gap: var(--ui-card-gap, var(--space-3, 0.75rem));
 }

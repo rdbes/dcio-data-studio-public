@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if program_areas %}Program Areas{% elif sra_drought %}Susceptible Rice Areas{% else %}Seed Distribution{% endif %} - RRDBES · Drought Monitor{% endblock %}
+
+{% block workspace_topbar_class %}platform-workspace-topbar--drought farm-workspace-topbar--filter-only{% endblock %}
+
+{% block workspace_header_actions %}
+{% endblock %}
+
+{% block breadcrumbs %}
+<span class="text-zinc-900 font-semibold">Drought Monitor · {% if program_areas %}Program Areas{% elif sra_drought %}Susceptible Rice Areas{% else %}Seed Distribution{% endif %}</span>
+{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/reports.css' %}?v=20260928-chart-level-select-v1">
+    <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+{% endblock %}
+
+{% block page_body_overflow_class %}overflow-y-auto lg:overflow-hidden{% endblock %}
+{% block page_body_spacing_class %}analytics-workspace-page-body map-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none lg:h-full{% endblock %}
+
+{% block content %}
+{% static 'geo/ph/provinces.geojson' as seed_provinces_url %}
+{% static 'geo/ph/regions.geojson' as seed_regions_url %}
+{% static 'geo/ph/municipalities.geojson' as seed_municipalities_url %}
+<section class="seed-distribution-page" data-seed-distribution-page {% if program_areas %}data-program-areas-page{% endif %} {% if sra_drought %}data-sra-drought-page{% endif %} aria-labelledby="seed-distribution-title">
+    <h1 id="seed-distribution-title" class="sr-only">{% if program_areas %}Program Areas{% elif sra_drought %}Susceptible Rice Areas to Drought{% else %}Distribution of Drought Resistant and Early Maturing Certified Rice Seeds{% endif %}</h1>
+    {% if sra_drought %}
+    <p class="seed-distribution-validation sr-only" data-sra-drought-validation>
+        Municipality-level susceptible rice areas classified as low, moderate, high, and non-SRA; province and region views are aggregated from these rows.
+    </p>
+    {% elif not program_areas %}
+    <p class="seed-distribution-validation sr-only" data-seed-distribution-validation>
+        E:Q allocations equal the drought/early-maturing total (D) in the source workbook.
+    </p>
+    {% endif %}
+
+    <div class="seed-distribution-workspace">
+        {% include 'partials/map_canvas.html' with seed_distribution_map=1 seed_distribution_map_url=seed_provinces_url seed_distribution_regions_url=seed_regions_url seed_distribution_municipalities_url=seed_municipalities_url map_aria_label="Philippines susceptible rice areas map" map_canvas_class="seed-distribution-map-card h-full min-h-0 lg:h-full" show_value_palette=1 show_copy_control=1 fallback_message="Boundary data could not load; the breakdown table and chart remain available." %}
+
+        <aside class="seed-distribution-analytics" aria-label="{% if program_areas %}Program areas{% elif sra_drought %}Susceptible rice areas{% else %}Seed distribution{% endif %} analytics">
+            {% if not program_areas and not sra_drought %}<article class="seed-distribution-card seed-distribution-pie-card">
+                <header class="seed-distribution-panel-header seed-distribution-pie-header dashboard-chart-header">
+                    <div>
+                        <h2>Distribution of Drought Resistant and Early Maturing Certified Rice Seeds</h2>
+                        <p data-seed-distribution-pie-caption>All regions</p>
+                    </div>
+                    <div class="seed-distribution-pie-controls" aria-label="Shared location filters">
+                        <label class="ui-select-wrap seed-distribution-pie-control">
+                            <span class="sr-only">Shared region filter</span>
+                            <select class="ui-control ui-select ui-select--compact" data-seed-distribution-pie-region aria-label="Shared region filter"></select>
+                            <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                        </label>
+                        <label class="ui-select-wrap seed-distribution-pie-control">
+                            <span class="sr-only">Shared province filter</span>
+                            <select class="ui-control ui-select ui-select--compact" data-seed-distribution-pie-province aria-label="Shared province filter"></select>
+                            <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                        </label>
+                    </div>
+                </header>
+                <div class="seed-distribution-pie-wrap">
+                    <canvas data-seed-distribution-pie-chart aria-label="Distribution of Drought Resistant and Early Maturing Certified Rice Seeds pie chart"></canvas>
+                </div>
+            </article>
+            {% endif %}
+
+            <article class="seed-distribution-card seed-distribution-chart-card">
+                <header class="seed-distribution-panel-header seed-distribution-chart-header dashboard-chart-header">
+                    <div>
+                        <h2>{% if program_areas %}<span data-program-chart-title>Vulnerable Area by Region — Rice and Corn</span>{% elif sra_drought %}<span data-sra-chart-title>Susceptible Rice Areas by Region</span>{% else %}Distribution of Drought Resistant and Early Maturing Certified Rice Seeds{% endif %}</h2>
+                    </div>
+                    <div class="seed-distribution-chart-header-controls">
+                        {% if program_areas %}
+                        <div class="seed-distribution-pie-controls" aria-label="Program area chart filters">
+                            <label class="ui-select-wrap seed-distribution-pie-control">
+                                <span class="sr-only">Crop</span>
+                                <select class="ui-control ui-select ui-select--compact" data-program-crop aria-label="Commodity"><option value="all" selected>All</option><option value="rice">Rice</option><option value="corn">Corn</option></select>
+                                <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                            </label>
+                            <label class="ui-select-wrap seed-distribution-pie-control">
+                                <span class="sr-only">Map and bar chart metric</span>
+                                <select class="ui-control ui-select ui-select--compact" data-seed-distribution-column aria-label="Map and bar chart metric"><option value="vulnerable">Vulnerable</option><option value="maximization">Maximization</option><option value="cannot_be_planted">Cannot Be Planted</option></select>
+                                <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                            </label>
+                        </div>
+                        {% elif sra_drought %}
+                        <label class="ui-select-wrap seed-distribution-pie-control">
+                            <span class="sr-only">Map metric</span>
+                            <select class="ui-control ui-select ui-select--compact" data-seed-distribution-column aria-label="Susceptible rice area map metric">
+                                <option value="total_sra" selected>Susceptible Areas</option>
+                                <option value="low">Low</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="high">High</option>
+                                <option value="none_sra">Non-SRA</option>
+                            </select>
+                            <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                        </label>
+                        {% endif %}
+                        <div class="ui-select-wrap seed-distribution-level-control dashboard-region-level-select-wrap">
+                            <label class="sr-only" for="seed-distribution-level">Bar chart boundary level</label>
+                            <select id="seed-distribution-level" class="ui-select ui-select--compact seed-distribution-level-select dashboard-region-level-select" data-seed-distribution-level aria-label="Bar chart boundary level">
+                                <option value="region" selected>Region</option>
+                                <option value="province">Province</option>
+                                {% if program_areas or sra_drought %}<option value="municipality">Municipality/City</option>{% endif %}
+                            </select>
+                            <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </header>
+                <div class="seed-distribution-chart-wrap">
+                    <div class="seed-distribution-chart-legend" data-seed-distribution-chart-legend aria-label="Seed type legend"></div>
+                    <p data-seed-distribution-map-caption class="sr-only">Showing {% if sra_drought %}Susceptible Areas · Hectares{% else %}drought/early maturing · Bags{% endif %}</p>
+                    <canvas id="seed-distribution-chart" data-seed-distribution-chart aria-label="{% if sra_drought %}Susceptible rice area bar chart{% else %}Seed type allocation bar chart{% endif %}"></canvas>
+                </div>
+            </article>
+
+            <article class="seed-distribution-card seed-distribution-table-card">
+                <header class="seed-distribution-panel-header seed-distribution-table-header dashboard-chart-header">
+                    <div>
+                        <h2>{% if program_areas %}Program Areas by Location (ha){% elif sra_drought %}Susceptible Rice Areas by Location (ha){% else %}Distribution of Drought Resistant and Early Maturing Certified Rice Seeds{% endif %}</h2>
+                    </div>
+                    <div class="ui-select-wrap seed-distribution-level-control dashboard-region-level-select-wrap">
+                        <label class="sr-only" for="seed-distribution-table-level">Table boundary level</label>
+                        <select id="seed-distribution-table-level" class="ui-select ui-select--compact seed-distribution-table-level-select dashboard-region-level-select" data-seed-distribution-table-level aria-label="Table boundary level">
+                            <option value="region" selected>Region</option>
+                                <option value="province">Province</option>
+                            {% if program_areas or sra_drought %}<option value="municipality">Municipality/City</option>{% endif %}
+                        </select>
+                        <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </div>
+                </header>
+                <div class="seed-distribution-table-wrap">
+                    <table class="seed-distribution-table{% if program_areas %} seed-distribution-table--program-areas{% elif sra_drought %} seed-distribution-table--sra-drought{% else %} seed-distribution-table--seed-release{% endif %}" data-seed-distribution-table>
+                        <caption class="sr-only">{% if program_areas %}Rice and Corn program areas by region, province, or municipality{% elif sra_drought %}Susceptible rice areas by region, province, or municipality{% else %}Province seed distribution by source column{% endif %}</caption>
+                        <thead data-seed-distribution-table-head></thead>
+                        <tbody data-seed-distribution-table-body></tbody>
+                    </table>
+                </div>
+            </article>
+        </aside>
+    </div>
+</section>
+
+{{ seed_distribution_data|json_script:"seed-distribution-data" }}
+<script defer src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+<script defer src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script defer src="{% static 'js/maps/map_appearance.js' %}?v=20260909-map-legend-glass-v3"></script>
+<script defer src="{% static 'js/maps/map_administrative_base.js' %}?v=20260925-national-extent-v1"></script>
+<script defer src="{% static 'js/maps/map_export.js' %}?v=20260810-canvas-export-v2"></script>
+<script defer src="{% static 'js/maps/map_legend_scale.js' %}?v=20260926-pretty-break-fallback-v2"></script>
+<script defer src="{% static 'js/maps/map_keyboard_navigation.js' %}?v=20260725a"></script>
+<script defer src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
+<script defer src="{% static 'js/map_browser_fullscreen.js' %}?v=20260924-map-studio-fullscreen-v1"></script>
+<script defer src="{% static 'js/seed_distribution.js' %}?v=20260926-sra-drought-v3-configurable-map-palette"></script>
+{% endblock %}

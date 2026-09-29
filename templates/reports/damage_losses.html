@@ -4,7 +4,7 @@
 {% load batch_tags %}
 {% load filter_tags %}
 
-{% block title %}Dashboard - DCIO Data Studio{% endblock %}
+{% block title %}Dashboard - RRDBES · Data Studio{% endblock %}
 
 {% block workspace_topbar_class %}farm-workspace-topbar--filter-only{% endblock %}
 
@@ -270,11 +270,11 @@
 
             <section class="grid min-h-0 flex-1 grid-cols-1 gap-3" aria-label="Selected scope distributions">
                 <div class="grid min-h-0 grid-cols-1 gap-3 xl:grid-cols-2">
-                    {% include 'partials/analytics_chart_card.html' with chart_key='dashboard-region' title_id='dashboard-region-chart-title' subtitle_id='dashboard-region-chart-subtitle' title='Value Loss by Region' subtitle='National · Selected period' chart_description='regional distribution chart' canvas_id='dashboardRegionBarChart' canvas_label='Regional value loss horizontal bar chart' article_id='dashboard-region-chart-card' card_class='dashboard-analysis-chart-card' body_class='dashboard-analysis-chart-card__body' canvas_class='dashboard-analysis-chart-card__canvas' empty_id='dashboard-region-chart-empty' volume_label='Volume' hide_metric_switcher=True only %}
+                    {% include 'partials/analytics_chart_card.html' with chart_key='dashboard-region' title_id='dashboard-region-chart-title' title='Value Loss by Region' subtitle_id='dashboard-region-chart-subtitle' subtitle='Year · National · All Hazards · All Commodities' chart_description='regional distribution chart' canvas_id='dashboardRegionBarChart' canvas_label='Regional value loss horizontal bar chart' article_id='dashboard-region-chart-card' card_class='dashboard-analysis-chart-card' body_class='dashboard-analysis-chart-card__body' canvas_class='dashboard-analysis-chart-card__canvas' empty_id='dashboard-region-chart-empty' volume_label='Volume' region_level_switcher=True region_chart_scroll=True hide_metric_switcher=True only %}
 
-                    {% include 'partials/analytics_chart_card.html' with chart_key='dashboard-commodity' title_id='dashboard-commodity-chart-title' title='Value Loss by Commodity' subtitle_id='dashboard-commodity-chart-subtitle' subtitle='National · Selected period' chart_description='commodity distribution chart' canvas_id='dashboardCommodityPieChart' canvas_label='Commodity value loss doughnut chart' article_id='dashboard-commodity-chart-card' card_class='dashboard-analysis-chart-card' body_class='dashboard-analysis-chart-card__body' canvas_class='dashboard-analysis-chart-card__canvas' empty_id='dashboard-commodity-chart-empty' volume_label='Volume' hide_metric_switcher=True only %}
+                    {% include 'partials/analytics_chart_card.html' with chart_key='dashboard-commodity' title_id='dashboard-commodity-chart-title' title='Value Loss by Commodity' subtitle_id='dashboard-commodity-chart-subtitle' subtitle='Year · National · All Hazards · All Commodities' chart_description='commodity distribution chart' canvas_id='dashboardCommodityPieChart' canvas_label='Commodity value loss doughnut chart' article_id='dashboard-commodity-chart-card' card_class='dashboard-analysis-chart-card' body_class='dashboard-analysis-chart-card__body' canvas_class='dashboard-analysis-chart-card__canvas' empty_id='dashboard-commodity-chart-empty' volume_label='Volume' hide_metric_switcher=True only %}
 
-                    {% include 'partials/analytics_chart_card.html' with chart_key='dashboard-hazard' title_id='dashboard-hazard-chart-title' title='Value Loss by Hazard' subtitle_id='dashboard-hazard-chart-subtitle' subtitle='National · Selected period' chart_description='hazard distribution chart' canvas_id='dashboardHazardPieChart' canvas_label='Hazard value loss doughnut chart' article_id='dashboard-hazard-chart-card' card_class='dashboard-analysis-chart-card' body_class='dashboard-analysis-chart-card__body' canvas_class='dashboard-analysis-chart-card__canvas' empty_id='dashboard-hazard-chart-empty' volume_label='Volume' hide_metric_switcher=True only %}
+                    {% include 'partials/analytics_chart_card.html' with chart_key='dashboard-hazard' title_id='dashboard-hazard-chart-title' title='Value Loss by Hazard' subtitle_id='dashboard-hazard-chart-subtitle' subtitle='Year · National · All Hazards · All Commodities' chart_description='hazard distribution chart' canvas_id='dashboardHazardPieChart' canvas_label='Hazard value loss doughnut chart' article_id='dashboard-hazard-chart-card' card_class='dashboard-analysis-chart-card' body_class='dashboard-analysis-chart-card__body' canvas_class='dashboard-analysis-chart-card__canvas' empty_id='dashboard-hazard-chart-empty' volume_label='Volume' hide_metric_switcher=True only %}
                 </div>
             </section>
 
@@ -298,9 +298,9 @@
 <script src="{% static 'js/analytics_filters.js' %}?v=20260825-outside-dismiss-v4"></script>
 <script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
 <script src="{% static 'js/map_coordinate_grid.js' %}?v=20260810-grid-behind-map-v2"></script>
-<script src="{% static 'js/map_browser_fullscreen.js' %}?v=20260825-map-control-popovers-v1" defer></script>
+<script src="{% static 'js/map_browser_fullscreen.js' %}?v=20260924-map-studio-fullscreen-v1" defer></script>
 <script src="{% static 'vendor/chartjs/chart.umd.js' %}" defer></script>
-<script src="{% static 'js/analytics/chart_presets.js' %}?v=20260920-flat-axis-bars-v1" defer></script>
+<script src="{% static 'js/analytics/chart_presets.js' %}?v=20260927-donut-legend-gap-v2" defer></script>
 <script src="{% static 'js/maps/map_appearance.js' %}?v=20260909-map-legend-glass-v3" defer></script>
 <script src="{% static 'js/maps/map_administrative_base.js' %}?v=20260810-ash-boundary-v1" defer></script>
 <script src="{% static 'js/maps/map_legend_scale.js' %}?v=20260803-low-bound-v1" defer></script>
@@ -308,6 +308,6 @@
 <script src="{% static 'js/maps/map_export.js' %}?v=20260810-canvas-export-v2" defer></script>
 <script src="{% static 'js/maps/map_keyboard_navigation.js' %}?v=20260725a" defer></script>
 <script src="{% static 'js/maps/tropical_cyclone_utils.js' %}?v=20260921-shared-v1" defer></script>
-<script src="{% static 'js/maps/map_dashboard.js' %}?v=20260915-subgroup-scope-v1" defer></script>
-<script src="{% static 'js/maps/dashboard_analysis_panel.js' %}?v=20260916-subgroup-year-completeness-v1" defer></script>
+<script src="{% static 'js/maps/map_dashboard.js' %}?v=20260927-tc-control-stack-v3" defer></script>
+<script src="{% static 'js/maps/dashboard_analysis_panel.js' %}?v=20260928-region-province-chart-level-v1" defer></script>
 {% endblock %}

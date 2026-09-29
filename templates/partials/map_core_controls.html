@@ -1,0 +1,24 @@
+<div data-map-core-controls class="{{ wrapper_class|default:'absolute left-2.5 top-2.5 z-[1000] flex flex-col items-start gap-1' }}" role="group" aria-label="{{ controls_aria_label|default:'Map controls' }}">
+    <div data-map-primary-controls class="flex flex-col gap-1">
+        <button id="map-fullscreen" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700" aria-label="Expand map to browser window" aria-pressed="false" title="Expand map to browser window">
+            <i data-map-fullscreen-icon class="fa-solid fa-expand text-xs" aria-hidden="true"></i>
+        </button>
+        <button id="map-reset-view" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700" aria-label="{{ reset_aria_label|default:'Reset map extent' }}" title="{{ reset_title|default:'Reset map extent' }}">
+            <i data-map-reset-icon class="fa-solid fa-location-crosshairs text-xs" aria-hidden="true"></i>
+        </button>
+        <div data-map-zoom-controls class="add-map-zoom-controls" role="group" aria-label="Map zoom controls">
+            <button id="map-zoom-in" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700" aria-label="Zoom in" title="Zoom in"><i data-map-zoom-in-icon class="fa-solid fa-plus text-xs" aria-hidden="true"></i></button>
+            <button id="map-zoom-out" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700" aria-label="Zoom out" title="Zoom out"><i data-map-zoom-out-icon class="fa-solid fa-minus text-xs" aria-hidden="true"></i></button>
+        </div>
+    </div>
+</div>
+{% if show_copy_control %}
+<div data-map-export-controls data-map-export-controls-lower class="absolute right-2.5 top-2.5 z-[1000] flex flex-col items-end gap-1">
+    <button id="map-copy-image" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs text-zinc-500 backdrop-blur-sm hover:bg-white" aria-label="Copy visible map as image" title="Copy visible map as image"><i class="fa-regular fa-copy text-xs" aria-hidden="true"></i></button>
+    <div data-map-resize-control class="relative shrink-0">
+        <button id="map-resize" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs text-zinc-500 backdrop-blur-sm hover:bg-white" aria-label="Resize map canvas" aria-controls="map-resize-menu" aria-expanded="false" aria-pressed="false" title="Resize map canvas"><i data-map-resize-icon class="fa-solid fa-up-right-and-down-left-from-center text-xs" aria-hidden="true"></i></button>
+        {% include 'partials/map_resize_menu.html' %}
+    </div>
+    <button id="map-download-image" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs text-zinc-500 backdrop-blur-sm hover:bg-white" aria-label="Download visible map as PNG" title="Download visible map as PNG"><i data-map-download-icon class="fa-solid fa-download text-xs" aria-hidden="true"></i></button>
+</div>
+{% endif %}

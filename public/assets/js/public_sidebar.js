@@ -4,7 +4,9 @@
   let lastToggle = null;
   let wasDesktop = desktop();
   const stored = () => {
-    try { return localStorage.getItem("dcio.sidebarOpen") !== "false"; }
+    try {
+      return localStorage.getItem("rrdbes.sidebarOpen") !== "false";
+    }
     catch { return true; }
   };
   function setOpen(open, persist = false, restoreFocus = false) {
@@ -15,6 +17,10 @@
       // responsive transition and make the closed mobile drawer collapse.
       sidebar.setAttribute("aria-hidden", String(!open));
       sidebar.inert = !open;
+      // Keep the attribute itself in sync as well. This is more reliable
+      // across browsers and prevents an opened drawer from remaining inert.
+      if (open) sidebar.removeAttribute("inert");
+      else sidebar.setAttribute("inert", "");
     }
     const mainPanel = document.querySelector("[data-main-panel]");
     if (mainPanel) mainPanel.inert = Boolean(sidebar && open && !desktop());
@@ -32,7 +38,7 @@
       icon.hidden = (icon.dataset.sidebarIcon === "collapse") !== open;
     });
     if (persist && desktop()) {
-      try { localStorage.setItem("dcio.sidebarOpen", String(open)); } catch {}
+      try { localStorage.setItem("rrdbes.sidebarOpen", String(open)); } catch {}
     }
     if (restoreFocus) {
       const target = open && !desktop()
@@ -42,7 +48,7 @@
         window.requestAnimationFrame(() => target.focus());
       }
     }
-    window.dispatchEvent(new Event("dcio:sidebar-changed"));
+    window.dispatchEvent(new Event("rrdbes:sidebar-changed"));
   }
   document.addEventListener("click", event => {
     const toggle = event.target.closest("[data-sidebar-toggle]");

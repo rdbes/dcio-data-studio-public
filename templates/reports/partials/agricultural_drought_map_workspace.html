@@ -1,0 +1,155 @@
+<div data-map-workspace{% if selected_product == 'svtr' %} data-svtr-workspace{% endif %} class="ui-workspace-grid grid min-h-0 grid-cols-1 gap-3 lg:flex-1{% if selected_product == 'svtr' %} lg:grid-cols-1{% else %} lg:grid-cols-[minmax(22rem,0.85fr)_minmax(0,1.15fr)]{% endif %}">
+        {% if not selected_release %}
+            {% include 'partials/map_canvas.html' with show_value_palette=0 show_copy_control=1 show_metric_switcher=0 show_boundary_switcher=1 drought_layers=1 show_region_boundary=1 show_drought_mask_option=mask_available show_pagasa_overlay_option=pagasa_overlay_option_available show_pagasa_condition_option=pagasa_condition_option_available show_drought_product_switcher=1 map_aria_label="Blank Philippine Province boundary map" fallback_message="Philippine administrative boundaries could not load. Check the locally served map asset." %}
+        {% elif selected_product == 'svtr' %}
+        <section data-map-canvas-card data-drought-map="true" class="ui-main-card relative h-[32rem] min-w-0 overflow-hidden rounded-md border border-zinc-200/80 bg-white text-left shadow-xs lg:h-full lg:min-h-0" aria-label="{{ selected_product_label }} map workspace">
+            <div class="flex h-full min-h-0 flex-col">
+                <header class="drought-map-toolbar relative z-[1100] flex shrink-0 flex-col gap-2 border-b border-zinc-100 bg-white px-3 py-2">
+                    <div class="flex w-full min-w-0 items-start justify-between gap-3">
+                        <div class="drought-svtr-heading min-w-0 shrink-0">
+                            <span class="drought-boundary-panel__eyebrow drought-boundary-panel__eyebrow--inline">DA-BSWM Drought and Crop Assessment and Forecasting</span>
+                            <h2 class="truncate text-sm font-bold text-zinc-900">{{ selected_product_label }}</h2>
+                        </div>
+                        <div data-svtr-toolbar-controls class="relative shrink-0" role="group" aria-label="Monthly Agricultural Drought map controls">
+                            <div data-map-control-group="view" class="flex flex-col items-end gap-1" role="group" aria-label="Drought map view and layers">
+                                {% include 'partials/drought_product_switcher.html' %}
+                                {% include 'partials/map_boundary_switcher.html' with drought_layers=1 show_region_boundary=1 show_drought_mask_option=mask_available show_pagasa_overlay_option=pagasa_overlay_option_available show_pagasa_condition_option=pagasa_condition_option_available %}
+                            </div>
+                            {% include 'partials/map_core_controls.html' with grouped=1 wrapper_class="contents" show_copy_control=1 controls_aria_label="Agricultural Drought map controls" reset_aria_label="Reset drought map extent" reset_title="Reset drought map extent" %}
+                        </div>
+                    </div>
+                </header>
+
+                <div data-svtr-legend-stack class="drought-svtr-legend-stack" aria-label="Map legends">
+                    <div data-svtr-shared-legend data-map-legend-product="{{ selected_product }}" class="drought-svtr-legend" role="img" aria-label="{{ selected_product_label }} legend">
+                        <span class="drought-svtr-legend__title">Forecast</span>
+                        {% for item in legend %}
+                            <span class="drought-svtr-legend__item" title="{{ item.label }}{% if item.rule %}: {{ item.rule }}{% endif %}">
+                                <span class="drought-svtr-legend__swatch" style="--drought-legend-color: {{ item.color }}" aria-hidden="true"></span>
+                                <span>{{ item.label }}</span>
+                            </span>
+                        {% endfor %}
+                    </div>
+                    {% if pagasa_overlay_option_available %}
+                    <div data-svtr-pagasa-legend class="drought-svtr-legend" role="img" aria-label="Percent normal rainfall legend" hidden>
+                        <span class="drought-svtr-legend__title">Percent normal</span>
+                        {% for item in pagasa_overlay_legend %}
+                            <span class="drought-svtr-legend__item" title="{{ item.label }}: {{ item.rule }}">
+                                <span class="drought-svtr-legend__swatch" style="--drought-legend-color: {{ item.color }}" aria-hidden="true"></span>
+                                <span>{{ item.label }}</span>
+                            </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if pagasa_condition_option_available %}
+                    <div data-svtr-condition-legend class="drought-svtr-legend" role="img" aria-label="Monthly meteorological drought legend" hidden>
+                        <span class="drought-svtr-legend__title">Meteorological drought</span>
+                        {% for item in pagasa_condition_legend %}
+                            <span class="drought-svtr-legend__item" title="{{ item.label }}">
+                                <span class="drought-svtr-legend__swatch" style="--drought-legend-color: {{ item.color }}" aria-hidden="true"></span>
+                                <span>{{ item.label }}</span>
+                            </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div data-svtr-map-frame class="relative flex min-h-0 flex-1">
+
+                    <div data-svtr-scroll-region class="drought-svtr-grid-shell min-h-0 flex-1 overflow-y-auto" role="region" aria-label="Six-month SVTR maps" tabindex="0">
+                                <div class="drought-svtr-grid" data-svtr-map-grid>
+                                {% for month in map_config.months %}
+                                    <article class="drought-map-card {% if month.field == map_config.active_month %}is-active{% endif %}" data-drought-map-card data-month-index="{{ forloop.counter0 }}" data-month-field="{{ month.field }}">
+                                        <div class="drought-map-surface">
+                                            <div id="drought-map-{{ forloop.counter0 }}" class="drought-map h-full w-full min-h-0 overflow-hidden bg-sky-50" data-map-root role="application" aria-label="{{ month.label }} SVTR map"></div>
+                                            <div data-drought-coordinate-labels class="add-map-coordinate-labels" aria-hidden="true"></div>
+                                            <button type="button" class="drought-map-period" data-activate-month data-svtr-month-label aria-label="Use {{ month.label }} as the active export map" aria-pressed="{% if month.field == map_config.active_month %}true{% else %}false{% endif %}">
+                                                <span class="drought-map-period__label">{{ month.label }}</span>
+                                            </button>
+                                            <div class="drought-north-arrow" data-map-north-arrow role="img" aria-label="North arrow"><span>N</span><svg class="h-7 w-6" viewBox="0 0 64 76" fill="none" aria-hidden="true"><circle cx="32" cy="43" r="23" stroke="#ffffff" stroke-width="3"></circle><path d="M32 5 53 68 32 53 11 68 32 5Z" fill="currentColor" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"></path><path d="M32 5V53L11 68 32 5Z" fill="#ffffff"></path></svg></div>
+                                            <div data-drought-scale-host class="add-map-scale-host drought-map-scale-host" aria-label="Metric map scale">
+                                                <span class="add-map-crs-label" aria-label="Coordinate reference system: EPSG:3857, WGS 84">EPSG:3857 · WGS 84</span>
+                                            </div>
+                                        </div>
+                                    </article>
+                                {% endfor %}
+                            </div>
+                    </div>
+                    </div>
+            </div>
+            <div id="map-fallback" class="absolute bottom-4 left-1/2 z-[550] hidden -translate-x-1/2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-600 shadow-sm">
+                Philippine administrative boundaries could not load. Check the locally served map asset.
+            </div>
+        </section>
+        {% else %}
+            <div data-drought-release-map class="flex min-h-0 flex-col gap-3">
+                {% include 'partials/map_canvas.html' with show_value_palette=0 show_copy_control=1 show_metric_switcher=0 show_boundary_switcher=1 drought_layers=1 show_region_boundary=1 show_drought_mask_option=mask_available show_pagasa_overlay_option=pagasa_overlay_option_available show_pagasa_condition_option=pagasa_condition_option_available show_drought_product_switcher=1 show_outlook_shapefile_download=outlook_shapefile_download_available outlook_shapefile_download_url=outlook_shapefile_download_url map_canvas_class="min-h-0 lg:flex-1" map_aria_label=selected_product_label fallback_message="Philippine administrative boundaries could not load. Check the locally served map asset." %}
+
+            </div>
+        {% endif %}
+
+        {% if not selected_release %}
+            <aside data-drought-empty-release aria-label="Agricultural Drought detail panel" class="flex h-[32rem] min-h-0 flex-col justify-center overflow-hidden rounded-md border border-zinc-200/80 bg-white text-left shadow-xs lg:h-auto">
+                {% include 'partials/empty_state.html' with compact=True icon="fa-solid fa-cloud-sun-rain" title="No published drought release" description="A validated Agricultural Drought release will appear here after a Data Manager publishes it." %}
+            </aside>
+        {% elif selected_product != 'svtr' %}
+            <aside data-drought-affected-panel aria-label="Agricultural Drought detail panel" class="flex h-[32rem] min-h-0 flex-col overflow-hidden rounded-md border border-zinc-200/80 bg-white text-left shadow-xs lg:h-auto">
+                <header class="shrink-0 border-b border-zinc-100 px-4 py-3">
+                    <div class="min-w-0">
+                        <div class="drought-boundary-panel__eyebrow">DA-BSWM Drought and Crop Assessment and Forecasting</div>
+                        <div class="drought-boundary-panel__title-row">
+                            <h2 data-drought-product-heading class="min-w-0 flex-1 text-sm font-bold leading-5 text-zinc-900">{{ selected_product_label }}{% if selected_period_label %} · {{ selected_period_label }}{% endif %}</h2>
+                            {% if selected_release and not public_static_export %}
+                                <button
+                                    type="button"
+                                    data-drought-report-open
+                                    data-drought-report-url="{% url 'agri_drought:agricultural_drought_report_preview' selected_release.pk %}"
+                                    data-drought-report-pdf-url="{% url 'agri_drought:agricultural_drought_report_pdf' selected_release.pk %}"
+                                    data-drought-report-excel-url="{% url 'agri_drought:agricultural_drought_report_excel' selected_release.pk %}"
+                                    class="ui-icon-button dashboard-chart-icon-button"
+                                    aria-label="Preview tabular drought report"
+                                    title="Preview tabular drought report"
+                                >
+                                    <i class="fa-solid fa-file-export text-xs" aria-hidden="true"></i>
+                                </button>
+                                <button
+                                    type="button"
+                                    data-drought-map-report-open
+                                    class="ui-icon-button dashboard-chart-icon-button"
+                                    aria-label="Preview map export"
+                                    title="Preview map export"
+                                >
+                                    <i class="fa-solid fa-map text-xs" aria-hidden="true"></i>
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="drought-affected-controls">
+                        <label class="drought-affected-search">
+                            <span class="sr-only">Search drought areas</span>
+                            <input data-affected-area-search type="search" class="h-8 w-full rounded-md border border-zinc-200 bg-white px-3 text-xs text-zinc-800 outline-none placeholder:text-zinc-400 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-300" placeholder="Search areas">
+                        </label>
+                        <label class="drought-affected-filter" title="Show affected areas only">
+                            <input data-affected-only-toggle type="checkbox" class="drought-affected-filter__input" aria-label="Show affected areas only" checked>
+                            <span data-drought-affected-filter-label class="drought-affected-filter__label">Affected</span>
+                            <i data-drought-toggle-icon class="drought-toggle-icon fa-solid fa-toggle-on" aria-hidden="true"></i>
+                        </label>
+                        <div data-affected-accordion-actions class="drought-affected-accordion-actions" aria-label="Area accordion controls">
+                            <button data-affected-expand-all type="button" class="drought-affected-accordion-action inline-flex h-7 w-7 items-center justify-center rounded-md text-xs focus-visible:outline-2 focus-visible:outline-offset-1" aria-label="Expand all areas" title="Expand all areas">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                                <span class="sr-only">Expand all areas</span>
+                            </button>
+                            <button data-affected-collapse-all type="button" class="drought-affected-accordion-action inline-flex h-7 w-7 items-center justify-center rounded-md text-xs focus-visible:outline-2 focus-visible:outline-offset-1" aria-label="Collapse all areas" title="Collapse all areas">
+                                <i class="fa-solid fa-minus" aria-hidden="true"></i>
+                                <span class="sr-only">Collapse all areas</span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+                <div data-affected-area-list class="min-h-0 flex-1 overflow-y-auto px-4 py-2" role="list" aria-live="polite"></div>
+                <footer class="drought-affected-panel__footer shrink-0 border-t border-zinc-100 px-4 py-2">
+                    <span data-drought-threshold-note>An area is considered Affected if more than 50% of its agricultural land is experiencing drought conditions.</span> · Resolution: ~5.5 × 5.5 km per pixel · ~3,000 ha.
+                </footer>
+            </aside>
+        {% endif %}
+    </div>

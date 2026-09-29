@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import calendar
 
-from django.core.paginator import Paginator
 from django.db.models import Sum
 from django.db.models.functions import ExtractYear
 from django.shortcuts import render
@@ -39,7 +38,6 @@ from reports.analytics import (
     zero,
 )
 from reports.dashboard import (
-    ANNUAL_SUMMARY_PAGE_SIZE,
     COMPARISON_WINDOW_OPTIONS,
     FARMERS_AVERAGE_START_YEAR,
     KPI_COMPARISON_WINDOW,
@@ -336,22 +334,6 @@ def analytics(request):
         for intervals in windows.values()
     )
 
-    annual_summary_paginator = Paginator(
-        annual_summary_rows,
-        ANNUAL_SUMMARY_PAGE_SIZE,
-    )
-    annual_summary_page = annual_summary_paginator.get_page(request.GET.get("page"))
-
-    annual_summary_empty_rows = range(
-        max(
-            0,
-            annual_summary_page.paginator.per_page
-            - len(annual_summary_page.object_list),
-        )
-    )
-    annual_summary_query_params = request.GET.copy()
-    annual_summary_query_params.pop("page", None)
-
     # Top 10 incidents by value loss
     top_incidents_qs = (
         filtered_reports.exclude(incident_key__isnull=True)
@@ -485,13 +467,25 @@ def analytics(request):
         kpi_cards.append(card)
 
     filter_context = _build_filter_context(annual_filters, available_years)
-    filter_context["time_label"] = annual_filters["period_label"] + (" (year-to-date)" if current_year in windows else "")
+    # Chart subtitles should expose the selected calendar year(s) directly.
+    # Provisional/current-year status belongs in the data-quality notes, not
+    # in the compact period label shown beside every chart.
+    filter_context["time_label"] = annual_filters["period_label"]
     filter_context.update(
         {
             "comparison_enabled": comparison["enabled"],
             "comparison_label": comparison["label"],
             "comparison_window": comparison["window"],
         }
+    )
+    scope_summary_parts = (
+        filter_context["location_label"],
+        filter_context["hazard_label"],
+        filter_context["commodity_label"],
+    )
+    filter_context["scope_summary"] = " • ".join(scope_summary_parts)
+    filter_context["historical_scope_summary"] = " • ".join(
+        ("All available years", *scope_summary_parts)
     )
 
     period_clear_url = _url_with_query(
@@ -629,11 +623,12 @@ def analytics(request):
             "comparison_averages": comparison_averages,
             "annual_five_year_periods": annual_five_year_periods,
             "comparison_window_cards": comparison_window_cards,
-            "annual_summary_page": annual_summary_page,
-            "annual_summary_empty_rows": annual_summary_empty_rows,
-            "annual_summary_querystring": annual_summary_query_params.urlencode(),
             "top_incidents": top_incidents,
+            "top_incidents_subtitle": " • ".join(
+                (filter_context["time_label"], filter_context["scope_summary"])
+            ),
             "breakdown_tables": breakdown_tables,
+            "breakdown_tables_subtitle": filter_context["historical_scope_summary"],
             "breakdown_metric_options": breakdown_metric_options,
             "active_filter_chips": active_filter_chips,
             "map_navigation_url": _preserved_url(

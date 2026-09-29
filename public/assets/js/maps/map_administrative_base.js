@@ -117,6 +117,22 @@
         );
     }
 
+    // Keep every national map reset aligned with the Dashboard. The visible
+    // extent comes from the loaded administrative geometry, not a fixed
+    // center/zoom pair, so it also remains correct as the map canvas resizes.
+    function fitNationalExtent(map, bounds, options = {}) {
+        if (!map || !bounds?.isValid?.()) return null;
+
+        const nationalBounds = clippedNationalBounds(bounds);
+        if (!nationalBounds?.isValid?.()) return null;
+
+        map.fitBounds(nationalBounds, {
+            padding: options.padding || [8, 8],
+            animate: options.animate !== false
+        });
+        return nationalBounds;
+    }
+
     function loadMunicipalityLayer(options) {
         return window.fetch(options.url, {
             credentials: "same-origin"
@@ -154,6 +170,7 @@
         createLandmassLayer: createLandmassLayer,
         loadLandmassLayer: loadLandmassLayer,
         clippedNationalBounds: clippedNationalBounds,
+        fitNationalExtent: fitNationalExtent,
         loadMunicipalityLayer: loadMunicipalityLayer
     });
 }());

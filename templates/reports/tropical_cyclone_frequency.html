@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Tropical Cyclone Frequency - DCIO Data Studio{% endblock %}
+{% block title %}Tropical Cyclone Frequency - RRDBES · Hazard Studio{% endblock %}
 
 {% block breadcrumbs %}
 <span>Tropical Cyclone</span>
@@ -11,7 +11,7 @@
 
 {% block extra_head %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-frequency.css' %}?v=20260920-frequency-responsive-v1">
+    <link rel="stylesheet" href="{% static 'css/tropical-cyclone-frequency.css' %}?v=20260927-card-gaps-v1">
 {% endblock %}
 
 {% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
@@ -31,17 +31,19 @@
                         {% endif %}
                     </div>
                     {% if key == 'annual' %}
-                        <button
-                            type="button"
-                            class="tc-frequency-switch"
-                            role="switch"
-                            aria-checked="false"
-                            aria-label="With Damage Reports"
-                            data-tc-frequency-toggle
-                        >
-                            <i data-tc-frequency-toggle-icon class="fa-solid fa-toggle-off tc-frequency-switch__icon" aria-hidden="true"></i>
+                        <div class="tc-frequency-switch-control">
                             <span>With Damage Reports</span>
-                        </button>
+                            <button
+                                type="button"
+                                class="tc-frequency-switch"
+                                role="switch"
+                                aria-checked="false"
+                                aria-label="With Damage Reports"
+                                data-tc-frequency-toggle
+                            >
+                                <span class="tc-frequency-switch__thumb" aria-hidden="true"></span>
+                            </button>
+                        </div>
                     {% endif %}
                 </div>
                 <div class="tc-frequency-chart-wrap">

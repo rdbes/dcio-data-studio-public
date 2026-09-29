@@ -8,6 +8,14 @@
         }
     });
 
+    document.addEventListener("click", (event) => {
+        const target = event.target instanceof Element ? event.target : null;
+        if (target?.closest(".platform-app-switcher")) return;
+        document.querySelectorAll(".platform-app-switcher[open]").forEach((switcher) => {
+            switcher.removeAttribute("open");
+        });
+    });
+
     function setRegionExpanded(region, expanded) {
         region.querySelectorAll("[data-region-detail]").forEach((detail) => {
             detail.hidden = !expanded;

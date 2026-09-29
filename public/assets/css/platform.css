@@ -1,0 +1,655 @@
+/* Shared platform shell. Domain modules retain their existing component styles. */
+:root {
+    --platform-theme: #0f7196;
+    --platform-theme-soft: #e8f6fa;
+}
+
+body[data-platform-app="drought-monitor"] {
+    --platform-theme: #f67714;
+    --platform-theme-soft: #fff0d6;
+    --platform-topbar-ink: #171715;
+    /* Turn the shared artwork into a high-contrast monochrome contour layer;
+       the topbar's orange surface supplies the theme color underneath it. */
+    --platform-topbar-filter: grayscale(1) contrast(3) brightness(1.55);
+    --color-primary: #f67714;
+    --color-primary-hover: #d45f0d;
+    --color-primary-active: #a84608;
+    --color-primary-subtle: #ffe3bd;
+    --color-brand: #f67714;
+    --color-brand-hover: #d45f0d;
+    --color-brand-active: #a84608;
+    --color-on-primary: #171715;
+    --color-focus: #a84608;
+    --color-focus-ring: rgb(168 70 8 / 28%);
+    --ui-action: #f67714;
+    --ui-action-hover: #d45f0d;
+    --ui-action-text: #171715;
+    --ui-focus: #a84608;
+    --ui-focus-ring: rgb(168 70 8 / 28%);
+}
+
+body[data-platform-app="map-studio"] {
+    --platform-theme: #006633;
+    --platform-theme-soft: #e8f3ec;
+    --platform-topbar-filter: hue-rotate(-58deg) saturate(.9) brightness(1.1);
+}
+
+body[data-platform-app="crop-studio"] {
+    --platform-theme: #fade5a;
+    --platform-theme-soft: #fff7d6;
+    --platform-topbar-filter: grayscale(1) contrast(3) brightness(1.55);
+    --color-primary: #fade5a;
+    --color-primary-hover: #d7b632;
+    --color-primary-active: #ad8d16;
+    --color-primary-subtle: #fff4bd;
+    --color-brand: #fade5a;
+    --color-brand-hover: #d7b632;
+    --color-brand-active: #ad8d16;
+    --color-on-primary: #171715;
+    --color-focus: #ad8d16;
+    --color-focus-ring: rgb(173 141 22 / 28%);
+    --ui-action: #fade5a;
+    --ui-action-hover: #d7b632;
+    --ui-action-text: #171715;
+    --ui-focus: #ad8d16;
+    --ui-focus-ring: rgb(173 141 22 / 28%);
+}
+
+body[data-platform-app="hazard-studio"] {
+    --platform-theme: #be0b25;
+    --platform-theme-soft: #fff0e6;
+    --platform-topbar-filter: grayscale(1) contrast(3) brightness(1.55);
+    --color-primary: #be0b25;
+    --color-primary-hover: #9a091d;
+    --color-primary-active: #760715;
+    --color-primary-subtle: #fde0d8;
+    --color-brand: #be0b25;
+    --color-brand-hover: #9a091d;
+    --color-brand-active: #760715;
+    --color-on-primary: #fff7ed;
+    --color-focus: #be0b25;
+    --color-focus-ring: rgb(190 11 37 / 24%);
+    --ui-action: #be0b25;
+    --ui-action-hover: #9a091d;
+    --ui-action-text: #fff7ed;
+    --ui-focus: #be0b25;
+    --ui-focus-ring: rgb(190 11 37 / 24%);
+}
+
+/* The consolidated Tailwind build does not emit this arbitrary grid utility
+   from the standalone drought workspace. Keep its two-panel map layout at the
+   same desktop breakpoint without changing the shared utility bundle. */
+@media (min-width: 64rem) {
+    [data-platform-app="drought-monitor"] [data-map-workspace]:not([data-svtr-workspace]) {
+        grid-template-columns: minmax(22rem, 0.8fr) minmax(0, 1.2fr);
+    }
+}
+
+/* The shared map partial uses this region as a resize hook; keeping it
+   layout-transparent preserves the map card's grid stretch for every module. */
+[data-map-canvas-scroll-region] {
+    display: contents;
+}
+
+/* The standalone drought workspace places map export actions in a right-side
+   rail, below the map layer switcher. The consolidated shell retains the
+   same controls but its older utility bundle does not emit these rules. */
+body[data-platform-app="drought-monitor"] [data-map-export-controls] {
+    left: auto !important;
+    right: 0.625rem !important;
+    top: 0.625rem;
+}
+
+body[data-platform-app="drought-monitor"] [data-map-export-controls][data-map-export-controls-lower] {
+    top: 2.625rem;
+}
+
+body[data-platform-app="drought-monitor"] [data-map-export-controls] .map-resize-menu {
+    left: auto;
+    right: calc(100% + 0.5rem);
+}
+
+/* Drought Monitor keeps the shared shell geometry, but carries its orange
+   application identity through the topbar and navigation icons. */
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought {
+    --platform-topbar-color: #f67714;
+    background-color: var(--platform-topbar-color);
+    color: var(--platform-topbar-ink);
+}
+
+body[data-platform-app="drought-monitor"]
+    [data-workspace-topbar].platform-workspace-topbar--drought::before {
+    /* Use the shared top-nav artwork; only the theme color varies. */
+    background-image: url("../img/patterns/top-nav-bg.svg?v=20260923-shared-topbar-art-v2");
+    filter: var(--platform-topbar-filter);
+    /* Screen blending keeps the dark image field transparent to the orange
+       surface while the high-value contour pixels render white. */
+    mix-blend-mode: screen;
+    opacity: 1;
+}
+
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-sidebar-toggle],
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-workspace-nav],
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-workspace-nav] * {
+    color: var(--platform-topbar-ink) !important;
+}
+
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-sidebar-toggle]:hover,
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-sidebar-toggle]:focus-visible {
+    background-color: rgb(255 255 255 / 26%);
+    color: var(--platform-topbar-ink) !important;
+}
+
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought .filter-card-pill,
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-analytics-filter-summary] > div:nth-child(2) > span.inline-flex,
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-analytics-filter-summary] > div:nth-child(2) > a.inline-flex {
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-color: rgb(255 255 255 / 80%) !important;
+    background: rgb(255 255 255 / 20%) !important;
+    color: #171715 !important;
+}
+
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought .filter-card-pill:hover,
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought .filter-card-pill:focus-visible,
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-analytics-filter-summary] > div:nth-child(2) > span.inline-flex:hover,
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-analytics-filter-summary] > div:nth-child(2) > span.inline-flex:focus-visible,
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-analytics-filter-summary] > div:nth-child(2) > a.inline-flex:hover,
+body[data-platform-app="drought-monitor"] [data-workspace-topbar].platform-workspace-topbar--drought [data-analytics-filter-summary] > div:nth-child(2) > a.inline-flex:focus-visible {
+    background: rgb(255 255 255 / 32%) !important;
+    color: #171715 !important;
+}
+
+body[data-platform-app="drought-monitor"] [data-sidebar-shell] nav[aria-label="Primary modules"] .sidebar-nav-icon {
+    color: #f67714 !important;
+}
+
+body[data-platform-app="drought-monitor"] [data-sidebar-shell] nav[aria-label="Primary modules"] .sidebar-nav-icon--orange {
+    color: #f67714 !important;
+}
+
+body[data-platform-app="drought-monitor"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a[aria-current="page"] .sidebar-nav-icon,
+body[data-platform-app="drought-monitor"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a:hover .sidebar-nav-icon,
+body[data-platform-app="drought-monitor"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a:focus-visible .sidebar-nav-icon {
+    color: #f67714 !important;
+}
+
+body[data-platform-app="drought-monitor"] .ui-icon-button:hover,
+body[data-platform-app="drought-monitor"] .ui-icon-button:focus-visible {
+    background: #fff0d6;
+    color: #a84608;
+}
+
+body[data-platform-app="drought-monitor"] .ui-button--primary,
+body[data-platform-app="drought-monitor"] .filter-card-apply.ui-button--primary {
+    color: #171715;
+}
+
+/* Keep each studio's navigation rail on the same accent as its controls. */
+body[data-platform-app="crop-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] .sidebar-nav-icon,
+body[data-platform-app="crop-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] .sidebar-submodule-icon,
+body[data-platform-app="crop-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a[aria-current="page"] .sidebar-nav-icon,
+body[data-platform-app="crop-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a:hover .sidebar-nav-icon,
+body[data-platform-app="crop-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a:focus-visible .sidebar-nav-icon,
+body[data-platform-app="crop-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] .sidebar-submodule-link[aria-current="page"] .sidebar-submodule-icon {
+    color: #fade5a !important;
+}
+
+body[data-platform-app="hazard-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] .sidebar-nav-icon,
+body[data-platform-app="hazard-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] .sidebar-submodule-icon,
+body[data-platform-app="hazard-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a[aria-current="page"] .sidebar-nav-icon,
+body[data-platform-app="hazard-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a:hover .sidebar-nav-icon,
+body[data-platform-app="hazard-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a:focus-visible .sidebar-nav-icon,
+body[data-platform-app="hazard-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] .sidebar-submodule-link[aria-current="page"] .sidebar-submodule-icon {
+    color: #be0b25 !important;
+}
+
+body[data-platform-app="crop-studio"] .ui-icon-button:hover,
+body[data-platform-app="crop-studio"] .ui-icon-button:focus-visible {
+    background: #fff7d6;
+    color: #ad8d16;
+}
+
+body[data-platform-app="hazard-studio"] .ui-icon-button:hover,
+body[data-platform-app="hazard-studio"] .ui-icon-button:focus-visible {
+    background: #fff0e6;
+    color: #be0b25;
+}
+
+body[data-platform-app="crop-studio"] .ui-button--primary,
+body[data-platform-app="crop-studio"] .filter-card-apply.ui-button--primary {
+    color: #171715;
+}
+
+/* Crop Studio carries the yellow-led inverse of Map Studio's green/yellow
+   mark. Keep the shared contour artwork neutral so it does not introduce a
+   second hue into the product palette. */
+body[data-platform-app="crop-studio"] [data-workspace-topbar] {
+    --platform-topbar-color: #fade5a;
+    background-color: var(--platform-topbar-color);
+    color: #3d421f;
+}
+
+body[data-platform-app="crop-studio"] [data-workspace-topbar]::before {
+    mix-blend-mode: screen;
+    opacity: 1;
+}
+
+body[data-platform-app="crop-studio"] [data-workspace-topbar] [data-sidebar-toggle],
+body[data-platform-app="crop-studio"] [data-workspace-topbar] [data-workspace-nav],
+body[data-platform-app="crop-studio"] [data-workspace-topbar] [data-workspace-nav] * {
+    color: #3d421f !important;
+}
+
+body[data-platform-app="crop-studio"] [data-workspace-topbar] [data-sidebar-toggle]:hover,
+body[data-platform-app="crop-studio"] [data-workspace-topbar] [data-sidebar-toggle]:focus-visible {
+    background-color: rgb(255 255 255 / 26%);
+    color: #3d421f !important;
+}
+
+/* Hazard Studio uses a warm yellow/orange/red identity while preserving the
+   same shared topbar geometry and high-contrast contour treatment. */
+body[data-platform-app="hazard-studio"] [data-workspace-topbar] {
+    --platform-topbar-color: #be0b25;
+    background-color: var(--platform-topbar-color);
+    color: #fff7ed;
+}
+
+body[data-platform-app="hazard-studio"] [data-workspace-topbar]::before {
+    mix-blend-mode: screen;
+    opacity: 1;
+}
+
+body[data-platform-app="hazard-studio"] [data-workspace-topbar] [data-sidebar-toggle],
+body[data-platform-app="hazard-studio"] [data-workspace-topbar] [data-workspace-nav],
+body[data-platform-app="hazard-studio"] [data-workspace-topbar] [data-workspace-nav] * {
+    color: #fff7ed !important;
+}
+
+body[data-platform-app="hazard-studio"] [data-workspace-topbar] [data-sidebar-toggle]:hover,
+body[data-platform-app="hazard-studio"] [data-workspace-topbar] [data-sidebar-toggle]:focus-visible {
+    background-color: rgb(255 255 255 / 18%);
+    color: #fff !important;
+}
+
+.platform-app-switcher {
+    position: static;
+    margin-left: auto;
+    z-index: 1601;
+}
+
+/* The switcher is allowed to layer above the adjacent navigation rail. */
+[data-sidebar-shell] {
+    z-index: 1301 !important;
+}
+
+[data-sidebar-shell] .sidebar-brand {
+    isolation: isolate;
+    overflow: visible;
+    /* Map Studio still ships legacy .sidebar-brand rules in its workspace
+       stylesheet. Reset the full box here so the shared app-name row keeps
+       the same vertical position in every platform shell. */
+    padding: 0 10px !important;
+    padding-inline: 10px !important;
+    z-index: 1600 !important;
+}
+
+[data-sidebar-shell] .sidebar-brand-link {
+    gap: 12px !important;
+}
+
+[data-sidebar-shell] .platform-app-switcher > summary.sidebar-brand-link {
+    box-sizing: border-box;
+    display: inline-flex;
+    height: 30px;
+    justify-content: flex-start;
+    min-width: 0;
+    padding: 0 0.75rem 0 0;
+    width: 100%;
+}
+
+[data-sidebar-shell] .platform-app-switcher > summary.sidebar-brand-link,
+[data-sidebar-shell] .platform-app-switcher > summary.sidebar-brand-link:hover,
+[data-sidebar-shell] .platform-app-switcher[open] > summary.sidebar-brand-link,
+[data-sidebar-shell] .platform-app-switcher[open] > summary.sidebar-brand-link:hover {
+    background-color: transparent !important;
+}
+
+[data-sidebar-shell] .sidebar-brand-logo {
+    flex: 0 0 1.85rem;
+    height: 1.85rem;
+    width: 1.85rem;
+}
+
+[data-sidebar-shell] .sidebar-brand-text h1 {
+    color: var(--platform-theme);
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: -.015em;
+    line-height: 1.1;
+}
+
+/* Use the complete navigation rail as a light surface instead of an inset card. */
+[data-sidebar-shell] > div {
+    background: var(--color-background);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: var(--color-text-muted);
+    width: 100%;
+}
+
+@media (max-width: 79.999rem) {
+    [data-sidebar-shell] {
+        padding: 0 !important;
+    }
+}
+
+/* Keep the navigation beneath an open switcher in the brand header. */
+[data-sidebar-shell] > div > nav {
+    z-index: 1 !important;
+}
+
+.platform-app-switcher summary {
+    align-items: center;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    gap: .35rem;
+    list-style: none;
+    padding: .45rem;
+}
+
+.platform-app-switcher summary::-webkit-details-marker {
+    display: none;
+}
+
+.platform-app-switcher__chevron {
+    align-items: center;
+    color: var(--platform-theme);
+    display: inline-flex;
+    flex: 0 0 1.375rem;
+    font-size: var(--type-caption-size);
+    height: 1.375rem;
+    justify-content: center;
+    margin-inline-start: auto;
+    width: 1.375rem;
+    transition: transform 150ms ease;
+}
+
+.platform-app-switcher[open] .platform-app-switcher__chevron {
+    transform: rotate(180deg);
+}
+
+.platform-app-switcher__menu {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 0;
+    box-shadow: 0 12px 24px rgb(20 43 38 / .14);
+    display: grid;
+    gap: 0;
+    left: 0;
+    min-width: 0;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    width: 100%;
+    z-index: 1602;
+}
+
+.platform-app-switcher__option {
+    --app-option-accent: #0f7196;
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: 0;
+    box-sizing: border-box;
+    color: var(--color-text);
+    display: flex;
+    gap: .75rem;
+    justify-content: flex-start;
+    min-height: 3.25rem;
+    padding: .55rem .5rem;
+    text-align: left;
+    text-decoration: none;
+    width: 100%;
+}
+
+.platform-app-switcher__option--drought-monitor {
+    --app-option-accent: #f67714;
+}
+
+.platform-app-switcher__option--map-studio {
+    --app-option-accent: #28935a;
+}
+
+.platform-app-switcher__option--crop-studio {
+    --app-option-accent: #fade5a;
+}
+
+.platform-app-switcher__option--hazard-studio {
+    --app-option-accent: #be0b25;
+}
+
+.platform-app-switcher__logo {
+    align-self: center;
+    display: block;
+    flex: 0 0 1.85rem;
+    height: 1.85rem;
+    object-fit: contain;
+    width: 1.85rem;
+}
+
+.platform-app-switcher__brand {
+    color: var(--app-option-accent);
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: -.015em;
+    line-height: 1.1;
+    min-width: 0;
+}
+
+.platform-app-switcher__active {
+    color: var(--app-option-accent);
+    font-size: .78rem;
+    margin-left: auto;
+}
+
+.platform-app-switcher__option:hover,
+.platform-app-switcher__option:focus-visible,
+.platform-app-switcher__option[aria-current="page"] {
+    background: color-mix(in srgb, var(--app-option-accent) 12%, #fff);
+    border-color: transparent;
+    color: var(--app-option-accent);
+    outline: none;
+    box-shadow: none;
+}
+
+/* Map Studio uses the shared sidebar behavior; only its green palette differs. */
+body[data-platform-app="map-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a:not([aria-current="page"]),
+body[data-platform-app="map-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > button:not([aria-current="page"]) {
+    color: #68736d;
+}
+
+body[data-platform-app="map-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a:not([aria-current="page"]):hover,
+body[data-platform-app="map-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > button:not([aria-current="page"]):hover,
+body[data-platform-app="map-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a:not([aria-current="page"]):focus-visible,
+body[data-platform-app="map-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > button:not([aria-current="page"]):focus-visible {
+    color: #18352a;
+}
+
+body[data-platform-app="map-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > a[aria-current="page"],
+body[data-platform-app="map-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] > button[aria-current="page"] {
+    color: #23613e;
+}
+
+body[data-platform-app="map-studio"] [data-sidebar-shell] nav[aria-label="Primary modules"] .sidebar-nav-icon {
+    color: #279052;
+}
+
+/* Map Studio uses the shared outer topbar; the workspace mode and privacy
+   status are the app-specific content carried by the green theme. */
+body[data-platform-app="map-studio"] [data-workspace-topbar].platform-workspace-topbar--map {
+    --platform-topbar-color: #317c4d;
+    background-color: var(--platform-topbar-color);
+    border-radius: var(--ui-card-radius) var(--ui-card-radius) 0 0;
+    color: #e9f6eb;
+    /* The embedded Map Studio workspace starts directly below the shell
+       bar. Keep the shared pages' breathing room from creating a second
+       gap above the module canvas. */
+    margin-bottom: 0;
+}
+
+body[data-platform-app="map-studio"] [data-workspace-topbar].platform-workspace-topbar--map [data-sidebar-toggle] {
+    color: rgb(233 246 235 / 76%);
+}
+
+body[data-platform-app="map-studio"] [data-workspace-topbar].platform-workspace-topbar--map [data-sidebar-toggle]:hover,
+body[data-platform-app="map-studio"] [data-workspace-topbar].platform-workspace-topbar--map [data-sidebar-toggle]:focus-visible {
+    background-color: rgb(255 255 255 / 16%);
+    color: #fff;
+}
+
+body[data-platform-app="map-studio"] [data-workspace-topbar].platform-workspace-topbar--map [data-workspace-nav] {
+    color: rgb(233 246 235 / 88%);
+}
+
+.platform-map-privacy-pill {
+    align-items: center;
+    background: rgb(255 255 255 / 10%);
+    border: 1px solid rgb(220 239 228 / 22%);
+    border-radius: 999px;
+    color: #d8eddd;
+    display: inline-flex;
+    font-size: .61rem;
+    line-height: 1.2;
+    max-width: min(45vw, 24rem);
+    overflow: hidden;
+    padding: 5px 9px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 620px) {
+    .platform-map-privacy-pill {
+        max-width: 2rem;
+        overflow: hidden;
+        padding: 0;
+        position: relative;
+        width: 2rem;
+    }
+
+    .platform-map-privacy-pill::before {
+        content: "i";
+        display: grid;
+        font-size: .7rem;
+        font-weight: 700;
+        height: 2rem;
+        place-items: center;
+        width: 2rem;
+    }
+}
+
+.platform-map-downloads {
+    border-top: 1px solid #edf0ec;
+    display: grid;
+    gap: .15rem;
+    margin-top: auto;
+    padding: .8rem .75rem .75rem;
+}
+
+/* The downloads now live inside the shared bottom navigation group. Keep the
+ * utility list compact and let the group, rather than this section, own the
+ * bottom spacing and divider. */
+[data-sidebar-shell] nav > .sidebar-bottom-nav > [data-sidebar-bottom-links] .platform-map-downloads {
+    border-top: 0;
+    margin-top: 0;
+    padding: .25rem 0 .15rem;
+}
+
+.platform-map-downloads__label {
+    color: #89928b;
+    font-size: .62rem;
+    letter-spacing: .14em;
+    margin: 0 0 .25rem;
+    text-transform: uppercase;
+}
+
+.platform-map-downloads__link {
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: .45rem;
+    color: #68736d;
+    display: flex;
+    font-size: .68rem;
+    font-weight: 700;
+    gap: .5rem;
+    justify-content: space-between;
+    min-height: 2rem;
+    padding: .25rem .35rem;
+    text-decoration: none;
+}
+
+.platform-map-downloads__link i {
+    color: #29935a;
+    flex: 0 0 auto;
+    font-size: .72rem;
+}
+
+.platform-map-downloads__link:hover,
+.platform-map-downloads__link:focus-visible {
+    background: #f2f7f2;
+    border-color: #d8e2d9;
+    color: #18352a;
+    outline: none;
+}
+
+.platform-migration-placeholder {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 1rem;
+    margin: 2rem auto;
+    max-width: 42rem;
+    padding: clamp(2rem, 6vw, 4.5rem);
+    text-align: center;
+}
+
+.platform-migration-placeholder__icon {
+    align-items: center;
+    background: var(--platform-theme-soft);
+    border-radius: 999px;
+    color: var(--platform-theme);
+    display: inline-flex;
+    font-size: 1.45rem;
+    height: 3.25rem;
+    justify-content: center;
+    width: 3.25rem;
+}
+
+.platform-migration-placeholder__eyebrow {
+    color: var(--platform-theme);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    margin: 1rem 0 .35rem;
+    text-transform: uppercase;
+}
+
+.platform-migration-placeholder h1 {
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    font-weight: 750;
+    margin: 0;
+}
+
+.platform-migration-placeholder p:not(.platform-migration-placeholder__eyebrow) {
+    color: var(--color-text-muted);
+    margin: .8rem auto 0;
+    max-width: 35rem;
+}
+
+.platform-migration-placeholder__status {
+    border-top: 1px solid var(--color-border);
+    font-size: .82rem;
+    padding-top: 1rem;
+}

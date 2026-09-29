@@ -154,6 +154,21 @@
 
         const breaks = [start];
 
+        // A rounded "pretty" step can be wider than the interval between
+        // class targets. In that case rounding the targets upward repeatedly
+        // can push an interior break to or past the maximum and the old
+        // implementation returned an empty scale. Keep the scale usable for
+        // skewed datasets by falling back to evenly spaced, strictly
+        // increasing breaks that still preserve the requested end point.
+        const fallbackBreaks = function () {
+            return Array.from(
+                {length: normalizedClassCount + 1},
+                function (_, index) {
+                    return start + (span * index / normalizedClassCount);
+                }
+            );
+        };
+
         for (
             let index = 1;
             index < normalizedClassCount;
@@ -190,7 +205,7 @@
             }
 
             if (candidate >= end) {
-                return [];
+                return fallbackBreaks();
             }
 
             breaks.push(candidate);
@@ -209,7 +224,7 @@
                 breaks.length - 1
             ]
         ) {
-            return [];
+            return fallbackBreaks();
         }
 
         breaks.push(upperBreak);
