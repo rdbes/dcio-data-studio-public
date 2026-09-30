@@ -75,6 +75,7 @@ from reports.map_reporting_areas import (
     NCR_REGION_NAME,
     reporting_area_filter_label,
 )
+from reports.views.route_context import el_nino_route_name, is_el_nino_view
 
 from ..models import (
     DamageReport,
@@ -820,6 +821,7 @@ def damage_losses_incident_options(
 
 def dashboard(request):
     """Show Province/HUC-level spatial analytics with one consolidated NCR."""
+    is_el_nino_scope = is_el_nino_view(request)
     current_year = timezone.now().year
     active_reports = DamageReport.objects.filter(is_active=True)
 
@@ -1271,10 +1273,9 @@ def dashboard(request):
         active_filter_chips.append(
             {
                 "label": selected_hazard.display_label,
-                "clear_url": _url_with_query(
-                    request,
-                    remove=["hazard", "incident"],
-                ),
+                "clear_url": ""
+                if is_el_nino_scope
+                else _url_with_query(request, remove=["hazard", "incident"]),
             }
         )
     else:
@@ -1291,7 +1292,17 @@ def dashboard(request):
         )
     active_filter_chips.extend(scope_filter_chips)
 
-    dashboard_reset_url = reverse("reports:dashboard")
+    dashboard_route_name = (
+        el_nino_route_name(request, "dashboard")
+        if is_el_nino_scope
+        else "reports:dashboard"
+    )
+    analytics_route_name = (
+        el_nino_route_name(request, "analytics")
+        if is_el_nino_scope
+        else "reports:analytics"
+    )
+    dashboard_reset_url = reverse(dashboard_route_name)
     if request.GET.get("embed") == "1":
         dashboard_reset_url = f"{dashboard_reset_url}?embed=1"
 
@@ -1333,11 +1344,18 @@ def dashboard(request):
             "map_data": map_data,
             "map_config": map_config,
             "active_filter_chips": active_filter_chips,
+            "is_el_nino_view": is_el_nino_scope,
+            "dashboard_page_title": "El Niño Dashboard" if is_el_nino_scope else "Dashboard",
+            "dashboard_chart_subtitle": (
+                "Year · National · El Niño · All Commodities"
+                if is_el_nino_scope
+                else "Year · National · All Hazards · All Commodities"
+            ),
             "is_embedded": request.GET.get("embed") == "1",
             "dashboard_reset_url": dashboard_reset_url,
             "dashboard_navigation_url": _preserved_url(
                 request,
-                reverse("reports:analytics"),
+                reverse(analytics_route_name),
             ),
         },
     )

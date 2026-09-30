@@ -29,6 +29,8 @@ from reports.incident_attribution import (
 )
 
 ANNUAL_SUMMARY_PAGE_SIZE = 15
+COMPOSITION_OTHERS_THRESHOLD_PERCENT = Decimal("3")
+COMPOSITION_ALWAYS_OTHERS = frozenset({"amef"})
 
 
 def average(rows: list[dict[str, Any]], key: str):
@@ -148,7 +150,80 @@ def build_dimension_chart(selected_rows, historical_rows, dimension, *, windows,
     return chart
 
 
-def composition_series(rows):
+def _collapse_small_composition_rows(rows):
+    """Group small commodity slices into a recalculated ``Others`` slice.
+
+    The dashboard should keep the main commodity groups readable as the
+    selected period changes.  The threshold is applied to the selected
+    metric total, so the grouping adapts independently for value, volume,
+    area, and farmer views.  AMEF and an explicitly supplied ``Others`` row
+    remain part of the grouped slice even when their share is above the
+    threshold.
+    """
+
+    selected_total = nullable_sum(row["metric_value"] for row in rows)
+    if selected_total is None or selected_total <= 0:
+        return rows
+
+    def label_key(row):
+        return str(row.get("label") or "").strip().casefold()
+
+    def is_explicit_others(row):
+        return label_key(row) == "others"
+
+    def is_other(row):
+        value = row.get("metric_value")
+        share = (value / selected_total * 100) if value is not None else 0
+        return (
+            label_key(row) in COMPOSITION_ALWAYS_OTHERS
+            or is_explicit_others(row)
+            or share < COMPOSITION_OTHERS_THRESHOLD_PERCENT
+        )
+
+    others = [row for row in rows if is_other(row)]
+    named = [row for row in rows if not is_other(row)]
+
+    # Keep a single small named category visible; only roll up when there is
+    # a meaningful group of small categories or an explicit Others value.
+    if len(others) == 1 and not is_explicit_others(others[0]):
+        named.append(others.pop())
+
+    named.sort(
+        key=lambda row: row["metric_value"]
+        if row["metric_value"] is not None else Decimal("-1"),
+        reverse=True,
+    )
+    if not others:
+        return named
+
+    comparison_labels = {
+        str(row.get("comparison_years") or "")
+        for row in others
+        if row.get("comparison_years")
+    }
+    comparison_counts = [
+        row.get("comparison_year_count") or 0
+        for row in others
+        if row.get("comparison_year_count")
+    ]
+    comparison_years = next(iter(comparison_labels)) if len(comparison_labels) == 1 else ""
+    comparison_year_count = min(comparison_counts) if comparison_years and comparison_counts else 0
+    named.append({
+        "label": "Others",
+        "metric_value": nullable_sum(row["metric_value"] for row in others),
+        "filter_key": "",
+        "filter_value": "",
+        "parent_filter_value": "",
+        "comparison_metric_value": nullable_sum(
+            row.get("comparison_metric_value") for row in others
+        ),
+        "comparison_years": comparison_years,
+        "comparison_year_count": comparison_year_count,
+    })
+    return named
+
+
+def composition_series(rows, *, collapse_small=False):
     result = {}
     for chart_metric in CHART_METRICS:
         metric_rows = [{
@@ -163,6 +238,8 @@ def composition_series(rows):
         # having a value in the selected period. Do not expose that empty
         # subgroup as a legend entry or selectable pie slice.
         metric_rows.sort(key=lambda row: row["metric_value"] if row["metric_value"] is not None else Decimal("-1"), reverse=True)
+        if collapse_small:
+            metric_rows = _collapse_small_composition_rows(metric_rows)
         selected_total = nullable_sum(row["metric_value"] for row in metric_rows)
         comparison_total = nullable_sum(row["comparison_metric_value"] for row in metric_rows)
         # Share deltas require the same observed years for every component.
@@ -180,8 +257,14 @@ def build_chart_breakdowns(selected_rows, historical_rows, **context):
     return {
         "region_bar": build_dimension_chart(selected_rows, historical_rows, "region", **context),
         "province_bar": build_dimension_chart(selected_rows, historical_rows, "province", **context),
-        "commodity_pie": composition_series(build_dimension_chart(selected_rows, historical_rows, "commodity_group", **context)),
-        "subgroup_pie": composition_series(build_dimension_chart(selected_rows, historical_rows, "commodity_subgroup", **context)),
+        "commodity_pie": composition_series(
+            build_dimension_chart(selected_rows, historical_rows, "commodity_group", **context),
+            collapse_small=True,
+        ),
+        "subgroup_pie": composition_series(
+            build_dimension_chart(selected_rows, historical_rows, "commodity_subgroup", **context),
+            collapse_small=True,
+        ),
         "hazard_pie": composition_series(build_dimension_chart(selected_rows, historical_rows, "hazard", **context)),
     }
 
@@ -194,7 +277,10 @@ def build_metric_breakdown_tables(rows, years):
     year, matching the annual damage-and-loss table convention.
     """
 
-    years = sorted({int(year) for year in years})
+    # Keep the newest year closest to the row labels so the tables lead with
+    # the current period while preserving the same order for every metric
+    # series and its totals.
+    years = sorted({int(year) for year in years}, reverse=True)
     if not years or not rows:
         return []
     metric_keys = tuple(CHART_METRICS)

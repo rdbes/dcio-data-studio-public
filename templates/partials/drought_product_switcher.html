@@ -1,0 +1,36 @@
+<div data-drought-product-control class="drought-map-product-control">
+    <button
+        id="drought-product-toggle"
+        type="button"
+        class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400"
+        aria-label="Switch drought map product"
+        aria-controls="drought-product-panel"
+        aria-expanded="false"
+        title="Switch drought map product"
+    >
+        <i class="fa-solid fa-map text-xs" aria-hidden="true"></i>
+    </button>
+
+    <div
+        id="drought-product-panel"
+        data-map-control-popover="product"
+        class="add-map-metric-panel hidden"
+        role="dialog"
+        aria-label="Drought map product selection"
+    >
+        <div class="add-map-metric-panel__heading">Drought map</div>
+        <div class="add-map-metric-options" role="radiogroup" aria-label="Drought map product">
+            {% for value, label in product_options %}
+            <button
+                type="button"
+                data-drought-product-option="{{ value }}"
+                class="add-map-metric-option"
+                role="radio"
+                aria-checked="{% if value == selected_product %}true{% else %}false{% endif %}"
+            >
+                <span>{{ label }}</span>
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>

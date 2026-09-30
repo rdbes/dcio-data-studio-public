@@ -1,0 +1,2866 @@
+[data-map-canvas-card] {
+    container-type: inline-size;
+}
+
+.drought-affected-panel__footer {
+    color: var(--charcoal-base, #3a3a35);
+    font-size: var(--type-micro-size, 0.625rem);
+    line-height: var(--type-micro-line-height, 0.875rem);
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card] {
+    --map-accent-color: var(--color-accent);
+}
+
+/* Tabular A4 report preview/export. */
+.drought-report-modal {
+    width: min(1000px, calc(100vw - 2rem));
+    max-width: 1000px;
+    max-height: calc(100dvh - 2rem);
+    margin: auto;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid rgb(212 212 216 / 82%);
+    border-radius: 0.75rem;
+    background: #f4f4f5;
+    box-shadow: 0 20px 50px rgb(24 24 27 / 22%);
+}
+
+.drought-report-modal::backdrop {
+    background: rgb(24 24 27 / 48%);
+}
+
+.drought-report-modal__chrome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid rgb(228 228 231 / 92%);
+    background: #ffffff;
+    padding: var(--space-3) 1rem;
+}
+
+.drought-report-modal__chrome h2 {
+    color: #18181b;
+    font-size: var(--type-label-size);
+    font-weight: 700;
+    line-height: 1rem;
+}
+
+.drought-report-modal__chrome p {
+    margin-top: var(--space-1);
+    color: #71717a;
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-line-height);
+}
+
+.drought-report-modal__body {
+    max-height: calc(100dvh - 7rem);
+    overflow: auto;
+    padding: 1rem;
+}
+
+/* Map export preview. This remains a separate workflow from the tabular
+   report so the preview can contain one captured map canvas per A4 page. */
+.drought-map-report-modal {
+    width: min(1000px, calc(100vw - 2rem));
+    max-width: 1000px;
+    max-height: calc(100dvh - 2rem);
+    margin: auto;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid rgb(212 212 216 / 82%);
+    border-radius: 0.75rem;
+    background: #f4f4f5;
+    box-shadow: 0 20px 50px rgb(24 24 27 / 22%);
+}
+
+.drought-map-report-modal::backdrop {
+    background: rgb(24 24 27 / 48%);
+}
+
+.drought-map-report-modal__chrome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid rgb(228 228 231 / 92%);
+    background: #ffffff;
+    padding: var(--space-3) 1rem;
+}
+
+.drought-map-report-modal__chrome h2 {
+    color: #18181b;
+    font-size: var(--type-label-size);
+    font-weight: 700;
+    line-height: 1rem;
+}
+
+.drought-map-report-modal__chrome p {
+    margin-top: var(--space-1);
+    color: #71717a;
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-line-height);
+}
+
+.drought-map-report-progress {
+    width: min(18rem, 100%);
+    margin-top: var(--space-2);
+    color: #71717a;
+    font-size: var(--type-caption-size);
+    line-height: 1rem;
+}
+
+.drought-map-report-progress__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.drought-map-report-progress__header strong {
+    color: #27272a;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+}
+
+.drought-map-report-progress__track {
+    height: 0.375rem;
+    margin-top: var(--space-1);
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e4e4e7;
+}
+
+.drought-map-report-progress__fill {
+    display: block;
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-accent);
+    transition: width 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .drought-map-report-progress__fill {
+        transition: none;
+    }
+}
+
+.drought-map-report-level {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    border: 1px solid rgb(212 212 216 / 92%);
+    border-radius: 0.5rem;
+    padding: 0.125rem;
+    background: #fafafa;
+}
+
+.drought-map-report-level label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    padding: 0 0.5rem;
+    color: #71717a;
+    font-size: var(--type-caption-size);
+    font-weight: 700;
+    line-height: 1rem;
+}
+
+.drought-map-report-level label:has(input:checked) {
+    background: var(--color-accent);
+    color: #3f2c00;
+}
+
+.drought-map-report-level input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.drought-map-report-level label:has(input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+}
+
+.drought-map-report-modal__body {
+    max-height: calc(100dvh - 7rem);
+    overflow: auto;
+    padding: 1rem;
+}
+
+.drought-map-report-sheet {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    color: #27272a;
+    font-family: var(--font-family-interface);
+}
+
+.drought-map-report-preview--fixed-a4 > .drought-map-report-sheet {
+    width: 297mm;
+    max-width: none;
+    transform-origin: top left;
+    zoom: var(--drought-map-report-preview-zoom, 1);
+}
+
+.drought-map-report-page {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 210mm;
+    height: 297mm;
+    min-height: 297mm;
+    margin: 0 auto 1rem;
+    break-inside: avoid;
+    background: #ffffff;
+    padding: 7mm;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.drought-map-report-page--landscape {
+    width: 297mm;
+    height: 210mm;
+    min-height: 210mm;
+}
+
+.drought-map-report-page__header {
+    border-bottom: var(--border-width-strong) solid var(--color-accent);
+    padding-bottom: 0.6rem;
+}
+
+.drought-map-report-page__eyebrow {
+    margin-bottom: 0.2rem;
+    color: var(--color-accent);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.drought-map-report-page h1 {
+    margin: 0;
+    color: #18181b;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.drought-map-report-page__title-row,
+.drought-map-report-page__subtitle-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.drought-map-report-page__header p {
+    margin: 0.2rem 0 0;
+    color: #71717a;
+    font-size: 0.72rem;
+    line-height: 1.2;
+}
+
+.drought-map-report-page__page-count,
+.drought-map-report-page__page-level {
+    flex: 0 0 auto;
+    color: #71717a;
+    font-size: 0.68rem;
+    font-weight: 400;
+    line-height: 1.2;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.drought-map-report-page__figure {
+    position: relative;
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    margin: 0.75rem 0 0;
+    border: 1px solid #e4e4e7;
+    border-radius: max(0px, calc(var(--ui-card-radius) - var(--farm-outline-width)));
+    background: var(--drought-map-report-background, #cccccc);
+    overflow: hidden;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.drought-map-report-page__location-panel {
+    display: flex;
+    flex: none;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 0.55rem;
+}
+
+.drought-map-report-page__location-panel:empty {
+    display: none;
+}
+
+.drought-map-report-page__figure img {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    height: 0;
+    flex: 1 1 0;
+    object-fit: contain;
+}
+
+.drought-map-report-page__location {
+    position: absolute;
+    z-index: 2;
+    top: 0.65rem;
+    left: 0.75rem;
+    width: max-content;
+    color: var(--drought-map-report-label-color, #52525b);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.drought-map-report-page__location-name {
+    display: block;
+    width: max-content;
+}
+
+.drought-map-report-page__tooltip {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    margin-top: 6px;
+    background: transparent;
+    padding: 0;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.2;
+    white-space: normal;
+    display: block;
+}
+
+.drought-map-report-page__tooltip > .drought-boundary-tooltip__title {
+    display: none;
+}
+
+.drought-map-report-page__summary {
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--map-ui-border, rgb(161 161 170 / 36%));
+    border-radius: 8px;
+    background: rgb(255 255 255 / 94%);
+}
+
+.drought-map-report-page__summary-title {
+    margin: 0;
+    padding: 0.45rem 0.55rem;
+    color: rgb(63 44 0);
+    background: var(--grain-light);
+    border-radius: 7px 7px 0 0;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.drought-map-report-page__summary-grid {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    column-gap: 1rem;
+    row-gap: 0.65rem;
+    padding: 0.45rem 0.55rem 0.55rem;
+}
+
+.drought-map-report-page__tooltip .drought-boundary-tooltip__section {
+    min-width: 0;
+    margin-top: 0;
+    padding-top: 0.2rem;
+}
+
+.drought-map-report-page__tooltip > .drought-boundary-tooltip__section {
+    padding-top: 0;
+}
+
+.drought-map-report-page__tooltip .drought-boundary-tooltip__forecast-group {
+    display: contents;
+    min-width: 0;
+}
+
+.drought-map-report-page__tooltip .drought-boundary-tooltip__forecast-group > .drought-boundary-tooltip__section {
+    padding-top: 0;
+}
+
+.drought-map-report-page__summary-grid > .drought-boundary-tooltip__section:first-of-type {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.drought-map-report-page__summary-grid > .drought-boundary-tooltip__section:nth-of-type(2) {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.drought-map-report-page__summary-grid .drought-boundary-tooltip__forecast-group > .drought-boundary-tooltip__section:first-child {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+
+.drought-map-report-page__summary-grid .drought-boundary-tooltip__forecast-group > .drought-boundary-tooltip__section--rainfall {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+}
+
+.drought-map-report-page__tooltip .drought-boundary-tooltip__section--rainfall {
+    margin-top: 0;
+}
+
+.drought-map-report-page__tooltip .drought-boundary-tooltip__forecast {
+    grid-template-columns: 3.6rem minmax(0, 1fr);
+    gap: 0.3rem;
+}
+
+.drought-map-report-page__tooltip .drought-boundary-tooltip__rainfall-chart {
+    grid-template-columns: max-content minmax(0, 1fr);
+}
+
+.drought-map-report-page__tooltip .drought-boundary-tooltip__forecast-axis span {
+    align-items: center;
+}
+
+.drought-map-report-page__tooltip .drought-boundary-tooltip__rainfall-axis {
+    justify-self: start;
+    width: 100%;
+}
+
+.drought-map-report-page__tooltip .drought-boundary-tooltip__forecast-plot {
+    background-position: 0 0;
+}
+
+.drought-map-report-page__legend {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-top: 0.55rem;
+}
+
+.drought-map-report-legend__group {
+    min-width: 0;
+}
+
+.drought-map-report-legend__title {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #52525b;
+    font-size: 0.6rem;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.drought-map-report-legend__items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+}
+
+.drought-map-report-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #52525b;
+    font-size: 0.62rem;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.drought-map-report-legend__swatch {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.55rem;
+    flex: none;
+    border: 1px solid rgb(63 63 70 / 20%);
+    border-radius: 0.1rem;
+    background: var(--drought-map-report-legend-color, #d4d4d8);
+}
+
+.drought-map-report-preview-error {
+    padding: 1rem;
+    color: #71717a;
+    text-align: center;
+}
+
+.drought-report-sheet {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    background: #f4f4f5;
+    color: #27272a;
+    font-family: var(--font-family-interface);
+}
+
+/* Keep the on-screen report on the same A4 canvas used by PDF export. The
+   JavaScript controller applies a proportional zoom for the modal width so
+   fixed row heights, table flow, and footer placement remain identical. */
+.drought-report-preview--fixed-a4 > .drought-report-sheet {
+    width: 297mm;
+    max-width: none;
+    transform-origin: top left;
+    zoom: var(--drought-report-preview-zoom, 1);
+}
+
+.drought-report-preview--fixed-a4 .drought-report-page {
+    width: 297mm;
+    max-width: none;
+    height: 210mm;
+    min-height: 210mm;
+    aspect-ratio: auto;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.drought-report-page {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 297mm);
+    aspect-ratio: 297 / 210;
+    min-height: 0;
+    margin: 0 auto 1rem;
+    background: #ffffff;
+    padding: 6mm;
+}
+
+.drought-report-sheet__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: var(--border-width-strong) solid var(--color-accent);
+    padding-bottom: 0.75rem;
+}
+
+.drought-report-sheet h1 {
+    margin: 0;
+    color: #18181b;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.drought-report-sheet__header > div {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.drought-report-sheet__title-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.drought-report-sheet__subtitle {
+    margin-top: 0.375rem;
+    color: #52525b;
+    font-size: var(--type-caption-size);
+    line-height: 1rem;
+    font-weight: 400;
+}
+
+.drought-report-sheet__subtitle-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.drought-report-sheet__as-of {
+    flex: 0 0 auto;
+    margin-top: 0.375rem;
+    color: #52525b;
+    font-size: var(--type-caption-size);
+    line-height: 1rem;
+    font-weight: 400;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.drought-report-sheet__page-count {
+    color: #71717a;
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-line-height);
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+@media (max-width: 48rem) {
+    .drought-report-sheet__subtitle-row {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 0.125rem 1rem;
+    }
+
+    .drought-report-sheet__as-of {
+        margin-top: 0;
+    }
+}
+
+.drought-report-section {
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+/* Region and province reports share one fixed nine-location geometry. The
+   table wrapper owns the flexible space between the page header and footer;
+   the report-layout controller assigns one ninth of that space to each
+   logical location block. Municipality pages intentionally keep their mixed
+   summary/municipality row heights. */
+.drought-report-page--boundary-level {
+    --drought-report-column-header-height: 2.5rem;
+    --drought-report-group-header-height: 1.25rem;
+}
+
+.drought-report-page--boundary-level .drought-report-section {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.drought-report-page--boundary-level .drought-report-table-wrap {
+    display: flex;
+    flex: 1 1 auto;
+    height: 100%;
+    align-items: flex-start;
+    min-height: 0;
+    overflow: visible;
+}
+
+.drought-report-page--boundary-level .drought-report-table {
+    align-self: flex-start;
+    flex: 0 0 auto;
+}
+
+.drought-report-page--boundary-level .drought-report-table thead,
+.drought-report-page--boundary-level .drought-report-table thead tr {
+    height: var(--drought-report-column-header-height);
+}
+
+.drought-report-page--boundary-level .drought-report-table__group {
+    height: var(--drought-report-group-header-height);
+}
+
+/* Municipality pages use one province summary block followed by single-line
+   municipality rows. The layout controller reserves the summary block before
+   dividing the remaining table area among 18 municipalities. */
+.drought-report-page--municipality .drought-report-section {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.drought-report-page--municipality .drought-report-table-wrap {
+    display: flex;
+    flex: 1 1 auto;
+    height: 100%;
+    align-items: flex-start;
+    min-height: 0;
+    overflow: visible;
+}
+
+.drought-report-page--municipality .drought-report-table {
+    align-self: flex-start;
+    flex: 0 0 auto;
+}
+
+/* Compact municipality rows fit the fixed 18-row capacity below the province
+   summary block. */
+.drought-report-page--municipality .drought-report-table__location-row--single > * {
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+}
+
+.drought-report-section h2 {
+    margin-bottom: 0.375rem;
+    color: #18181b;
+    font-size: var(--type-caption-size);
+    font-weight: 700;
+}
+
+.drought-report-section h2 span {
+    color: #71717a;
+    font-size: var(--type-caption-size);
+    font-weight: 400;
+}
+
+.drought-report-legends {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 100%;
+    margin-top: auto;
+    margin-right: auto;
+    margin-left: auto;
+    padding-top: 0.375rem;
+    border-top: var(--border-width-default) solid var(--color-accent);
+}
+
+.drought-report-legend {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    min-width: 0;
+    flex: 0 1 auto;
+    text-align: left;
+}
+
+.drought-report-legend__heading {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.drought-report-legend h2 {
+    margin: 0;
+    color: #52525b;
+    font-size: var(--type-caption-size);
+    line-height: 0.625rem;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.drought-report-legend__unit {
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.drought-report-legend__items {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 0;
+    margin-top: 0.25rem;
+    gap: 0.2rem 0.45rem;
+}
+
+.drought-report-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #52525b;
+    font-size: var(--type-caption-size);
+    line-height: 0.625rem;
+    white-space: nowrap;
+}
+
+.drought-report-legend__swatch {
+    display: inline-block;
+    width: 1.2rem;
+    height: 0.55rem;
+    flex: 0 0 auto;
+    border-radius: 0;
+}
+
+.drought-report-legend__swatch--pill {
+    border-radius: 999px;
+}
+
+.drought-report-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e4e4e7;
+    border-radius: 0.375rem;
+}
+
+.drought-report-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-line-height);
+}
+
+.drought-report-table th:nth-child(1) {
+    width: 17%;
+}
+
+.drought-report-table th:nth-child(2),
+.drought-report-table th:nth-child(3) {
+    width: 10%;
+}
+
+.drought-report-table th:nth-child(n + 4) {
+    width: auto;
+}
+
+.drought-report-table thead {
+    display: table-header-group;
+}
+
+/* The column header is a fixed-height band for every boundary level. */
+.drought-report-table thead,
+.drought-report-table thead tr {
+    height: 2.5rem;
+}
+
+.drought-report-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.drought-report-table__rainfall-row th,
+.drought-report-table__rainfall-row td {
+    color: #71717a;
+    font-size: var(--type-caption-size);
+}
+
+.drought-report-table__location-row > th[rowspan],
+.drought-report-table__location-row > td[rowspan] {
+    vertical-align: middle;
+}
+
+/* Alternate the complete two-line location block. Colored values are inset
+   inside these cells so the band and its dividers remain visible. */
+.drought-report-table__location-block--even {
+    background: #fafafa;
+}
+
+.drought-report-table__location-block--odd {
+    background: #ffffff;
+}
+
+.drought-report-table__location-block--even > * {
+    background: #fafafa !important;
+}
+
+.drought-report-table__location-block--odd > * {
+    background: #ffffff !important;
+}
+
+/* Mark the province summary with a full-width orange outline while preserving
+   its neutral band and the category colors inside its cells. */
+.drought-report-table__location-row.drought-report-table__province-summary-row > * {
+    border-top: var(--border-width-strong) solid var(--color-accent);
+}
+
+.drought-report-table__location-row.drought-report-table__province-summary-row > :nth-child(-n + 3),
+.drought-report-table__rainfall-row.drought-report-table__province-summary-row > *,
+.drought-report-table__location-row.drought-report-table__province-summary-row--single > * {
+    border-bottom: var(--border-width-strong) solid var(--color-accent);
+}
+
+.drought-report-table__rainfall-cell {
+    color: #71717a !important;
+}
+
+.drought-report-table--with-rainfall .drought-report-table__location-row,
+.drought-report-table--with-rainfall .drought-report-table__rainfall-row {
+    height: 1.5rem;
+}
+
+.drought-report-table__forecast-fill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 1.1rem;
+    margin: 0.08rem 0;
+    padding: 0 0.38rem;
+    box-sizing: border-box;
+    /* BSWM categorical forecast cells remain rectangular by design. */
+    border-radius: 0;
+    font-weight: 400;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.drought-report-table__rainfall-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 1.1rem;
+    padding: 0.06rem 0.38rem;
+    box-sizing: border-box;
+    border-radius: 999px;
+    font-size: var(--type-caption-size);
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* Keep the two source rows visually grouped inside one merged location block.
+   The block height remains unchanged, so the separation between locations is
+   preserved while the rectangular BSWM cells and PAGASA pills sit closer to
+   their shared seam. */
+.drought-report-table--with-rainfall
+    .drought-report-table__location-row--with-rainfall
+    .drought-report-table__forecast-fill {
+    transform: translateY(0.25rem);
+}
+
+.drought-report-table--with-rainfall
+    .drought-report-table__rainfall-row
+    .drought-report-table__rainfall-pill {
+    transform: translateY(-0.25rem);
+}
+
+.drought-report-table__status {
+    background: inherit !important;
+    font-weight: 600;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.drought-report-table__status-text {
+    display: inline;
+    color: #111827 !important;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.drought-report-table__status-text--missing {
+    padding: 0;
+    color: #a1a1aa !important;
+    font-weight: 400;
+}
+
+.drought-report-table__status--missing {
+    color: #a1a1aa !important;
+    font-weight: 400 !important;
+}
+
+.drought-report-table__monthly-cell {
+    background: transparent;
+    font-weight: 600;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.drought-report-table__location-row .drought-report-table__monthly-cell {
+    font-weight: 400 !important;
+}
+
+.drought-report-table__missing-value {
+    color: #a1a1aa !important;
+    font-weight: 400 !important;
+}
+
+.drought-report-table th,
+.drought-report-table td {
+    border-bottom: 0;
+    padding: 0.25rem 0.3rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.drought-report-table thead th {
+    background: #ffffff;
+    color: #71717a;
+    font-size: var(--type-caption-size);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.drought-report-table thead th:first-child {
+    text-align: left;
+}
+
+.drought-report-table thead th small {
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: 0;
+    line-height: 1.1;
+    text-transform: inherit;
+}
+
+.drought-report-table thead small {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--type-caption-size);
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.drought-report-table tbody th {
+    color: #27272a;
+    font-weight: 600;
+}
+
+.drought-report-table__group th {
+    background: var(--color-accent);
+    color: #3f2c00 !important;
+    font-size: var(--type-caption-size);
+    font-weight: 700 !important;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.drought-report-table__muted {
+    color: #71717a;
+    font-size: var(--type-caption-size);
+}
+
+.drought-report-table__empty,
+.drought-report-preview-error {
+    padding: 1rem;
+    color: #71717a;
+    text-align: center;
+}
+
+@media print {
+    @page drought-map-report-landscape {
+        size: A4 landscape;
+        margin: 0;
+    }
+
+    @page drought-map-report-portrait {
+        size: A4 portrait;
+        margin: 0;
+    }
+
+    @page {
+        size: A4 landscape;
+        /* The report sheet owns its 6 mm internal padding. Keeping the
+           physical page margin at zero makes print geometry match preview. */
+        margin: 0;
+    }
+
+    .drought-report-print-document {
+        margin: 0;
+        background: #ffffff;
+    }
+
+    .drought-report-print-document .drought-report-sheet {
+        width: 100%;
+        background: #ffffff;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .drought-report-print-document .drought-report-page {
+        width: 297mm;
+        height: 210mm;
+        aspect-ratio: 297 / 210;
+        max-width: none;
+        margin: 0;
+        padding: 6mm;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .drought-report-print-document .drought-report-page:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .drought-report-table-wrap {
+        overflow: visible;
+    }
+
+    body.drought-map-report-print-document * {
+        visibility: hidden !important;
+    }
+
+    body.drought-map-report-print-document
+    [data-drought-map-report-modal],
+    body.drought-map-report-print-document
+    [data-drought-map-report-modal] * {
+        visibility: visible !important;
+    }
+
+    body.drought-map-report-print-document
+    [data-drought-map-report-modal] {
+        position: fixed;
+        inset: 0;
+        width: auto;
+        max-width: none;
+        height: auto;
+        max-height: none;
+        margin: 0;
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+        background: #ffffff;
+        box-shadow: none;
+    }
+
+    body.drought-map-report-print-document
+    .drought-map-report-modal__chrome {
+        display: none;
+    }
+
+    body.drought-map-report-print-document
+    .drought-map-report-modal__body {
+        max-height: none;
+        overflow: visible;
+        padding: 0;
+    }
+
+    body.drought-map-report-print-document
+    .drought-map-report-preview--fixed-a4 > .drought-map-report-sheet {
+        width: 100%;
+        zoom: 1 !important;
+    }
+
+    body.drought-map-report-print-document .drought-map-report-page {
+        margin: 0;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    body.drought-map-report-print-document
+    .drought-map-report-page--landscape {
+        page: drought-map-report-landscape;
+        width: 297mm;
+        height: 210mm;
+        min-height: 210mm;
+    }
+
+    body.drought-map-report-print-document
+    .drought-map-report-page--portrait {
+        page: drought-map-report-portrait;
+        width: 210mm;
+        height: 297mm;
+        min-height: 297mm;
+    }
+
+    body.drought-map-report-print-document
+    .drought-map-report-page:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+}
+
+[data-agricultural-drought-module],
+[data-agricultural-drought-upload-page],
+[data-agricultural-drought-filter-panel] {
+    --drought-action: var(--ds-color-accent, var(--grain-base));
+    --drought-action-hover: var(--grain-dark);
+    --drought-action-active: var(--grain-darker);
+    --drought-action-subtle: var(--grain-lighter);
+    --color-primary: var(--drought-action);
+    --color-primary-hover: var(--drought-action-hover);
+    --color-primary-active: var(--drought-action-active);
+    --color-primary-subtle: var(--drought-action-subtle);
+    --color-selected: var(--drought-action-subtle);
+    --color-selected-border: var(--drought-action);
+    --color-focus: var(--drought-action);
+    --ui-action: var(--drought-action);
+    --ui-action-hover: var(--drought-action-hover);
+    /* Kept as a compatibility alias for the existing drought controls. */
+    --drought-topbar-green: var(--color-primary);
+}
+
+/* Keep the filter controls in the orange workspace bar black. */
+[data-workspace-topbar].farm-workspace-topbar--filter-only
+[data-sidebar-toggle],
+[data-workspace-topbar].farm-workspace-topbar--filter-only
+[data-filter-header-slot]
+[data-analytics-filter-panel]
+> summary h2,
+[data-workspace-topbar].farm-workspace-topbar--filter-only
+[data-filter-header-slot]
+[data-analytics-filter-panel]
+> summary :is(.fa-chevron-down, svg) {
+    color: #000000 !important;
+}
+
+/* Upload actions use the agricultural drought orange action color. */
+[data-agricultural-drought-upload-page] .ui-button--primary {
+    min-height: var(--control-height-compact, 2rem);
+    border-color: var(--drought-topbar-green);
+    background: var(--drought-topbar-green);
+    color: var(--color-text);
+    opacity: 1;
+}
+
+[data-agricultural-drought-upload-page] .ui-button--primary:hover {
+    border-color: var(--color-primary-hover);
+    background: var(--color-primary-hover);
+    color: var(--color-text);
+}
+
+/* The consolidated shell ships a smaller utility bundle than the original
+ * drought monitor. Keep the upload controls faithful to the standalone
+ * layout: the mask file picker fills the row and the action stays compact. */
+[data-agricultural-drought-upload-page]
+.ui-button.ui-button--small:not(.ui-icon-button) {
+    padding-right: var(--space-3);
+    padding-left: var(--space-3);
+}
+
+[data-agricultural-drought-upload-page] .ui-button.ui-icon-button {
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0;
+}
+
+/* The shared analytics body reserves an inline scrollbar gutter for other
+ * workspaces. The upload page scrolls its own content and should use the
+ * same full-width canvas as the standalone monitor. */
+#main-content:has([data-agricultural-drought-upload-page]) {
+    padding-inline-end: 0;
+}
+
+@media (min-width: 30rem) {
+    [data-agricultural-drought-upload-page] {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+}
+
+@media (min-width: 30rem) {
+    [data-agricultural-drought-upload-page]
+    .ui-button[class~="sm:w-auto"] {
+        width: auto;
+    }
+}
+
+/* Keep Agricultural Drought primary actions on the orange action surface,
+ * including the filter apply action after the panel is moved into the
+ * workspace topbar. */
+[data-agricultural-drought-module] .filter-card-apply.ui-button--primary,
+[data-agricultural-drought-filter-panel] .filter-card-apply.ui-button--primary {
+    border-color: var(--drought-action) !important;
+    background: var(--drought-action) !important;
+    color: var(--charcoal-darker) !important;
+}
+
+[data-agricultural-drought-module] .filter-card-apply.ui-button--primary:hover,
+[data-agricultural-drought-module] .filter-card-apply.ui-button--primary:focus-visible,
+[data-agricultural-drought-filter-panel] .filter-card-apply.ui-button--primary:hover,
+[data-agricultural-drought-filter-panel] .filter-card-apply.ui-button--primary:focus-visible {
+    border-color: var(--drought-action-hover) !important;
+    background: var(--drought-action-hover) !important;
+    color: var(--charcoal-darker) !important;
+}
+
+/* The filter panel is moved into the workspace topbar by analytics_filters.js.
+ * Keep its Agricultural Drought control treatment attached to the panel after
+ * that DOM move rather than relying on the original module wrapper. */
+[data-agricultural-drought-filter-panel]
+:is(.ui-dropdown__summary, [data-filter-dropdown] > summary) {
+    border-color: var(--ui-border-subtle);
+}
+
+[data-agricultural-drought-filter-panel]
+:is(.ui-dropdown__summary, [data-filter-dropdown] > summary):focus,
+[data-agricultural-drought-filter-panel]
+:is(.ui-dropdown__summary, [data-filter-dropdown] > summary):focus-visible {
+    border-color: var(--drought-action) !important;
+    outline: 1px solid var(--drought-action) !important;
+    outline-offset: -1px;
+    box-shadow: none !important;
+}
+
+/* Keep upload labels and controls aligned with the shared filter-card system. */
+[data-agricultural-drought-upload-page] .ui-label {
+    margin-bottom: var(--space-1);
+    color: var(--ui-text-muted);
+    cursor: pointer;
+    font-size: var(--type-caption-size);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.06em;
+    line-height: var(--type-caption-line-height);
+    text-transform: uppercase;
+}
+
+/* Upload icon actions use the same compact square footprint without the
+ * saturated fills reserved for prominent semantic actions. */
+[data-agricultural-drought-upload-page]
+.ui-button.ui-icon-button.ui-button--danger {
+    border-color: var(--chilli-light);
+    background: var(--chilli-lighter);
+    color: var(--chilli-dark);
+    box-shadow: none;
+}
+
+[data-agricultural-drought-upload-page]
+.ui-button.ui-icon-button.ui-button--danger:hover,
+[data-agricultural-drought-upload-page]
+.ui-button.ui-icon-button.ui-button--danger:focus-visible {
+    border-color: var(--chilli-light);
+    background: var(--chilli-light);
+    color: var(--chilli-darker);
+}
+
+[data-agricultural-drought-upload-page]
+.ui-button.ui-icon-button.ui-button--accent {
+    border-color: var(--grain-light);
+    background: var(--grain-lighter);
+    color: var(--grain-darker);
+    box-shadow: none;
+}
+
+[data-agricultural-drought-upload-page]
+.ui-button.ui-icon-button.ui-button--accent:hover,
+[data-agricultural-drought-upload-page]
+.ui-button.ui-icon-button.ui-button--accent:focus-visible {
+    border-color: var(--grain-base);
+    background: var(--grain-light);
+    color: var(--charcoal-darker);
+}
+
+[data-pagasa-condition-form] textarea[data-condition-textarea] {
+    min-height: 3.5rem;
+    max-height: 15rem;
+    overflow-y: auto;
+    resize: vertical;
+    line-height: 1.25rem;
+}
+
+[data-agricultural-drought-upload-page] [data-pagasa-condition-heading] {
+    margin-bottom: 0;
+}
+
+[data-agricultural-drought-upload-page] [data-condition-edit].ui-button--secondary {
+    border-color: var(--ui-border, rgba(212, 212, 216, 0.78));
+    background: var(--ui-surface-muted, #f4f4f5);
+    color: var(--ui-text, #27272a);
+}
+
+[data-agricultural-drought-upload-page] [data-condition-edit].ui-button--secondary:hover {
+    border-color: var(--ui-border, rgba(212, 212, 216, 0.78));
+    background: #e4e4e7;
+}
+
+/* Keep drought workspace tables on the same white/lightest-gray rhythm. */
+[data-agricultural-drought-upload-page] table thead {
+    background: #ffffff;
+}
+
+[data-agricultural-drought-upload-page] table tbody > tr {
+    background: #ffffff;
+}
+
+[data-agricultural-drought-upload-page]
+table tbody > tr:nth-child(even) {
+    background: #fafafa;
+}
+
+:is(
+    [data-drought-upload-form],
+    [data-pagasa-rainfall-upload-form]
+) input[type="month"] {
+    box-sizing: border-box;
+    height: var(--control-height-compact, 2rem);
+    min-height: var(--control-height-compact, 2rem);
+    position: relative;
+    border: 1px solid var(--ui-border-subtle);
+    border-radius: var(--ui-control-radius, 0.5rem);
+    padding: 0.375rem 0.75rem 0.375rem 2.25rem;
+    color: var(--ui-text, #27272a);
+    font-size: var(--type-caption-size);
+    line-height: 1rem;
+    cursor: pointer;
+    box-shadow: var(--ui-shadow-card);
+}
+
+[data-month-picker-field] {
+    position: relative;
+}
+
+[data-month-placeholder] {
+    position: absolute;
+    top: 1.75rem;
+    left: 2.25rem;
+    z-index: 1;
+    display: inline-block;
+    padding-right: 0.25rem;
+    background: var(--ui-surface, #fff);
+    color: var(--ui-text-muted, #71717a);
+    font-size: var(--type-caption-size);
+    font-weight: 400;
+    line-height: 1rem;
+    pointer-events: none;
+}
+
+/* Chrome renders empty month segments (e.g. “mm/yyyy”) inside the native
+   control. Hide those segments while the accessible custom prompt is shown. */
+[data-month-picker-field] input.month-picker-empty::-webkit-datetime-edit,
+[data-month-picker-field] input.month-picker-empty::-webkit-datetime-edit-text,
+[data-month-picker-field] input.month-picker-empty::-webkit-datetime-edit-month-field,
+[data-month-picker-field] input.month-picker-empty::-webkit-datetime-edit-year-field {
+    display: none;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+[data-month-picker-field] input.month-picker-empty {
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Keep the native month affordance visible but place it beside the value. */
+:is(
+    [data-drought-upload-form],
+    [data-pagasa-rainfall-upload-form]
+) input[type="month"]::-webkit-calendar-picker-indicator {
+    position: absolute;
+    left: 0.75rem;
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    cursor: pointer;
+    opacity: 1;
+}
+
+/* Use one thin orange focus line for visible drought form fields and the
+   filter summaries that act as dropdowns. */
+:is(
+    [data-agricultural-drought-module],
+    [data-agricultural-drought-upload-page]
+) :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="file"]),
+    select,
+    textarea,
+    [data-filter-dropdown] > summary
+):is(:focus, :focus-visible) {
+    border-color: var(--drought-action) !important;
+    background: var(--color-surface) !important;
+    box-shadow: none !important;
+    outline: 1px solid var(--drought-action) !important;
+    outline-offset: -1px;
+}
+
+[data-agricultural-drought-module]
+[data-map-canvas-card]
+.add-map-metric-option[aria-checked="true"],
+[data-agricultural-drought-module]
+[data-map-canvas-card]
+.add-map-metric-option[aria-checked="true"]:hover {
+    color: #000000 !important;
+}
+
+.drought-affected-row {
+    border-bottom: 1px solid rgb(244 244 245);
+    padding: var(--space-3) 1rem;
+    cursor: pointer;
+}
+
+.drought-affected-row:last-child {
+    border-bottom: 0;
+}
+
+.drought-affected-row__heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.375rem;
+}
+
+.drought-affected-row__name {
+    overflow: hidden;
+    color: rgb(39 39 42);
+    font-size: var(--type-caption-size);
+    font-weight: 700;
+    line-height: 1rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.drought-affected-row__parent {
+    overflow: hidden;
+    color: rgb(161 161 170);
+    font-size: var(--type-caption-size);
+    line-height: var(--type-caption-line-height);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.drought-affected-row__percentage {
+    flex: none;
+    color: rgb(82 82 91);
+    font-size: var(--type-caption-size);
+    font-weight: 500;
+    line-height: 1rem;
+}
+
+.drought-affected-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    margin-top: 0.75rem;
+}
+
+.drought-affected-search {
+    min-width: 0;
+    max-width: 50%;
+    flex: 0 1 50%;
+}
+
+.drought-affected-filter {
+    display: inline-flex;
+    min-width: 0;
+    flex: 0 1 auto;
+    margin-left: auto;
+    align-items: center;
+    gap: var(--space-2);
+    color: rgb(82 82 91);
+    font-size: var(--type-caption-size);
+    font-weight: 600;
+    line-height: 1rem;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.drought-affected-filter__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.drought-affected-filter__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.drought-affected-filter__label span {
+    color: rgb(161 161 170);
+    font-weight: 400;
+}
+
+.drought-toggle-icon {
+    display: inline-block;
+    width: 1.5rem;
+    flex: none;
+    color: var(--drought-action);
+    font-size: 0.95rem;
+    line-height: 1;
+    text-align: center;
+    transition: color 120ms ease;
+}
+
+.drought-toggle-icon.fa-toggle-on {
+    color: var(--drought-action);
+}
+
+[data-agricultural-drought-module]
+:is([data-drought-report-open], [data-drought-map-report-open]),
+[data-agricultural-drought-module]
+:is([data-drought-report-open], [data-drought-map-report-open]):hover,
+[data-agricultural-drought-module]
+:is([data-drought-report-open], [data-drought-map-report-open]):focus-visible {
+    color: var(--drought-action) !important;
+}
+
+/* Report and map-export modal actions use the same Grain-orange action
+ * treatment as the Agricultural Drought workspace controls. */
+:is(.drought-report-modal, .drought-map-report-modal)
+.ui-button--primary {
+    border-color: var(--grain-base);
+    background: var(--grain-base);
+    color: var(--charcoal-darker);
+}
+
+:is(.drought-report-modal, .drought-map-report-modal)
+.ui-button--primary:hover,
+:is(.drought-report-modal, .drought-map-report-modal)
+.ui-button--primary:focus-visible {
+    border-color: var(--grain-dark);
+    background: var(--grain-dark);
+    color: var(--charcoal-darker);
+}
+
+:is(.drought-report-modal, .drought-map-report-modal)
+.ui-button--primary:active {
+    border-color: var(--grain-darker);
+    background: var(--grain-darker);
+    color: var(--color-text-inverse);
+}
+
+.drought-affected-filter__input:focus-visible ~ .drought-toggle-icon {
+    outline: 2px solid var(--drought-action);
+    outline-offset: 2px;
+}
+
+.drought-affected-accordion-actions {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.drought-affected-accordion-action {
+    color: var(--drought-topbar-green);
+}
+
+.drought-affected-accordion-action:hover {
+    background: rgb(52 120 77 / 10%);
+    color: var(--drought-topbar-green);
+}
+
+.drought-affected-accordion-action:focus-visible {
+    outline: 2px solid var(--drought-topbar-green);
+    outline-offset: 1px;
+}
+
+.drought-affected-bar {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 0.625rem;
+    overflow: hidden;
+    border: 1px solid rgb(212 212 216);
+    border-radius: 0.1875rem;
+    background: rgb(244 244 245);
+}
+
+.drought-affected-bar__segment {
+    display: block;
+    height: 100%;
+    min-width: 1px;
+}
+
+.drought-affected-bar__threshold {
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: 50%;
+    width: 1px;
+    background: rgb(39 39 42 / 72%);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 48%);
+}
+
+.drought-boundary-popup .leaflet-popup-content-wrapper {
+    overflow: hidden;
+    border: 1px solid var(--map-ui-border, rgb(161 161 170 / 42%));
+    border-radius: 0.5rem;
+    background: var(--map-popup-surface-opaque, #ffffff);
+    box-shadow: var(--map-ui-shadow, 0 8px 24px rgb(24 24 27 / 16%));
+    color: var(--map-ui-text, rgb(39 39 42));
+    font-family: var(--font-family-interface);
+}
+
+.drought-boundary-popup .leaflet-popup-content {
+    width: 15rem !important;
+    margin: 0;
+    color: var(--map-ui-text, rgb(39 39 42));
+    font-family: var(--font-family-interface);
+}
+
+.drought-boundary-popup .leaflet-popup-tip {
+    border: 1px solid var(--map-ui-border, rgb(161 161 170 / 42%));
+    background: var(--map-popup-surface-opaque, #ffffff);
+    box-shadow: none;
+}
+
+.drought-boundary-popup .leaflet-popup-close-button {
+    top: 0.125rem !important;
+    right: 0.125rem !important;
+    display: flex;
+    width: 1.5rem;
+    height: 1.5rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--map-ui-muted, rgb(82 82 91)) !important;
+    font-family: var(--font-family-interface);
+    font-size: var(--type-caption-size) !important;
+    font-weight: 400;
+    line-height: 1;
+    opacity: 0.72;
+    text-align: center;
+}
+
+.drought-boundary-popup .leaflet-popup-close-button:hover,
+.drought-boundary-popup .leaflet-popup-close-button:focus-visible {
+    color: var(--map-ui-text, rgb(39 39 42)) !important;
+    opacity: 1;
+}
+
+.drought-boundary-tooltip {
+    padding: 0.5rem 0.625rem 0.625rem;
+    color: var(--map-ui-text, rgb(39 39 42));
+    font-family: var(--font-family-interface);
+}
+
+.drought-map-report-page__tooltip.drought-boundary-tooltip {
+    padding: 0;
+}
+
+.drought-boundary-tooltip__title {
+    position: sticky;
+    z-index: 1;
+    top: -0.5rem;
+    overflow: hidden;
+    margin: -0.5rem -0.625rem 0;
+    padding: 0.5rem 1.75rem 0.375rem 0.625rem;
+    background: var(--map-popup-surface-opaque, #ffffff);
+    color: var(--map-ui-text, rgb(39 39 42));
+    font-size: var(--type-label-size);
+    font-weight: 700;
+    line-height: 1rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.drought-boundary-panel__eyebrow {
+    margin-bottom: var(--space-1);
+    color: var(--color-accent);
+    font-size: var(--type-label-size);
+    font-weight: 700;
+    line-height: 1.25rem;
+}
+
+.drought-boundary-panel__eyebrow--inline {
+    flex: none;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.drought-boundary-panel__title-row {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.drought-svtr-heading {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+}
+
+.drought-boundary-tooltip__section {
+    margin-top: 0.375rem;
+    padding-top: 0.3125rem;
+}
+
+.drought-boundary-tooltip__section--rainfall {
+    margin-top: 0.75rem;
+}
+
+.drought-boundary-tooltip__section-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    color: var(--map-ui-muted, rgb(82 82 91));
+    font-size: var(--type-caption-size);
+    font-weight: 600;
+    line-height: var(--type-caption-line-height);
+}
+
+.drought-boundary-tooltip__section-value {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    border-radius: 0.125rem;
+    background: var(--map-ui-surface-hover, rgb(244 244 245));
+    padding: 0.0625rem 0.25rem;
+    color: var(--map-ui-text, rgb(39 39 42));
+    font-size: var(--type-caption-size);
+    font-weight: 400;
+    line-height: var(--type-caption-line-height);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.drought-boundary-tooltip__section-title--rainfall {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.0625rem;
+    margin-bottom: 0.375rem;
+}
+
+.drought-boundary-tooltip__section-helper {
+    overflow: hidden;
+    color: var(--map-ui-muted, rgb(113 113 122));
+    font-size: var(--type-caption-size);
+    font-weight: 400;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.drought-boundary-tooltip__stack {
+    display: flex;
+    width: 100%;
+    height: 0.375rem;
+    overflow: hidden;
+    border: 1px solid var(--map-ui-border, rgb(161 161 170 / 36%));
+    border-radius: 0.1875rem;
+    background: var(--map-ui-surface-hover, rgb(244 244 245 / 72%));
+}
+
+.drought-boundary-tooltip__stack > span {
+    display: block;
+    height: 100%;
+    min-width: 1px;
+}
+
+.drought-boundary-tooltip__forecast {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.1875rem;
+}
+
+.drought-boundary-tooltip__forecast-axis {
+    display: grid;
+    height: 3.5rem;
+    grid-template-rows: repeat(4, 1fr);
+    color: var(--map-ui-muted, rgb(113 113 122));
+    font-size: var(--type-caption-size);
+    line-height: 1;
+}
+
+.drought-boundary-tooltip__forecast-axis span {
+    display: flex;
+    align-items: flex-start;
+}
+
+.drought-boundary-tooltip__rainfall-axis {
+    position: relative;
+    display: block;
+    justify-self: start;
+    width: 100%;
+}
+
+.drought-boundary-tooltip__rainfall-chart {
+    box-sizing: border-box;
+    width: 100%;
+    margin-inline: 0;
+    justify-self: start;
+    grid-template-columns: max-content minmax(0, 1fr);
+}
+
+.drought-boundary-tooltip__rainfall-chart > .drought-boundary-tooltip__rainfall-axis {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: stretch;
+    justify-self: stretch;
+    width: max-content;
+    margin-inline: 0;
+}
+
+.drought-boundary-tooltip__rainfall-chart > .drought-boundary-tooltip__rainfall-plot {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+}
+
+.drought-boundary-tooltip__rainfall-axis::before {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    height: 0;
+    overflow: visible;
+    content: attr(data-rainfall-axis-max);
+    visibility: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.drought-boundary-tooltip__rainfall-axis span {
+    position: absolute;
+    top: var(--rainfall-axis-position, 0%);
+    right: 0;
+    left: 0;
+    display: block;
+    text-align: right;
+    transform: translateY(-50%);
+}
+
+.drought-boundary-tooltip__forecast-plot {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.1875rem;
+    background: repeating-linear-gradient(
+        to bottom,
+        var(--map-ui-border, rgb(161 161 170 / 24%)) 0,
+        var(--map-ui-border, rgb(161 161 170 / 24%)) 1px,
+        transparent 1px,
+        transparent 25%
+    );
+    background-size: 100% 3.5rem;
+    background-repeat: no-repeat;
+}
+
+.drought-boundary-tooltip__forecast-column {
+    display: grid;
+    min-width: 0;
+    grid-template-rows: 3.5rem 0.625rem;
+    gap: 0.125rem;
+}
+
+.drought-boundary-tooltip__forecast-track {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.drought-boundary-tooltip__forecast-bar {
+    display: block;
+    width: min(0.75rem, 70%);
+    min-height: 1px;
+    border-radius: 0.125rem 0.125rem 0 0;
+}
+
+.drought-boundary-tooltip__rainfall-track {
+    position: relative;
+}
+
+.drought-boundary-tooltip__rainfall-track[data-drought-condition] {
+    background-color: var(--rainfall-condition-color);
+    border-radius: 0.125rem;
+}
+
+.drought-boundary-tooltip__rainfall-range {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0.0625rem;
+    min-height: 1px;
+    border-radius: 9999px;
+    transform: translateX(-50%);
+}
+
+.drought-boundary-tooltip__rainfall-tick,
+.drought-boundary-tooltip__rainfall-mean {
+    position: absolute;
+    left: 50%;
+    display: block;
+    width: 0.45rem;
+    height: 0.0625rem;
+    border-radius: 9999px;
+    transform: translate(-50%, 50%);
+}
+
+.drought-boundary-tooltip__rainfall-mean {
+    width: 0.5625rem;
+    height: 0.5625rem;
+    transform: translate(-50%, 50%);
+}
+
+.drought-boundary-tooltip__forecast-month {
+    overflow: hidden;
+    color: var(--map-ui-muted, rgb(113 113 122));
+    font-size: var(--type-caption-size);
+    line-height: 0.625rem;
+    text-align: center;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+@media (max-width: 30rem) {
+    .drought-boundary-popup .leaflet-popup-content-wrapper {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .drought-boundary-popup .leaflet-popup-content {
+        width: min(15rem, calc(100vw - 2rem)) !important;
+    }
+}
+
+.drought-affected-empty {
+    padding: 2rem 0.5rem;
+    color: rgb(161 161 170);
+    font-size: var(--type-caption-size);
+    line-height: 1rem;
+    text-align: center;
+}
+
+.drought-affected-accordion {
+    margin: 0.25rem 0;
+}
+
+.drought-affected-accordion > summary {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 0.75rem;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.25rem;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    color: rgb(63 44 0);
+    font-size: var(--type-caption-size);
+    font-weight: 500;
+    line-height: var(--type-caption-line-height);
+    list-style: none;
+    cursor: pointer;
+}
+
+.drought-affected-accordion > summary::-webkit-details-marker {
+    display: none;
+}
+
+.drought-affected-accordion > summary::after {
+    content: "+";
+    color: rgb(63 44 0 / 72%);
+    font-size: var(--type-label-size);
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+}
+
+.drought-affected-accordion[open] > summary::after {
+    content: "−";
+}
+
+.drought-affected-accordion > summary:focus-visible {
+    z-index: 4;
+    outline: 2px solid rgb(63 63 70);
+    outline-offset: -2px;
+}
+
+.drought-affected-accordion--region > summary {
+    position: sticky;
+    top: -0.5rem;
+    z-index: 3;
+    background: var(--grain-light);
+}
+
+.drought-affected-accordion__name {
+    overflow: hidden;
+    font-size: var(--type-caption-size);
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.drought-affected-accordion__meta {
+    color: rgb(63 44 0 / 72%);
+    font-size: var(--type-caption-size);
+    font-weight: 500;
+    line-height: var(--type-caption-line-height);
+    white-space: nowrap;
+}
+
+.drought-affected-accordion__body {
+    padding: 0;
+}
+
+.drought-affected-accordion--province {
+    margin: 0.375rem 0;
+    border-radius: 0.375rem;
+}
+
+.drought-affected-accordion--province > summary {
+    min-height: 2.25rem;
+    border-radius: 0.375rem;
+    /* Keep province accordions visibly subordinate to the region header. */
+    background: color-mix(in srgb, var(--grain-light) 60%, white);
+    padding: 0.4375rem 1rem;
+    color: rgb(74 53 0);
+    font-size: var(--type-caption-size);
+}
+
+.drought-affected-accordion--province > summary::after {
+    color: rgb(74 53 0 / 68%);
+}
+
+.drought-affected-accordion--province > .drought-affected-accordion__body {
+    padding: 0;
+}
+
+.drought-affected-row--region-card {
+    min-height: 3.5rem;
+    margin: 0.375rem 0;
+    border: 1px solid rgb(228 228 231);
+    border-radius: 0.375rem;
+    background: #ffffff;
+    padding: var(--space-3) 1rem;
+}
+
+.drought-affected-row.is-selected {
+    border-radius: 0.375rem;
+    outline: var(--border-width-strong) solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.drought-affected-row--region-card.is-selected {
+    border-color: var(--color-accent);
+}
+
+.drought-affected-row:focus-visible {
+    outline: var(--border-width-strong) solid var(--color-accent);
+    outline-offset: -2px;
+}
+
+.drought-affected-row[data-drought-boundary-mode="province"].is-selected,
+.drought-affected-row[data-drought-boundary-mode="municipality"].is-selected {
+    position: relative;
+    border-bottom-color: transparent;
+    outline: none;
+}
+
+.drought-affected-row[data-drought-boundary-mode="province"].is-selected::after,
+.drought-affected-row[data-drought-boundary-mode="municipality"].is-selected::after {
+    position: absolute;
+    inset: 0.125rem 0.25rem;
+    border: var(--border-width-strong) solid var(--color-accent);
+    border-radius: 0.375rem;
+    content: "";
+    pointer-events: none;
+}
+
+[data-svtr-workspace] [data-map-canvas-card] {
+    border-radius: 0.375rem;
+}
+
+.drought-svtr-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(6, minmax(0, 1fr));
+    height: calc(600% + 2.5rem);
+    align-content: start;
+    gap: 0.5rem;
+}
+
+.drought-svtr-grid-shell {
+    padding: 0 0.5rem 0.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: rgb(161 161 170) transparent;
+    scrollbar-gutter: auto;
+    scrollbar-width: none;
+}
+
+.drought-svtr-grid-shell:focus-visible {
+    outline: 2px solid rgb(113 113 122);
+    outline-offset: -2px;
+}
+
+.drought-map-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid rgb(228 228 231);
+    border-radius: 0.375rem;
+    background: white;
+}
+
+.drought-svtr-legend-stack {
+    position: relative;
+    z-index: 1;
+    inset: auto;
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) 1rem;
+    padding: 0.375rem 0.75rem 0.5rem;
+    border: 0;
+    box-sizing: border-box;
+    background: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    pointer-events: none;
+}
+
+.drought-svtr-legend {
+    display: inline-flex;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.25rem 0.625rem;
+}
+
+.drought-svtr-legend__title {
+    color: rgb(39 39 42);
+    font-family: var(--font-family-interface);
+    font-size: var(--type-caption-size);
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.drought-svtr-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: rgb(82 82 91);
+    font-size: var(--type-caption-size);
+    font-weight: 400;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.drought-svtr-legend__swatch {
+    width: 0.625rem;
+    height: 0.625rem;
+    border: 0;
+    border-radius: 9999px;
+    background: var(--drought-legend-color);
+    box-shadow: none;
+    opacity: 1;
+}
+
+[data-agricultural-drought-module]
+:is(#ph-map, [id^="drought-map-"])
+.add-map-overlay-legend__swatch--area {
+    opacity: 1;
+}
+
+[data-agricultural-drought-module]
+[data-map-legend]
+.add-map-legend__title {
+    display: block;
+    margin-bottom: 0.2rem;
+    line-height: 1;
+}
+
+.drought-map-toolbar .add-map-zoom-controls {
+    flex-direction: row;
+}
+
+[data-svtr-toolbar-controls] {
+    direction: ltr;
+    max-width: calc(100% - 1.25rem);
+}
+
+[data-svtr-toolbar-controls] .ui-map-icon-button,
+[data-svtr-toolbar-controls] .add-map-zoom-controls {
+    border-color: var(--drought-action);
+    background: var(--color-surface);
+    color: #000000;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+[data-svtr-toolbar-controls] #map-fullscreen,
+[data-svtr-toolbar-controls] #map-reset-view,
+[data-svtr-toolbar-controls] #map-style-toggle,
+[data-svtr-toolbar-controls] #map-copy-image,
+[data-svtr-toolbar-controls] #map-resize,
+[data-svtr-toolbar-controls] #map-download-image,
+[data-svtr-toolbar-controls] #map-boundary-toggle {
+    border: 0;
+    background: var(--color-surface);
+    color: #000000;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+[data-svtr-toolbar-controls] .add-map-zoom-controls {
+    border: 0;
+}
+
+[data-svtr-toolbar-controls] #map-zoom-in,
+[data-svtr-toolbar-controls] #map-zoom-out {
+    border: 0;
+    background: var(--color-surface);
+    color: #000000;
+    box-shadow: none;
+}
+
+[data-svtr-toolbar-controls] #map-zoom-out {
+    border-right: 0;
+}
+
+[data-svtr-toolbar-controls] .ui-map-icon-button:hover,
+[data-svtr-toolbar-controls] #map-fullscreen:hover,
+[data-svtr-toolbar-controls] #map-reset-view:hover,
+[data-svtr-toolbar-controls] #map-style-toggle:hover,
+[data-svtr-toolbar-controls] #map-copy-image:hover,
+[data-svtr-toolbar-controls] #map-resize:hover,
+[data-svtr-toolbar-controls] #map-download-image:hover,
+[data-svtr-toolbar-controls] #map-boundary-toggle:hover,
+[data-svtr-toolbar-controls] #map-zoom-in:hover,
+[data-svtr-toolbar-controls] #map-zoom-out:hover {
+    background: var(--drought-action-subtle);
+    color: #000000;
+}
+
+[data-svtr-toolbar-controls] .ui-map-icon-button:focus-visible {
+    outline-color: var(--drought-action);
+}
+
+[data-svtr-toolbar-controls] .add-map-style-panel,
+[data-svtr-toolbar-controls] .add-map-metric-panel {
+    direction: ltr;
+}
+
+.drought-map-toolbar #map-zoom-out {
+    border-top: 0;
+    border-left: 0;
+}
+
+[data-svtr-toolbar-controls] .add-map-style-control,
+.drought-map-toolbar .add-map-style-control {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    display: block;
+    transform: none;
+}
+
+[data-svtr-toolbar-controls] .add-map-style-panel,
+.drought-map-toolbar .add-map-style-panel {
+    top: 0;
+    right: calc(100% + var(--map-control-overlay-gap, 0.5rem));
+    bottom: auto;
+    left: auto;
+    z-index: 1200;
+    transform: none;
+    transform-origin: right top;
+}
+
+[data-svtr-toolbar-controls] .add-map-boundary-control,
+.drought-map-toolbar .add-map-boundary-control {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    z-index: auto;
+    transform: none;
+}
+
+[data-svtr-toolbar-controls] #map-boundary-panel,
+.drought-map-toolbar #map-boundary-panel {
+    top: 0;
+    right: calc(100% + var(--map-control-overlay-gap, 0.5rem));
+    bottom: auto;
+    left: auto;
+    transform: none;
+}
+
+.drought-map-layers-control {
+    position: absolute;
+    top: 0.625rem;
+    right: 0.625rem;
+    left: auto;
+    transform: none;
+}
+
+.drought-map-layers-control #map-boundary-panel {
+    top: 0;
+    right: calc(100% + var(--map-control-overlay-gap, 0.5rem));
+    left: auto;
+    transform: none;
+}
+
+.drought-map-product-control {
+    position: absolute;
+    top: 50%;
+    left: 0.625rem;
+    z-index: 1000;
+    transform: translateY(-50%);
+}
+
+.drought-map-control-rail .drought-map-product-control {
+    position: relative;
+    top: auto;
+    left: auto;
+    z-index: auto;
+    transform: none;
+}
+
+.drought-map-product-control .add-map-metric-panel {
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: calc(100% + var(--map-control-overlay-gap, 0.5rem));
+    transform: translateY(-50%);
+}
+
+[data-svtr-toolbar-controls] .drought-map-product-control,
+.drought-map-toolbar .drought-map-product-control {
+    position: relative;
+    top: auto;
+    left: auto;
+    z-index: auto;
+    transform: none;
+}
+
+[data-svtr-toolbar-controls] .drought-map-product-control .add-map-metric-panel,
+.drought-map-toolbar .drought-map-product-control .add-map-metric-panel {
+    top: calc(100% + 0.5rem);
+    right: 0;
+    bottom: auto;
+    left: auto;
+    transform: none;
+}
+
+.drought-map-layer-section + .drought-map-layer-section {
+    margin-top: 0.35rem;
+    border-top: 1px solid var(--color-accent);
+    padding-top: 0.3rem;
+}
+
+.drought-map-layer-section__heading {
+    margin: 0;
+    padding: 0.2rem 0.4rem 0.05rem;
+    color: var(--map-ui-muted, rgb(113 113 122));
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 0.625rem;
+    text-transform: uppercase;
+}
+
+.drought-map-layer-section .add-map-metric-options {
+    margin-top: 0.15rem;
+}
+
+.drought-map-layer-toggle-wrap {
+    border-top: 1px solid var(--color-accent);
+    padding: 0.1875rem;
+}
+
+.drought-map-layer-toggle {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border: 0;
+    border-radius: 0.375rem;
+    background: transparent;
+    padding: 0.375rem 0.4375rem;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.drought-map-layer-toggle:hover {
+    background: var(--map-ui-surface-hover, rgb(244 244 245));
+}
+
+.drought-map-layer-toggle__label {
+    display: block;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    line-height: 0.625rem;
+}
+
+.drought-map-layer-toggle__label--primary {
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.drought-map-card.is-active {
+    outline: 1px solid rgb(82 82 91);
+    outline-offset: -1px;
+}
+
+.drought-map {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border-radius: 0.375rem;
+    background: var(--map-background-color, #cccccc);
+}
+
+.drought-map-surface {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.drought-map-period {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 500;
+    max-width: calc(100% - 1.5rem);
+    border: 0;
+    background: transparent;
+    padding: 0.2rem 0.25rem;
+    color: var(--map-ui-text, rgb(39 39 42));
+    text-align: left;
+}
+
+.drought-map-period:hover {
+    color: var(--map-ui-muted, rgb(63 63 70));
+}
+
+.drought-map-period:focus-visible {
+    outline: 2px solid rgb(24 24 27);
+    outline-offset: 2px;
+}
+
+.drought-map-period__label {
+    display: block;
+    overflow: hidden;
+    font-size: var(--type-caption-size);
+    font-weight: 700;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.drought-map-surface .add-map-coordinate-labels {
+    border-radius: 0;
+}
+
+.drought-map-surface .add-map-coordinate-label {
+    font-size: 0.625rem;
+    line-height: 0.75rem;
+}
+
+.drought-north-arrow {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 2rem;
+    z-index: 500;
+    display: flex;
+    width: 5rem;
+    flex-direction: column;
+    align-items: center;
+    color: var(--map-cartography-color, #0ea5e9);
+    font-size: var(--type-caption-size);
+    line-height: 1;
+    pointer-events: none;
+}
+
+.drought-north-arrow svg {
+    display: block;
+    width: 1.25rem;
+    height: 1.5rem;
+}
+
+.drought-map-scale-host {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.45rem;
+    z-index: 500;
+    width: 5rem;
+    pointer-events: none;
+}
+
+.drought-map .leaflet-control-scale {
+    margin: 0;
+}
+
+.drought-map .leaflet-control-scale-line {
+    border-color: var(--map-cartography-color, #52525b);
+    background: color-mix(
+        in srgb,
+        var(--map-background-color, #cccccc) 76%,
+        transparent
+    );
+    color: var(--map-cartography-color, #52525b);
+    font-family: var(--font-family-data);
+    font-size: 0.4375rem;
+    font-weight: var(--type-micro-weight);
+    line-height: 0.5rem;
+}
+
+.drought-map--single {
+    height: min(56vh, 40rem);
+    min-height: 26rem;
+}
+
+.drought-raster-canvas {
+    image-rendering: pixelated;
+}
+
+.drought-mask-overlay {
+    image-rendering: pixelated;
+    pointer-events: none;
+}
+
+.drought-kpi {
+    min-width: 0;
+    border: 1px solid rgb(228 228 231);
+    border-radius: var(--control-radius);
+    background: rgb(250 250 250);
+    padding: var(--space-3);
+}
+
+.drought-kpi span {
+    display: block;
+    color: rgb(113 113 122);
+    font-size: var(--type-caption-size);
+    font-weight: 600;
+}
+
+.drought-kpi strong {
+    display: block;
+    margin-top: var(--space-1);
+    color: rgb(24 24 27);
+    font-size: var(--type-label-size);
+}
+
+@container (min-width: 42rem) {
+    .drought-svtr-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(3, minmax(0, 1fr));
+        height: calc(300% + 1rem);
+    }
+}
+
+@container (min-width: 64rem) {
+    .drought-svtr-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        height: calc(200% + 0.5rem);
+    }
+}
+
+/* Keep the Agricultural Drought popups visually interchangeable: one compact
+   heading rhythm, one option-row height, and one selected-state treatment. */
+[data-agricultural-drought-module] [data-map-canvas-card]
+:is(
+    .add-map-layer-panel.add-map-metric-panel,
+    .map-resize-menu
+) {
+    width: min(12rem, calc(100vw - 2rem));
+    max-width: min(12rem, calc(100vw - 2rem));
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.add-map-style-panel {
+    width: min(9.5rem, calc(100vw - 2rem));
+    max-width: min(9.5rem, calc(100vw - 2rem));
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+:is(
+    .add-map-style-panel__heading,
+    .add-map-metric-panel__heading,
+    .map-resize-menu__title,
+    .drought-map-layer-section__heading
+) {
+    display: block;
+    margin: 0;
+    padding: 0.15rem 0.35rem 0.1rem;
+    color: var(--map-ui-text, var(--color-text));
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 0.625rem;
+    text-transform: uppercase;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+:is(.add-map-style-panel__section, .drought-map-layer-section + .drought-map-layer-section) {
+    margin-top: 0.25rem;
+    padding-top: 0.25rem;
+    border-top: 1px solid var(--color-accent);
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.add-map-layer-panel.add-map-metric-panel .add-map-metric-options {
+    gap: 0.1rem;
+    margin-top: 0.1rem;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+:is(.add-map-metric-option, .map-resize-menu__options > button) {
+    min-height: 1.5rem;
+    padding: 0.2rem 0.35rem;
+    border-radius: var(--map-control-radius, var(--control-radius));
+    font-size: var(--type-micro-size);
+    line-height: var(--type-micro-line-height);
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+:is(
+    .map-resize-menu__option-name,
+    .map-resize-menu__option-detail
+) {
+    font-size: var(--type-micro-size);
+    line-height: var(--type-micro-line-height);
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.add-map-style-panel .add-map-background-palette {
+    display: grid;
+    width: max-content;
+    grid-template-columns: repeat(6, 1.25rem);
+    gap: 0.15rem;
+    margin-top: 0.2rem;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.add-map-style-panel .add-map-background-option {
+    width: 1.25rem;
+    height: 1.25rem;
+    min-width: 1.25rem;
+    flex: 0 0 1.25rem;
+    padding: 0.125rem;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.add-map-style-panel .add-map-background-swatch {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+:is(
+    .add-map-style-panel .add-map-background-option[aria-pressed="true"],
+    .add-map-style-panel .add-map-palette-option[aria-pressed="true"],
+    .map-resize-menu__options > button[data-selected="true"]
+) {
+    border-color: var(--color-accent) !important;
+    background: var(--color-accent) !important;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.drought-map-layer-toggle-wrap {
+    padding: 0.1rem 0.15rem;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.drought-map-layer-toggle {
+    min-height: 1.5rem;
+    padding: 0.2rem 0.35rem;
+}
+
+/* Keep map icon actions on the fixed black map-control palette. */
+[data-agricultural-drought-module] [data-map-canvas-card] .ui-map-icon-button {
+    border: 0;
+    background: #fcfcfa;
+    color: #000000;
+    box-shadow: none;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+:is(
+    #map-fullscreen,
+    #map-reset-view,
+    #map-style-toggle,
+    #map-boundary-toggle,
+    #map-copy-image,
+    #map-resize,
+    #map-download-image
+) {
+    border: 0;
+    background: #fcfcfa;
+    color: #000000;
+    box-shadow: none;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.add-map-zoom-controls {
+    border: 0;
+    border-color: #d4d4d8;
+    background: #fcfcfa;
+    color: #000000;
+    box-shadow: none;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+#map-zoom-in,
+[data-agricultural-drought-module] [data-map-canvas-card]
+#map-zoom-out {
+    border: 0;
+    background: #fcfcfa;
+    color: #000000;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+#map-zoom-out {
+    border-right: 0;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.ui-map-icon-button:hover,
+[data-agricultural-drought-module] [data-map-canvas-card]
+:is(
+    #map-fullscreen,
+    #map-reset-view,
+    #map-style-toggle,
+    #map-boundary-toggle,
+    #map-copy-image,
+    #map-resize,
+    #map-download-image
+):hover,
+[data-agricultural-drought-module] [data-map-canvas-card]
+    #map-zoom-in:hover,
+[data-agricultural-drought-module] [data-map-canvas-card]
+#map-zoom-out:hover {
+    border-color: transparent;
+    background: #f4f4f5;
+    color: #000000;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+.ui-map-icon-button:focus-visible {
+    outline-color: #000000;
+}
+
+[data-agricultural-drought-module] [data-map-canvas-card]
+:is(
+    #map-fullscreen,
+    #map-reset-view,
+    #map-style-toggle,
+    #map-boundary-toggle,
+    #map-copy-image,
+    #map-resize,
+    #map-download-image
+):focus-visible {
+    outline-color: #000000;
+}
+
+[data-agricultural-drought-module] .dashboard-chart-icon-button {
+    color: #000000;
+}
+
+[data-agricultural-drought-module]
+.dashboard-chart-icon-button:hover,
+[data-agricultural-drought-module]
+.dashboard-chart-icon-button:focus-visible {
+    background: var(--drought-action-subtle);
+    color: #000000;
+}
+
+[data-agricultural-drought-module]
+.dashboard-chart-icon-button:focus-visible {
+    outline-color: var(--drought-action);
+}
+
+@media (max-width: 30rem) {
+    [data-agricultural-drought-module] [data-map-canvas-card]
+    .map-resize-menu {
+        width: auto;
+        max-width: none;
+    }
+}

@@ -545,6 +545,838 @@
     --ui-shadow-modal: var(--elevation-modal);
 }
 
+/* 2027DS seed-distribution release workspace.  This uses the same flat cards,
+ * compact controls, and neutral map chrome as the other Data Studio modules. */
+.seed-distribution-page {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    gap: var(--space-3, 0.75rem);
+}
+
+.seed-distribution-level-control {
+    display: block;
+    min-width: 0;
+    width: 8.5rem;
+}
+
+.seed-distribution-card {
+    border: var(--farm-outline-width) solid var(--farm-outline-color);
+    border-radius: var(--ui-card-radius);
+    background: var(--ui-surface);
+    box-shadow: var(--elevation-flat);
+}
+
+.seed-distribution-panel-header p {
+    margin: 0;
+    color: var(--text-secondary, #71717a);
+    font-size: 0.6875rem;
+}
+
+.seed-distribution-chart-header {
+    align-items: center;
+}
+
+.seed-distribution-chart-header-controls {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+}
+
+.seed-distribution-chart-header-controls .seed-distribution-pie-controls {
+    flex: 0 1 auto;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+}
+
+.seed-distribution-chart-header-controls .seed-distribution-pie-control {
+    width: 7.75rem;
+}
+
+.seed-distribution-chart-header-controls .seed-distribution-level-control {
+    flex: 0 0 auto;
+    width: 7.75rem;
+}
+
+.seed-distribution-card--controls {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+}
+
+.seed-distribution-control {
+    display: flex;
+    min-width: 10rem;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.seed-distribution-control--wide {
+    min-width: min(24rem, 100%);
+}
+
+.seed-distribution-control label {
+    color: var(--text-secondary, #52525b);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.seed-distribution-control .ui-select {
+    min-height: 2rem;
+    width: 100%;
+}
+
+.seed-distribution-validation {
+    align-self: center;
+    flex: 1 1 18rem;
+    margin: 0;
+    color: var(--text-tertiary, #71717a);
+    font-size: 0.6875rem;
+    line-height: 1.35;
+}
+
+.seed-distribution-workspace {
+    display: grid;
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: minmax(20rem, 0.72fr) minmax(28rem, 1.08fr);
+    gap: 0.75rem;
+}
+
+.seed-distribution-map-card {
+    min-width: 0;
+    /* Match the Dashboard map card: the map root clips map pixels while
+     * control flyouts remain visible outside the card. */
+    overflow: visible;
+}
+
+.seed-distribution-map-card {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.seed-distribution-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-subtle, #e4e4e7);
+}
+
+.seed-distribution-panel-header h2 {
+    margin: 0;
+    color: var(--text-primary, #18181b);
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.seed-distribution-analytics {
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+    gap: 0.75rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: auto;
+}
+
+.seed-distribution-chart-card,
+.seed-distribution-table-card {
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
+}
+
+.seed-distribution-chart-card {
+    flex: 0 0 auto;
+    min-height: 0;
+}
+
+.seed-distribution-pie-card {
+    flex: 0 0 auto;
+    min-height: 0;
+}
+
+.seed-distribution-pie-header {
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (min-width: 641px) {
+    .seed-distribution-pie-header {
+        flex-wrap: nowrap;
+    }
+
+    .seed-distribution-pie-header > div:first-child {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .seed-distribution-pie-header .seed-distribution-pie-controls {
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+    }
+}
+
+.seed-distribution-pie-controls {
+    display: flex;
+    min-width: 0;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.seed-distribution-pie-control {
+    display: block;
+    width: 9.5rem;
+}
+
+.seed-distribution-pie-control .ui-select {
+    width: 100%;
+}
+
+.seed-distribution-pie-wrap {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 18rem;
+    padding: 0.75rem 1rem 1rem;
+}
+
+.seed-distribution-pie-wrap canvas {
+    display: block;
+    width: 100% !important;
+    height: 18rem !important;
+}
+
+.seed-distribution-chart-card .seed-distribution-panel-header {
+    position: sticky;
+    z-index: 3;
+    top: 0;
+    background: var(--surface-primary, #ffffff);
+}
+
+.seed-distribution-chart-wrap {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    overflow: visible;
+    padding: 0.75rem 1rem 1rem;
+}
+
+.seed-distribution-chart-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary, #52525b);
+    font-size: 0.6875rem;
+}
+
+.seed-distribution-chart-legend-group {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.5rem;
+}
+
+.seed-distribution-chart-legend-heading {
+    line-height: 1.25rem;
+    color: var(--text-primary, #27272a);
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+
+.seed-distribution-chart-legend-items {
+    display: flex;
+    min-height: 1.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.65rem;
+}
+
+.seed-distribution-chart-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    line-height: 1.25rem;
+    white-space: nowrap;
+}
+
+.seed-distribution-chart-legend-item:is(button) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    opacity: 0.48;
+}
+
+.seed-distribution-chart-legend-item:is(button)[aria-pressed="true"] {
+    opacity: 1;
+}
+
+.seed-distribution-chart-legend-item:is(button):focus-visible {
+    outline: 2px solid var(--color-primary, #2563eb);
+    outline-offset: 2px;
+}
+
+.seed-distribution-chart-legend-swatch {
+    display: inline-block;
+    width: 0.55rem;
+    height: 0.55rem;
+    flex: 0 0 auto;
+    border-radius: 0.125rem;
+}
+
+.seed-distribution-chart-wrap canvas {
+    display: block;
+    width: 100% !important;
+    height: var(--seed-chart-canvas-height, auto) !important;
+}
+
+.seed-distribution-chart-wrap:not(.seed-distribution-chart-wrap--scrollable) canvas {
+    min-height: 0;
+}
+
+.seed-distribution-chart-wrap--scrollable canvas {
+    min-height: 0;
+}
+
+.seed-distribution-table-card {
+    flex: 0 0 auto;
+}
+
+.seed-distribution-table-wrap {
+    max-height: min(42rem, calc(100dvh - 18rem));
+    max-width: 100%;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: auto;
+}
+
+.seed-distribution-table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--text-primary, #27272a);
+    font-size: 0.6875rem;
+}
+
+.seed-distribution-table th,
+.seed-distribution-table td {
+    padding: 0.4rem 0.5rem;
+    border-right: 1px solid var(--border-subtle, #e4e4e7);
+    border-bottom: 1px solid var(--border-subtle, #e4e4e7);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.seed-distribution-table th[data-column],
+.seed-distribution-table td[data-column] {
+    width: 7.25rem;
+    min-width: 7.25rem;
+    max-width: 7.25rem;
+}
+
+.seed-distribution-table th[data-column="D"],
+.seed-distribution-table td[data-column="D"] {
+    width: 9.5rem;
+    min-width: 9.5rem;
+    max-width: 9.5rem;
+}
+
+.seed-distribution-table thead th {
+    position: sticky;
+    z-index: 5;
+    top: 0;
+    vertical-align: middle;
+    background: var(--grain-base, #ffad00);
+    color: #3f3f46;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.seed-distribution-table thead tr:first-child > th {
+    z-index: 7;
+}
+
+.seed-distribution-table thead tr:nth-child(2) th {
+    top: 3rem;
+    z-index: 6;
+    background: #fff4d6;
+    color: #3f3f46;
+    text-transform: none;
+}
+
+.seed-distribution-table thead th[data-column],
+.seed-distribution-table thead .seed-distribution-table-group-header {
+    text-align: center;
+    white-space: normal;
+    line-height: 1.2;
+}
+
+.seed-distribution-table thead .seed-distribution-table-group-header {
+    height: 3rem;
+    min-height: 3rem;
+    vertical-align: middle;
+}
+
+.seed-distribution-table thead tr:first-child > th:first-child,
+.seed-distribution-table tbody > tr > :first-child {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    min-width: 10rem;
+    background: #ffffff;
+    text-align: left;
+}
+
+.seed-distribution-table thead tr:first-child > th:first-child {
+    z-index: 8;
+    background: var(--grain-base, #ffad00);
+    color: #3f3f46;
+    text-align: center;
+}
+
+.seed-distribution-table tbody tr:nth-child(even) td,
+.seed-distribution-table tbody tr:nth-child(even) th:first-child {
+    background: #fafafa;
+}
+
+.seed-distribution-table tbody tr.seed-distribution-region-total > *,
+.seed-distribution-table tbody tr.seed-distribution-grand-total > * {
+    border-top: 1px solid var(--border-subtle, #e4e4e7);
+    background: #fff4d6;
+    color: #3f3f46;
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.seed-distribution-table tbody tr.seed-distribution-grand-total > * {
+    border-top: 2px solid var(--grain-base, #ffad00);
+    background: #fff0c2;
+    color: #27272a;
+}
+
+.seed-distribution-table [data-column].is-selected {
+    background: #fff7df !important;
+    color: #3f3f46;
+    font-weight: 700;
+}
+
+/* Summary rows keep one continuous fill even when their selected column is
+ * highlighted and the first cell is sticky during horizontal scrolling. */
+.seed-distribution-table tbody tr.seed-distribution-region-total > * {
+    background: #fff4d6 !important;
+    color: #3f3f46 !important;
+}
+
+.seed-distribution-table tbody tr.seed-distribution-grand-total > * {
+    background: #fff0c2 !important;
+    color: #27272a !important;
+}
+
+.seed-distribution-table tbody td.is-empty {
+    color: var(--text-tertiary, #a1a1aa) !important;
+    font-weight: 400;
+}
+
+/* The seed release has more metric columns than Program Areas, so keep its
+ * horizontal footprint compact without forcing numeric values to wrap. */
+.seed-distribution-table--seed-release {
+    min-width: 47rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.seed-distribution-table--seed-release th,
+.seed-distribution-table--seed-release td {
+    box-sizing: border-box;
+    padding: 0.3rem 0.35rem;
+}
+
+.seed-distribution-table--seed-release th[data-column],
+.seed-distribution-table--seed-release td[data-column] {
+    width: 5.5rem;
+    min-width: 5.5rem;
+    max-width: 5.5rem;
+}
+
+.seed-distribution-table--seed-release th[data-column="D"],
+.seed-distribution-table--seed-release td[data-column="D"] {
+    width: 7.5rem;
+    min-width: 7.5rem;
+    max-width: 7.5rem;
+}
+
+.seed-distribution-table--seed-release thead tr:first-child > th:first-child,
+.seed-distribution-table--seed-release tbody > tr > :first-child {
+    width: 8.5rem;
+    min-width: 8.5rem;
+    max-width: 8.5rem;
+}
+
+.seed-distribution-table--seed-release thead .seed-distribution-table-group-header {
+    height: 2.25rem;
+    min-height: 2.25rem;
+    padding-block: 0.25rem;
+}
+
+.seed-distribution-table--seed-release thead tr:nth-child(2) th {
+    top: 2.25rem;
+    height: 2rem;
+    padding-block: 0.25rem;
+    line-height: 1.1;
+}
+
+.seed-distribution-table--seed-release thead tr:first-child > th:first-child,
+.seed-distribution-table--seed-release thead tr:first-child > .seed-distribution-table-location-header {
+    align-content: center;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.seed-distribution-table--seed-release tbody td {
+    font-family: var(--font-family-data, "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+/* Program Areas uses a grouped, crop-comparison table: neutral location and
+ * metric headers, with the Rice/Corn bands carrying the data palette. Keep
+ * the body intentionally quiet so the colored group headers establish the
+ * hierarchy without tinting every reported value. */
+.seed-distribution-table--program-areas {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 42rem;
+    table-layout: fixed;
+    color: #3f3f46;
+    font-variant-numeric: tabular-nums;
+}
+
+.seed-distribution-table--program-areas th,
+.seed-distribution-table--program-areas td {
+    box-sizing: border-box;
+    padding-inline: 0.35rem;
+}
+
+.seed-distribution-table--program-areas th[data-column],
+.seed-distribution-table--program-areas td[data-column] {
+    width: 5.75rem;
+    min-width: 5.75rem;
+    max-width: 5.75rem;
+}
+
+.seed-distribution-table--program-areas thead tr:first-child > th:first-child,
+.seed-distribution-table--program-areas tbody > tr > :first-child {
+    width: 7.5rem;
+    min-width: 7.5rem;
+    max-width: 7.5rem;
+}
+
+.seed-distribution-table--program-areas thead tr:first-child > .seed-distribution-table-group-header {
+    height: 2.25rem;
+    min-height: 2.25rem;
+    padding-block: 0.25rem;
+}
+
+.seed-distribution-table--program-areas thead tr:nth-child(2) th {
+    top: 2.25rem;
+    height: 2rem;
+    padding-block: 0.25rem;
+    line-height: 1.1;
+}
+
+.seed-distribution-table--program-areas thead tr:first-child > th:first-child,
+.seed-distribution-table--program-areas thead tr:first-child > .seed-distribution-table-location-header {
+    align-content: center;
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+.seed-distribution-table--program-areas thead tr:first-child > th {
+    background: #fafafa;
+    color: #71717a;
+    border-bottom-color: #e4e4e7;
+}
+
+/* The shared sticky first-column rule is intentionally more specific than
+ * the grouped-table defaults above. Override it here so Program Areas keeps
+ * the reference-table hierarchy: neutral location column, colored crop bands. */
+.seed-distribution-table--program-areas thead tr:first-child > th:first-child,
+.seed-distribution-table--program-areas thead tr:first-child > .seed-distribution-table-location-header {
+    background: #fafafa !important;
+    color: #71717a !important;
+    text-align: left;
+}
+
+.seed-distribution-table--program-areas thead tr:first-child > .seed-distribution-table-group-header {
+    color: #ffffff;
+    font-size: 0.6875rem;
+    letter-spacing: 0.02em;
+}
+
+.seed-distribution-table--program-areas thead tr:first-child > .seed-distribution-table-group-header--rice {
+    background: var(--data-commodity-rice, #006633);
+}
+
+.seed-distribution-table--program-areas thead tr:first-child > .seed-distribution-table-group-header--corn {
+    background: var(--data-commodity-corn, #ffad00);
+    border-left: 2px solid #ffffff;
+}
+
+.seed-distribution-table--program-areas thead tr:nth-child(2) th {
+    background: #ffffff;
+    color: #71717a;
+    font-weight: 600;
+}
+
+.seed-distribution-table--program-areas tbody > tr > * {
+    background: #ffffff;
+    color: #3f3f46;
+    font-size: 0.6875rem;
+    font-weight: 500;
+}
+
+.seed-distribution-table--program-areas tbody td {
+    font-family: var(--font-family-data, "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.seed-distribution-table--program-areas tbody tr:nth-child(even) td,
+.seed-distribution-table--program-areas tbody tr:nth-child(even) th:first-child {
+    background: #fafafa;
+}
+
+.seed-distribution-table--program-areas tbody tr.seed-distribution-region-total > *,
+.seed-distribution-table--program-areas tbody tr.seed-distribution-grand-total > * {
+    background: #f4f4f5 !important;
+    color: #27272a !important;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.seed-distribution-table--program-areas tbody tr.seed-distribution-grand-total > * {
+    border-top: 2px solid #d4d4d8;
+}
+
+.seed-distribution-table--program-areas [data-column].is-selected {
+    background: #ffffff !important;
+    color: #3f3f46;
+}
+
+.seed-distribution-table--program-areas tbody tr:nth-child(even) [data-column].is-selected {
+    background: #fafafa !important;
+}
+
+.seed-distribution-table--program-areas tbody tr.seed-distribution-region-total [data-column].is-selected,
+.seed-distribution-table--program-areas tbody tr.seed-distribution-grand-total [data-column].is-selected {
+    background: #f4f4f5 !important;
+}
+
+.seed-distribution-table--program-areas tbody td.is-empty {
+    color: #a1a1aa !important;
+    font-weight: 400;
+}
+
+/* Susceptible Rice Areas keeps the compact grouped layout while giving the
+ * SRA classification band a single, semantic red hierarchy. */
+.seed-distribution-table--sra-drought {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 42rem;
+    table-layout: fixed;
+    font-variant-numeric: tabular-nums;
+}
+
+.seed-distribution-table--sra-drought th,
+.seed-distribution-table--sra-drought td {
+    box-sizing: border-box;
+    padding-inline: 0.35rem;
+}
+
+.seed-distribution-table--sra-drought th[data-column],
+.seed-distribution-table--sra-drought td[data-column] {
+    width: 6.25rem;
+    min-width: 6.25rem;
+    max-width: 6.25rem;
+}
+
+.seed-distribution-table--sra-drought thead tr:first-child > th:first-child,
+.seed-distribution-table--sra-drought tbody > tr > :first-child {
+    width: 9rem;
+    min-width: 9rem;
+    max-width: 9rem;
+}
+
+.seed-distribution-table--sra-drought thead tr:first-child > th,
+.seed-distribution-table--sra-drought thead tr:nth-child(2) th {
+    background: #fafafa;
+    color: #71717a;
+}
+
+.seed-distribution-table--sra-drought thead tr:first-child > th:first-child,
+.seed-distribution-table--sra-drought thead tr:first-child > .seed-distribution-table-location-header {
+    background: #fafafa !important;
+    color: #71717a !important;
+    text-align: left;
+}
+
+.seed-distribution-table--sra-drought thead tr:first-child > .seed-distribution-table-group-header {
+    height: 2.25rem;
+    min-height: 2.25rem;
+    background: #991b1b;
+    color: #ffffff;
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+}
+
+.seed-distribution-table--sra-drought thead tr:first-child > .seed-distribution-table-group-header--non-sra {
+    background: #16a34a !important;
+    color: #ffffff !important;
+}
+
+.seed-distribution-table--sra-drought thead tr:nth-child(2) th {
+    top: 2.25rem;
+    height: 2rem;
+    padding-block: 0.25rem;
+    line-height: 1.1;
+}
+
+.seed-distribution-table--sra-drought thead tr:nth-child(2) .seed-distribution-table-metric-header {
+    font-weight: 700;
+    text-align: center;
+}
+
+.seed-distribution-table--sra-drought thead tr:nth-child(2) .seed-distribution-table-metric-header--total-sra {
+    background: #991b1b !important;
+    color: #ffffff !important;
+}
+
+.seed-distribution-table--sra-drought thead tr:nth-child(2) .seed-distribution-table-metric-header--low {
+    background: #facc15 !important;
+    color: #713f12 !important;
+}
+
+.seed-distribution-table--sra-drought thead tr:nth-child(2) .seed-distribution-table-metric-header--moderate {
+    background: #f97316 !important;
+    color: #ffffff !important;
+}
+
+.seed-distribution-table--sra-drought thead tr:nth-child(2) .seed-distribution-table-metric-header--high {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+}
+
+.seed-distribution-table--sra-drought tbody > tr > * {
+    background: #ffffff;
+    color: #3f3f46;
+    font-size: 0.6875rem;
+    font-weight: 500;
+}
+
+.seed-distribution-table--sra-drought tbody td {
+    font-family: var(--font-family-data, "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+.seed-distribution-table--sra-drought tbody tr:nth-child(even) td,
+.seed-distribution-table--sra-drought tbody tr:nth-child(even) th:first-child {
+    background: #fafafa;
+}
+
+.seed-distribution-table--sra-drought tbody tr.seed-distribution-region-total > *,
+.seed-distribution-table--sra-drought tbody tr.seed-distribution-grand-total > * {
+    background: #f4f4f5 !important;
+    color: #27272a !important;
+    font-weight: 700;
+}
+
+.seed-distribution-table--sra-drought tbody tr.seed-distribution-grand-total > * {
+    border-top: 2px solid #dc2626;
+}
+
+@media (max-width: 1100px) {
+    .seed-distribution-workspace {
+        height: auto;
+        grid-template-columns: 1fr;
+    }
+
+    .seed-distribution-analytics {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+    }
+}
+
+@media (min-width: 64rem) {
+    .seed-distribution-page {
+        min-height: 0;
+        height: 100%;
+    }
+
+    .seed-distribution-map-card {
+        height: 100%;
+    }
+
+    .seed-distribution-analytics {
+        height: 100%;
+    }
+
+    .seed-distribution-table-wrap {
+        min-height: auto;
+        flex: 0 0 auto;
+    }
+
+    .seed-distribution-table-card {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 640px) {
+    .seed-distribution-card--controls,
+    .seed-distribution-control,
+    .seed-distribution-control--wide {
+        width: 100%;
+    }
+
+    .seed-distribution-pie-controls,
+    .seed-distribution-pie-control {
+        width: 100%;
+    }
+
+    .seed-distribution-chart-header-controls,
+    .seed-distribution-chart-header-controls .seed-distribution-pie-controls {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .seed-distribution-chart-header-controls .seed-distribution-pie-control,
+    .seed-distribution-chart-header-controls .seed-distribution-level-control {
+        width: 100%;
+    }
+}
+
 /* Tailwind aliases are constrained to the FARM weight scale. */
 .font-black,
 .font-extrabold {
@@ -1030,6 +1862,102 @@ textarea {
     background: var(--ui-surface);
     box-shadow: var(--elevation-flat);
     transition: var(--farm-transition-standard);
+}
+
+/* Keep card surfaces flat; elevation remains reserved for overlays and controls. */
+:is(
+    .ui-card,
+    .ui-filter-card,
+    .ui-main-card,
+    .report-card,
+    .ds-card,
+    .crop-production-card,
+    .crop-production-accordion,
+    .tc-frequency-chart-card,
+    .tc-frequency-heatmap-card,
+    .tc-tracks-page__header,
+    .tc-tracks-filters,
+    .tc-tracks-map-card,
+    .tc-tracks-list-card,
+    .seed-distribution-card,
+    .tc-similarity-map-card,
+    .tc-similarity-panel,
+    .upload-report-card,
+    .data-library-content-card,
+    [data-analytics-filter-panel],
+    [data-dashboard-analysis-metric],
+    [data-map-canvas-card]
+) {
+    box-shadow: none !important;
+}
+
+/* Structural card contract: primary module containers use the same radius and
+ * outline as the workspace top bar. Keep controls and nested chart details
+ * on their own compact geometry. */
+:is(
+    .crop-production-card,
+    .crop-production-location-card,
+    .crop-production-chart-panel,
+    .crop-production-summary-card,
+    .crop-production-location-chart-panel,
+    .crop-production-location-table-panel,
+    .crop-production-yoy-card,
+    .seed-distribution-card,
+    .tc-frequency-chart-card,
+    .tc-frequency-heatmap-card,
+    .tc-tracks-page__header,
+    .tc-tracks-filters,
+    .tc-tracks-map-card,
+    .tc-tracks-list-card,
+    .tc-similarity-map-card,
+    .tc-similarity-panel,
+    [data-map-canvas-card],
+    [data-drought-affected-panel],
+    [data-drought-empty-release]
+) {
+    border: var(--farm-outline-width) solid var(--farm-outline-color) !important;
+    border-radius: var(--ui-card-radius) !important;
+    box-shadow: var(--elevation-flat) !important;
+}
+
+/* Rounded card outlines only render consistently when the card clips its
+ * child surfaces. Without this, white section headers can paint over the
+ * parent's corner and make the outline look square. Map cards opt out below
+ * because their control flyouts intentionally extend beyond the card. */
+:is(
+    .ui-main-card:not([data-map-canvas-card]),
+    .crop-production-card,
+    .crop-production-location-card,
+    .crop-production-chart-panel,
+    .crop-production-summary-card,
+    .crop-production-location-chart-panel,
+    .crop-production-location-table-panel,
+    .crop-production-yoy-card,
+    .seed-distribution-card,
+    .tc-frequency-chart-card,
+    .tc-frequency-heatmap-card,
+    .tc-tracks-page__header,
+    .tc-tracks-filters,
+    .tc-tracks-map-card,
+    .tc-tracks-list-card,
+    .tc-similarity-map-card,
+    .tc-similarity-panel,
+    [data-drought-affected-panel],
+    [data-drought-empty-release]
+) {
+    overflow: hidden;
+}
+
+/* Legacy low-elevation utility classes are also flat on structural surfaces. */
+.shadow-xs,
+section.shadow-sm,
+article.shadow-sm,
+form.shadow-sm {
+    box-shadow: none !important;
+}
+
+[data-sidebar-shell] [aria-current="page"] {
+    box-shadow: none !important;
 }
 
 .ui-main-grid {
@@ -1534,21 +2462,21 @@ textarea {
 
 /* Form fields use one shared blue hover and focus treatment so native and
    custom controls remain visibly consistent across modules. */
-input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(:disabled):hover,
-input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(:disabled):active,
-select:not(:disabled):hover,
-select:not(:disabled):active,
-textarea:not(:disabled):hover,
-textarea:not(:disabled):active {
+body:not(.login-page) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(:disabled):hover,
+body:not(.login-page) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(:disabled):active,
+body:not(.login-page) select:not(:disabled):hover,
+body:not(.login-page) select:not(:disabled):active,
+body:not(.login-page) textarea:not(:disabled):hover,
+body:not(.login-page) textarea:not(:disabled):active {
     border-color: var(--color-focus) !important;
 }
 
-input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(:disabled):focus,
-input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(:disabled):focus-visible,
-select:not(:disabled):focus,
-select:not(:disabled):focus-visible,
-textarea:not(:disabled):focus,
-textarea:not(:disabled):focus-visible {
+body:not(.login-page) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(:disabled):focus,
+body:not(.login-page) input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not(:disabled):focus-visible,
+body:not(.login-page) select:not(:disabled):focus,
+body:not(.login-page) select:not(:disabled):focus-visible,
+body:not(.login-page) textarea:not(:disabled):focus,
+body:not(.login-page) textarea:not(:disabled):focus-visible {
     border-color: var(--color-focus) !important;
     outline: var(--border-width-default) solid var(--color-focus) !important;
     outline-offset: 0 !important;
@@ -1875,7 +2803,7 @@ input[type="radio"]:focus-visible {
     max-height: calc(100dvh - 10rem);
     overflow: auto;
     overscroll-behavior: contain;
-    scrollbar-gutter: stable;
+    scrollbar-gutter: auto;
 }
 
 /* Keep the active year visible while its incident rows move through the
@@ -1890,7 +2818,7 @@ input[type="radio"]:focus-visible {
     position: sticky;
     top: 0;
     z-index: 2;
-    box-shadow: 0 1px 0 var(--color-brand-active);
+    box-shadow: none;
 }
 
 /* Keep each table's column labels directly below the sticky year row while
@@ -2132,6 +3060,7 @@ table thead th:not(.report-preview-column-header) {
 }
 
 [data-incident-year-groups] .incident-year-summary {
+    border-bottom: 0;
     border-color: var(--color-brand);
     background: var(--color-brand);
     color: var(--color-text-inverse);
@@ -2255,6 +3184,50 @@ table tbody > tr[class]:hover,
     line-height: 1.25;
 }
 
+/* Keep the complete annual history in one compact viewport. The summary rows
+ * remain visible while the year-by-year records move beneath them. */
+#annual-summary {
+    --annual-summary-header-height: 0px;
+    --annual-summary-total-height: 0px;
+}
+
+#annual-summary .annual-summary-table-scroll {
+    max-height: min(29.125rem, 60vh);
+    overflow: auto;
+    scroll-padding-top: calc(
+        var(--annual-summary-header-height)
+        + var(--annual-summary-total-height)
+        + var(--annual-summary-average-height, 0px)
+    );
+    scrollbar-gutter: auto;
+}
+
+#annual-summary .annual-summary-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+}
+
+#annual-summary .annual-summary-table tbody > tr[data-summary-type="total"] > *,
+#annual-summary .annual-summary-table tbody > tr[data-summary-type="average"] > * {
+    position: sticky;
+    z-index: 3;
+    box-shadow: 0 1px 0 var(--color-zinc-200, #e4e4e7);
+}
+
+#annual-summary .annual-summary-table tbody > tr[data-summary-type="total"] > * {
+    top: var(--annual-summary-header-height);
+    background: var(--color-blue-50, #eff6ff);
+}
+
+#annual-summary .annual-summary-table tbody > tr[data-summary-type="average"] > * {
+    top: calc(
+        var(--annual-summary-header-height)
+        + var(--annual-summary-total-height)
+    );
+    background: var(--color-zinc-50, #fafafa);
+}
+
 .annual-summary-pagination {
     grid-template-columns: auto minmax(0, 1fr) auto;
 }
@@ -2275,6 +3248,51 @@ table tbody > tr[class]:hover,
     font-family: var(--font-family-data);
     text-align: right;
     font-variant-numeric: var(--type-numeric-variant);
+}
+
+/* The temporary 50:50 Annual Summary layout has enough room for the table
+ * to stay inside its card. Keep the long farmer/fisherfolk heading readable
+ * while distributing the metric columns without a second horizontal scroll. */
+@media (min-width: 80rem) {
+    #annual-summary .annual-summary-table {
+        min-width: 0 !important;
+        table-layout: fixed;
+    }
+
+    #annual-summary .annual-summary-table thead th {
+        overflow-wrap: anywhere;
+        font-size: 0.625rem;
+        letter-spacing: 0.04em;
+        line-height: 1.15;
+        text-align: center;
+        vertical-align: middle;
+        white-space: normal;
+    }
+
+    #annual-summary .annual-summary-table thead th.annual-summary-table__farmers-header > span[aria-hidden="true"] {
+        white-space: nowrap;
+    }
+
+    #annual-summary .annual-summary-table thead th:nth-child(1) {
+        width: 6%;
+    }
+
+    #annual-summary .annual-summary-table thead th:nth-child(2) {
+        width: 9%;
+    }
+
+    #annual-summary .annual-summary-table thead th:nth-child(3) {
+        width: 21%;
+    }
+
+    #annual-summary .annual-summary-table thead th:nth-child(4),
+    #annual-summary .annual-summary-table thead th:nth-child(5) {
+        width: 18%;
+    }
+
+    #annual-summary .annual-summary-table thead th:nth-child(6) {
+        width: 28%;
+    }
 }
 
 .report-table .is-actions {
@@ -2985,11 +4003,112 @@ dialog.incident-dashboard-dialog:not([open]) {
     background: #f4f4f5;
 }
 
+/* Compact chart metric control used in the header action group. Keeping this
+ * as a native select preserves the same keyboard and screen-reader behavior
+ * as the other shared select controls while using less horizontal space than
+ * the former segmented switcher. */
+.dashboard-metric-select-wrap {
+    flex: 0 0 auto;
+    min-width: 4.75rem;
+}
+
+.dashboard-metric-select {
+    width: 100%;
+    min-width: 4.75rem;
+    height: 1.5rem;
+    min-height: 1.5rem;
+    padding: 0.125rem 1.5rem 0.125rem 0.5rem;
+    border-radius: 0.3rem !important;
+    color: var(--color-text);
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-regular);
+    line-height: 1;
+}
+
+.dashboard-metric-select-wrap .ui-select__icon {
+    right: 0.45rem;
+    font-size: 0.5625rem;
+}
+
+.dashboard-metric-select:focus-visible {
+    border-color: var(--color-focus) !important;
+    outline: var(--focus-ring-width) solid var(--color-focus) !important;
+    outline-offset: var(--focus-ring-offset) !important;
+}
+
+.dashboard-region-level-select-wrap {
+    flex: 0 0 auto;
+    min-width: 4.75rem;
+}
+
+.dashboard-region-level-select {
+    width: 100%;
+    min-width: 4.75rem;
+    height: 1.5rem;
+    min-height: 1.5rem;
+    padding: 0.125rem 1.5rem 0.125rem 0.5rem;
+    border-radius: 0.3rem !important;
+    color: var(--color-text);
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-regular);
+    line-height: 1;
+}
+
+.dashboard-region-level-select-wrap .ui-select__icon {
+    right: 0.45rem;
+    font-size: 0.5625rem;
+}
+
+.dashboard-region-level-select:focus-visible {
+    border-color: var(--color-focus) !important;
+    outline: var(--focus-ring-width) solid var(--color-focus) !important;
+    outline-offset: var(--focus-ring-offset) !important;
+}
+
+/* Breakdown tables use the same select behavior in a smaller, quieter pill
+ * so the metric control stays secondary to the table heading. */
+.dashboard-breakdown-metric-select-wrap {
+    min-width: 5.25rem;
+}
+
+.dashboard-breakdown-metric-select {
+    height: 1.5rem !important;
+    min-height: 1.5rem !important;
+    min-width: 5.25rem;
+    border-color: var(--color-border-subtle, rgb(228 228 231 / 0.72));
+    border-radius: 0.3rem;
+    color: var(--color-text-muted);
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-semibold);
+    padding: 0.125rem 1.5rem 0.125rem 0.5rem;
+    box-shadow: none;
+}
+
+.dashboard-breakdown-metric-select-wrap .ui-select__icon {
+    right: 0.45rem;
+    color: var(--color-text-muted);
+    font-size: 0.5625rem;
+}
+
 .dashboard-breakdown-total-row {
-    border-top: 2px solid #dc2626;
-    background: #fef2f2;
-    color: #7f1d1d;
-    font-weight: 600;
+    border-top: 2px solid var(--color-border-strong);
+    background: var(--ash-light);
+    color: var(--ui-text-strong);
+    font-weight: 700;
+}
+
+/* The shared report-table cell rule sets body cells back to regular weight
+   and a transparent background. Reapply the total-row treatment directly to
+   its cells so the row remains visibly emphasized in every metric view. */
+.dashboard-breakdown-table-grid tbody tr.dashboard-breakdown-total-row > td,
+.dashboard-breakdown-table-grid tbody tr.dashboard-breakdown-total-row > th[scope="row"] {
+    background: var(--ash-light) !important;
+    color: var(--ui-text-strong) !important;
+    font-weight: 700 !important;
+}
+
+.dashboard-breakdown-missing-value {
+    color: var(--ui-text-muted) !important;
 }
 
 /* Keep long year series readable: the label column stays visible while the
@@ -2999,7 +4118,7 @@ dialog.incident-dashboard-dialog:not([open]) {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     isolation: isolate;
-    scrollbar-gutter: stable;
+    scrollbar-gutter: auto;
 }
 
 .dashboard-breakdown-table-grid {
@@ -3054,11 +4173,44 @@ dialog.incident-dashboard-dialog:not([open]) {
 }
 
 .dashboard-breakdown-table-grid tbody tr.dashboard-breakdown-total-row > th:first-child {
-    background-color: #fef2f2 !important;
+    background-color: var(--ash-light) !important;
 }
 
 .dashboard-chart-card > .p-5 {
     min-height: 0;
+}
+
+/* The previous fixed 30rem auto-row made the regional chart inherit an
+ * oversized plot even when its card only needed the normal chart minimum.
+ * Use the shared chart-card minimum instead; the row can still grow when
+ * another chart needs more room. */
+@media (min-width: 64rem) {
+    #dashboard-region-commodity-grid {
+        /* Keep the regional chart tall enough for the complete national
+         * list, while giving the companion charts a useful default plot
+         * area instead of forcing their row to stay compact. */
+        grid-template-rows: repeat(3, 25rem);
+        grid-auto-rows: 25rem;
+    }
+
+    #dashboard-region-commodity-grid > .dashboard-analysis-chart-card,
+    #dashboard-region-commodity-grid > .dashboard-quarterly-breakdown-card {
+        min-height: 25rem;
+    }
+
+    #dashboard-region-commodity-grid
+    .dashboard-analysis-chart-card__body,
+    #dashboard-region-commodity-grid
+    .dashboard-quarterly-breakdown-card__body {
+        min-height: 21rem;
+    }
+
+    #dashboard-region-commodity-grid
+    .dashboard-analysis-chart-card__canvas,
+    #dashboard-region-commodity-grid
+    .dashboard-quarterly-breakdown-card__canvas {
+        min-height: 19rem;
+    }
 }
 
 .dashboard-chart-card > .dashboard-chart-footer {
@@ -3117,6 +4269,7 @@ dialog.incident-dashboard-dialog:not([open]) {
     box-sizing: border-box;
     height: var(--button-height-sm);
     align-items: center;
+    margin-inline-start: auto;
     gap: 1px;
     padding: 0;
     border: 0;
@@ -3124,13 +4277,27 @@ dialog.incident-dashboard-dialog:not([open]) {
     background: transparent;
 }
 
+/* Give every chart header a full-width flex row so its actions can reach the
+ * card's trailing edge instead of stopping beside the title. */
+.dashboard-chart-header {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Keep chart actions anchored to the header's trailing edge even when a
+ * title or metric selector changes width. */
+.dashboard-chart-actions {
+    margin-inline-start: auto;
+    justify-content: flex-end;
+}
+
 .dashboard-chart-icon-button {
     display: inline-flex;
     box-sizing: border-box;
-    width: var(--button-height-sm);
-    height: var(--button-height-sm);
-    min-width: var(--button-height-sm);
-    min-height: var(--button-height-sm);
+    width: 1.5rem;
+    height: 1.5rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
     align-items: center;
     justify-content: center;
     border: 0;
@@ -3142,6 +4309,10 @@ dialog.incident-dashboard-dialog:not([open]) {
     transition:
         color var(--motion-fast) var(--ease-standard),
         background-color var(--motion-fast) var(--ease-standard);
+}
+
+.dashboard-chart-icon-button > :is(i, svg) {
+    font-size: 0.65rem !important;
 }
 
 .dashboard-chart-icon-button:hover,
@@ -3184,6 +4355,42 @@ dialog.chart-table-dialog:not([open]) {
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
+}
+
+/* Generated chart-table cells carry the same semantic numeric class as the
+ * other report tables. Keep numeric body cells right aligned and center the
+ * popup header labels over their respective columns. */
+.chart-table-dialog__content .chart-table-dialog__numeric-cell {
+    text-align: right !important;
+    font-variant-numeric: tabular-nums;
+}
+
+.chart-table-dialog__content .chart-table-dialog__header {
+    text-align: center !important;
+    vertical-align: middle;
+    white-space: normal;
+}
+
+.chart-table-dialog__header-stack {
+    display: inline-flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+
+.chart-table-dialog__header-stack > span {
+    display: block;
+}
+
+.chart-table-dialog .dashboard-chart-table-comparison--decrease {
+    color: var(--color-green-600, #15803d) !important;
+}
+
+.chart-table-dialog .dashboard-chart-table-comparison--increase {
+    color: var(--color-red-600, #dc2626) !important;
+}
+
+.chart-table-dialog .dashboard-chart-table-comparison--muted {
+    color: var(--color-zinc-500, #71717a) !important;
 }
 
 .chart-table-dialog__footer {
@@ -3356,12 +4563,79 @@ dialog.chart-table-dialog:not([open]) {
     background: var(--color-surface);
 }
 
+/* Weather and Climate Data RONI phase matrix. Use explicit semantic classes so phase
+ * highlighting remains visible even when utility CSS is not rebuilt. */
+.roni-phase-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.6rem 1.25rem;
+    color: var(--color-text-muted);
+    font-size: var(--type-caption-size);
+    font-weight: var(--font-weight-medium);
+}
+
+.roni-phase-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    white-space: nowrap;
+}
+
+.roni-phase-legend__swatch {
+    width: 0.75rem;
+    height: 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 0.2rem;
+}
+
+.roni-phase-legend__swatch--warm,
+.roni-phase-cell--warm {
+    border-color: #e56b62;
+    background: #ffe0dc;
+    color: #9f211a;
+}
+
+.roni-phase-legend__swatch--cold,
+.roni-phase-cell--cold {
+    border-color: #4d9fc5;
+    background: #d9f0fb;
+    color: #075985;
+}
+
+.roni-phase-legend__swatch--neutral,
+.roni-phase-cell--neutral {
+    border-color: #d4d4d8;
+    background: #fafafa;
+    color: #52525b;
+}
+
+.roni-phase-legend__swatch--missing,
+.roni-phase-cell--missing {
+    border-color: #e4e4e7;
+    background: #f4f4f5;
+    color: #a1a1aa;
+}
+
+.roni-phase-cell {
+    font-weight: var(--font-weight-semibold);
+}
+
+.roni-phase-cell--neutral,
+.roni-phase-cell--missing {
+    font-weight: var(--font-weight-normal);
+}
+
 .roni-library-table-wrap {
     min-height: 0;
     flex: 1 1 auto;
     overflow: auto;
     background: var(--color-surface);
-    scrollbar-gutter: stable both-edges;
+    scrollbar-gutter: auto;
 }
 
 .roni-library-table {
@@ -3821,6 +5095,32 @@ dialog.chart-table-dialog:not([open]) {
     margin-top: 1rem;
 }
 
+/* Data Studio module density contract. Keep card grids and module sections
+ * on one compact rhythm so Dashboard, Analytics, Incidents, and monitoring
+ * cards do not alternate between 0.75rem and 1rem gaps. */
+body[data-platform-app="data-studio"] {
+    --ui-card-gap: var(--space-3);
+}
+
+body[data-platform-app="data-studio"]
+:is(.ui-main-grid, .dashboard-card-group) {
+    gap: var(--ui-card-gap);
+}
+
+body[data-platform-app="data-studio"] .dashboard-card-group {
+    margin-top: var(--ui-card-gap);
+}
+
+body[data-platform-app="data-studio"] [data-annual-trends-grid],
+body[data-platform-app="data-studio"] [data-dam-water-levels],
+body[data-platform-app="data-studio"] .dam-water-level-chart-grid {
+    gap: var(--ui-card-gap);
+}
+
+body[data-platform-app="data-studio"] [data-incident-page] > .sticky {
+    margin-bottom: var(--ui-card-gap);
+}
+
 /* The first Analytics KPI group follows the shared topbar-to-page gap.
  * Subsequent groups retain the normal 1rem section rhythm. */
 .analytics-workspace-page-body
@@ -3869,33 +5169,19 @@ dialog.chart-table-dialog:not([open]) {
 }
 
 /*
- * Keep the scrollbar track visually separated from the last card/column.
- * Analytics pages use an inner scroll region, while Incidents and Report
- * Generation scroll from the page body itself; both need the same quiet
- * breathing room at the inline end of the content canvas.
+ * The shared overlay scrollbar is positioned over the content edge. Do not
+ * reserve a second inline gutter or padding strip in any analytics workspace:
+ * it makes Analytics and Incidents stop short of the topbar width, and the
+ * same cascade would affect every workspace that uses this body class.
  */
 .analytics-workspace-page-body {
-    --workspace-scrollbar-gap: var(--space-2);
+    padding-inline-end: 0 !important;
+    scrollbar-gutter: auto !important;
 }
 
 .analytics-workspace-page-body [data-analytics-content-scroll] {
-    padding-inline-end: var(--workspace-scrollbar-gap);
-    scrollbar-gutter: stable;
-}
-
-/* Analytics owns its scrollbar in the inner content region. Do not reserve
- * a second outer gutter on the page body, or the cards stop short of the
- * topbar's right edge. Pages without an inner region keep the stable body
- * gutter for their direct page scrolling. */
-.analytics-workspace-page-body:has([data-analytics-content-scroll]) {
-    scrollbar-gutter: auto;
-}
-
-/* Incidents and Report Generation scroll from the page body itself, so keep
- * their content clear of the body scrollbar. The map Dashboard has its own
- * analysis-panel scroll region and should use the full page width. */
-.analytics-workspace-page-body:not(:has([data-analytics-content-scroll])):not(.map-workspace-page-body) {
-    padding-inline-end: var(--workspace-scrollbar-gap);
+    padding-inline-end: 0 !important;
+    scrollbar-gutter: auto !important;
 }
 
 /* Report Generation currently fits its content in the viewport. Let its
@@ -4454,6 +5740,18 @@ dialog.chart-table-dialog:not([open]) {
     position: relative;
     margin: 0;
     overflow: visible;
+    z-index: 1002;
+}
+
+/* The TC layer control is mounted in Leaflet's right rail. Its flyout must
+ * open into the map, otherwise the map root clips the panel at the right edge. */
+[data-map-canvas-card] .add-map-historical-tc-control
+> .add-map-style-panel {
+    top: 0 !important;
+    right: calc(100% + var(--map-control-overlay-gap, 0.5rem)) !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
 }
 
 .add-map-layer-panel::-webkit-scrollbar {
@@ -4837,6 +6135,8 @@ dialog.chart-table-dialog:not([open]) {
 
 /* Browser-viewport map presentation; browser chrome remains visible. */
 body.add-map-browser-fullscreen-open {
+    --map-fullscreen-inset: 0.75rem;
+    background: var(--color-background);
     overflow: hidden;
 }
 
@@ -4846,39 +6146,102 @@ body.add-map-browser-fullscreen-open .page-transition-target {
     transform: none;
 }
 
-[data-map-canvas-card][data-map-fullscreen="true"] {
+/* Mirror Map Studio's shell behavior so the shared map canvas owns the
+ * browser-window presentation instead of showing the app chrome behind it. */
+body.add-map-browser-fullscreen-open .farm-app-shell {
+    background: var(--color-background);
+    gap: 0;
+    height: 100dvh;
+    inset: 0;
+    min-height: 0;
+    overflow: visible;
+    padding: 0;
     position: fixed;
-    /* Match the app shell's p-3 boundary so the expanded map covers the
-       complete application panel without exposing the page underneath. */
-    --map-browser-fullscreen-gap: 0.75rem;
-    inset: var(--map-browser-fullscreen-gap);
-    z-index: 2000;
-    width: auto !important;
-    height: auto !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-    max-width: none !important;
-    max-height: none !important;
-    margin: 0;
-    border: 1px solid rgb(228 228 231 / 0.8);
-    border-radius: 1rem;
+    width: 100vw;
+    z-index: 9998;
+}
+
+body.add-map-browser-fullscreen-open [data-sidebar-shell],
+body.add-map-browser-fullscreen-open [data-sidebar-backdrop],
+body.add-map-browser-fullscreen-open [data-workspace-topbar] {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+body.add-map-browser-fullscreen-open [data-main-panel] {
+    background: var(--color-background);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    height: 100dvh;
+    inset: 0;
+    min-height: 0;
+    overflow: visible;
+    position: fixed;
+    width: 100vw;
+    z-index: 9998;
+}
+
+body.add-map-browser-fullscreen-open [data-page-body] {
+    height: 100%;
+    min-height: 0;
+    overflow: visible !important;
+    padding: 0;
+}
+
+body.add-map-browser-fullscreen-open .farm-page-content {
+    height: 100%;
+    max-width: none;
+}
+
+[data-map-canvas-card][data-map-fullscreen="true"] {
     background: #ffffff;
-    box-shadow: var(--ui-shadow-modal);
+    border: var(--farm-outline-width) solid var(--farm-outline-color);
+    border-radius: var(--ui-card-radius);
+    box-shadow: none;
+    box-sizing: border-box;
+    height: auto !important;
+    inset: var(--map-fullscreen-inset, 0.75rem);
+    margin: 0;
+    max-height: none;
+    min-height: 0;
+    overflow: hidden !important;
+    position: fixed !important;
+    width: auto !important;
+    z-index: 10000;
+    min-width: 0 !important;
+    max-width: none !important;
 }
 
 [data-map-canvas-card][data-map-fullscreen="true"]
 [data-map-root] {
-    border-radius: 1rem;
+    border-radius: max(0px, calc(var(--ui-card-radius) - var(--farm-outline-width)));
+    height: 100% !important;
+    min-height: 0 !important;
+    width: 100%;
 }
 
 [data-map-canvas-card][data-map-fullscreen="true"]
-#ph-map .leaflet-bottom {
+> .crop-production-location-map-wrap {
+    border-radius: max(0px, calc(var(--ui-card-radius) - var(--farm-outline-width)));
+    height: 100% !important;
+    min-height: 0 !important;
+}
+
+[data-map-canvas-card][data-map-fullscreen="true"]
+[data-map-root] .leaflet-bottom {
     bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 [data-map-canvas-card][data-map-fullscreen="true"]
-#ph-map .leaflet-left {
+[data-map-root] .leaflet-left {
     left: max(0.5rem, env(safe-area-inset-left));
+}
+
+[data-map-canvas-card][data-map-fullscreen="true"]
+[data-map-root] .leaflet-top.leaflet-left {
+    left: 0;
 }
 
 [data-map-canvas-card][data-map-fullscreen="true"]
@@ -5053,10 +6416,11 @@ body.add-map-browser-fullscreen-open .page-transition-target {
     width: 100%;
     flex: 1 1 0%;
     justify-content: flex-end;
+    position: static;
 }
 
 [data-filter-header-slot] > [data-analytics-filter-panel] {
-    position: static;
+    position: static !important;
     width: 100%;
     min-width: 0;
     border: 0;
@@ -5128,6 +6492,7 @@ body.add-map-browser-fullscreen-open .page-transition-target {
 }
 
 [data-filter-header-slot] > [data-analytics-filter-panel] > div {
+    position: absolute;
     top: 100%;
     right: 0;
     left: 0;
@@ -5318,6 +6683,19 @@ body.add-map-browser-fullscreen-open .page-transition-target {
     margin-top: var(--space-1);
 }
 
+/* Keep the selected-scope banner compact without changing chart-card density. */
+[data-dashboard-analysis-summary] > .ui-section-header {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    min-height: var(--control-height-compact);
+    padding-block: 0 !important;
+}
+
+[data-dashboard-analysis-summary] > .ui-section-header #dashboard-analysis-title {
+    margin-top: 0 !important;
+}
+
 [data-dashboard-analysis-panel] #dashboard-analysis-title,
 [data-dashboard-analysis-panel] #dashboard-analysis-context {
     display: block;
@@ -5333,13 +6711,13 @@ body.add-map-browser-fullscreen-open .page-transition-target {
 :is(div, article, section):not([data-kpi-content-group]):has(> #dashboard-analysis-volume),
 :is(div, article, section):not([data-kpi-content-group]):has(> #dashboard-analysis-area),
 :is(div, article, section):not([data-kpi-content-group]):has(> #dashboard-analysis-farmers) {
-    border-radius: var(--control-radius);
+    border-radius: var(--ui-card-radius);
 }
 
 /* Chart cards retain their clipped rounded surface. */
 .dashboard-analysis-chart-card {
     overflow: hidden;
-    border-radius: var(--card-radius);
+    border-radius: var(--ui-card-radius);
 }
 
 .dashboard-analysis-chart-card__canvas {
@@ -5438,6 +6816,12 @@ body.add-map-browser-fullscreen-open .page-transition-target {
     line-height: var(--type-caption-line-height);
 }
 
+/* Keep every Analytics chart heading at the same compact size as Quarterly Breakdown. */
+[data-analytics-page] .dashboard-chart-header :is(h2, h3, h4) {
+    font-size: var(--type-caption-size) !important;
+    line-height: var(--type-caption-line-height) !important;
+}
+
 /* Chart subtitle / scope metadata. */
 .dashboard-analysis-chart-card > div:first-child p,
 .dashboard-analysis-chart-card > div:first-child small {
@@ -5471,6 +6855,25 @@ body.add-map-browser-fullscreen-open .page-transition-target {
     min-height: var(--button-height-sm);
 }
 
+/* Chart-level table/image actions use a smaller footprint than general
+ * controls while retaining their individual keyboard hit targets. */
+.dashboard-chart-utility-group {
+    height: 1.5rem;
+}
+
+.dashboard-chart-icon-button,
+.analytics-chart-card--compact .dashboard-chart-icon-button,
+.dashboard-analysis-chart-card .dashboard-chart-icon-button {
+    width: 1.5rem;
+    height: 1.5rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+}
+
+.dashboard-chart-icon-button > :is(i, svg) {
+    font-size: 0.75rem;
+}
+
 /* Slightly tighter separation between analysis sections. */
 [data-dashboard-analysis-panel] > * + * {
     margin-top: 0.625rem;
@@ -5478,7 +6881,9 @@ body.add-map-browser-fullscreen-open .page-transition-target {
 
 [data-dashboard-analysis-panel]
 section[aria-label="Selected scope impact metrics"] {
-    gap: 0.5rem !important;
+    gap: var(--ui-card-gap) !important;
+    margin-top: 0 !important;
+    padding-top: var(--ui-card-gap) !important;
 }
 
 [data-dashboard-analysis-panel]
@@ -5493,6 +6898,36 @@ section[aria-label="Selected scope distributions"] {
     min-width: 0;
     min-height: 19rem;
     flex: 0 0 auto;
+}
+
+/* Keep the Analytics dashboard's desktop composition intentional: the
+   regional ranking spans cells 1 and 3, commodity and hazard occupy cells 2
+   and 4, and Quarterly Breakdown and Monthly Analysis fill cells 5 and 6. */
+@media (min-width: 64rem) {
+    #dashboard-region-commodity-grid #dashboard-region-chart-card {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+    }
+
+    #dashboard-region-commodity-grid #dashboard-commodity-chart-card {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    #dashboard-region-commodity-grid #dashboard-hazard-card {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    #dashboard-region-commodity-grid #dashboard-quarterly-breakdown-card {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    #dashboard-region-commodity-grid #dashboard-monthly-card {
+        grid-column: 2;
+        grid-row: 3;
+    }
 }
 
 .dashboard-quarterly-breakdown-card > div:first-child {
@@ -5615,6 +7050,89 @@ section[aria-label="Selected scope distributions"] {
 
 #dashboard-region-chart-card .dashboard-analysis-chart-card__canvas {
     min-height: 17rem;
+}
+
+/* Keep the region card fixed within the dashboard grid. Only the plot
+   viewport scrolls when Province mode contains more labels than fit in the
+   shared card height. The JavaScript sets the inner height from a fixed row
+   size so Region and Province bars remain visually consistent. */
+.dashboard-region-chart-body {
+    min-height: 0 !important;
+    overflow: hidden;
+}
+
+.dashboard-region-chart-legend {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    display: flex;
+    flex: 0 0 auto;
+    min-height: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.25rem 0.75rem 0.375rem;
+    background: var(--utility-white);
+    color: var(--chart-text, var(--color-text-muted));
+    font-size: var(--type-caption-size);
+    line-height: 1rem;
+}
+
+.dashboard-region-chart-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+}
+
+.dashboard-region-chart-legend__swatch {
+    width: 0.625rem;
+    height: 0.625rem;
+    flex: 0 0 0.625rem;
+    border-radius: 999px;
+}
+
+#dashboard-region-commodity-grid > .dashboard-analysis-chart-card {
+    min-height: 0;
+}
+
+.dashboard-region-chart-scroll {
+    box-sizing: border-box;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: auto;
+}
+
+.dashboard-region-chart-axis {
+    position: sticky;
+    z-index: 2;
+    bottom: 0;
+    box-sizing: border-box;
+    flex: 0 0 1.5rem;
+    min-height: 1.5rem;
+    overflow: hidden;
+    border-top: 1px solid var(--chart-grid, #e4e4e7);
+    background: var(--utility-white);
+    color: var(--chart-text-muted, #71717a);
+    font-size: 0.625rem;
+    line-height: 1rem;
+    pointer-events: none;
+}
+
+.dashboard-region-chart-axis__tick {
+    position: absolute;
+    top: 0.2rem;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.dashboard-region-chart-canvas {
+    min-height: 100% !important;
+    flex: 0 0 auto !important;
 }
 
 /* Keep the wide dashboard's three-card grid compact without collapsing the
@@ -6405,7 +7923,7 @@ section[aria-label="Selected scope distributions"] {
     backdrop-filter: none;
 }
 
-/* DCIO-style canvas sizing menu. It stays attached to the resize control so
+/* RRDBES-style canvas sizing menu. It stays attached to the resize control so
  * the presets never cover the map rail or drift when the map is resized. */
 .add-map-resize-control {
     z-index: 3;
@@ -7125,9 +8643,9 @@ section[aria-label="Selected scope distributions"] {
 
     [data-filter-header-slot] > [data-analytics-filter-panel] > div {
         position: fixed;
-        top: 2.5rem;
-        right: 0.5rem;
-        left: 0.5rem;
+        top: calc(max(0.5rem, env(safe-area-inset-top)) + 2.5rem);
+        right: max(0.5rem, env(safe-area-inset-right));
+        left: max(0.5rem, env(safe-area-inset-left));
         width: auto;
         max-height: calc(100dvh - 3rem);
         overflow-y: auto;
@@ -7161,7 +8679,7 @@ section[aria-label="Selected scope distributions"] {
 
     .module-page-header > .ui-action-group,
     .dashboard-chart-actions {
-        justify-content: flex-start;
+        justify-content: flex-end;
     }
 
     .dashboard-chart-actions > *,

@@ -1,0 +1,49 @@
+.climate-types-page { min-height: 0; height: 100%; }
+.climate-types-controls { display: flex; align-items: center; gap: .5rem; }
+.climate-types-controls .ui-label { margin: 0; }
+.climate-types-controls .ui-select { min-width: 8rem; min-height: 2rem; font-size: .75rem; }
+.climate-types-workspace { display: grid; flex: 1 1 auto; min-height: 0; height: 100%; grid-template-columns: minmax(0, 1fr) minmax(20rem, 30rem); gap: .75rem; }
+.climate-types-map-card { position: relative; min-height: 0; height: 100%; overflow: hidden; }
+.climate-types-map { min-height: 0; height: 100%; background: #dff3fb; }
+.climate-types-map-description { position: absolute; top: 8.5rem; left: .75rem; z-index: 500; display: flex; max-width: 20rem; max-height: calc(100% - 10rem); margin: 0; flex-direction: column; gap: .65rem; overflow: auto; border: 0; border-radius: .75rem; background: transparent; padding: .55rem .6rem; color: var(--map-ui-text, #27272a); font-size: var(--type-caption-size, .66rem); line-height: 1.35; box-shadow: none; -webkit-backdrop-filter: blur(6px) saturate(1.04); backdrop-filter: blur(6px) saturate(1.04); }
+.climate-types-description-item { display: flex; flex-direction: column; gap: .2rem; }
+.climate-types-description-heading { display: inline-flex; align-items: flex-start; gap: .3rem; color: #27272a; font-weight: 700; }
+.climate-types-description-heading .climate-types-swatch { flex: 0 0 auto; margin-top: .15rem; }
+.climate-types-description-item p { margin: 0; }
+.climate-types-map-status { position: absolute; left: 50%; top: .75rem; z-index: 500; transform: translateX(-50%); border: 1px solid #e4e4e7; border-radius: .375rem; background: rgb(255 255 255 / .92); padding: .35rem .6rem; color: #52525b; font-size: .7rem; }
+.climate-types-swatch { display: inline-block; width: .7rem; height: .7rem; border-radius: .15rem; }
+.climate-types-swatch--1 { background: #e77d6c; }
+.climate-types-swatch--2 { background: #479bc5; }
+.climate-types-swatch--3 { background: #e5e735; }
+.climate-types-swatch--4 { background: #64b737; }
+.climate-types-location-card { display: flex; min-height: 0; min-width: 0; height: 100%; flex-direction: column; overflow: hidden; }
+.climate-types-location-filter-row { display: flex; align-items: flex-end; gap: .5rem; border-bottom: 1px solid #f4f4f5; padding: .65rem .75rem .6rem; }
+.climate-types-location-controls { min-width: 8.25rem; flex: 0 0 8.25rem; }
+.climate-types-location-controls .ui-select-wrap { display: block; min-width: 0; }
+.climate-types-location-controls .ui-select { width: 100%; min-height: 2rem; font-size: .72rem; }
+.climate-types-search { display: flex; min-width: 0; flex: 1 1 auto; flex-direction: column; gap: .25rem; padding: 0; }
+.climate-types-search input { min-height: 2rem; font-size: .75rem; }
+.climate-types-location-list { min-height: 0; flex: 1 1 auto; overflow: auto; padding: 0 .75rem .75rem; }
+.climate-types-location-region { border-top: 1px solid #d4d4d8; padding: .65rem .25rem .3rem; color: #52525b; font-size: .66rem; font-weight: 700; letter-spacing: .02em; }
+.climate-types-location-region:first-child { border-top: 0; padding-top: .25rem; }
+.climate-types-location-province { border-top: 1px solid #f4f4f5; padding: .4rem .25rem .2rem .65rem; color: #71717a; font-size: .62rem; font-weight: 600; }
+.climate-types-location-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; border-bottom: 1px solid #f4f4f5; padding: .55rem .25rem; font-size: .75rem; }
+.climate-types-location-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #27272a; }
+.climate-types-location-distribution { display: flex; flex: 0 0 20rem; min-width: 0; flex-direction: column; align-items: stretch; gap: .25rem; }
+.climate-types-location-bar { display: flex; width: 100%; height: .5rem; overflow: hidden; border-radius: .2rem; background: #f4f4f5; }
+.climate-types-location-segment { display: block; flex: 0 0 var(--climate-share); height: 100%; }
+.climate-types-location-segment--1 { background: #e77d6c; }
+.climate-types-location-segment--2 { background: #479bc5; }
+.climate-types-location-segment--3 { background: #e5e735; }
+.climate-types-location-segment--4 { background: #64b737; }
+.climate-types-location-segment--0 { background: #d4d4d8; }
+@media (max-width: 900px) {
+    .climate-types-workspace { height: auto; grid-template-columns: 1fr; }
+    .climate-types-map-card, .climate-types-map, .climate-types-location-card { min-height: 30rem; height: auto; }
+}
+
+@media (max-width: 560px) {
+    .climate-types-location-filter-row { align-items: stretch; flex-direction: column; }
+    .climate-types-location-controls { flex-basis: auto; width: 100%; }
+    .climate-types-location-distribution { flex-basis: 16rem; }
+}

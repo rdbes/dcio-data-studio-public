@@ -1,5 +1,18 @@
-/* Login styles ported from the Drought Monitor sign-in implementation.
-   Data Studio intentionally changes only the wordmark and brand color. */
+/* Login styles ported from the Drought Monitor sign-in implementation. */
+.login-page {
+    background: #f4f4f5;
+    color: #3f3f46;
+}
+
+/* The logo is rendered at its source color; the neutral palette is applied to
+ * the login surface itself rather than through a page-wide filter. */
+
+.login-card {
+    border-color: #d4d4d8 !important;
+    background: #fafafa !important;
+    box-shadow: 0 1px 2px rgb(24 24 27 / 8%);
+}
+
 .login-brand-wordmark {
     display: block;
     margin: 0;
@@ -16,7 +29,7 @@
 }
 
 .login-brand-wordmark-secondary {
-    color: var(--color-brand);
+    color: var(--color-text-muted);
     font-size: inherit;
     font-weight: var(--font-weight-regular);
 }
@@ -39,10 +52,16 @@
 
 .login-form-input:focus,
 .login-form-input:focus-visible {
-    border-color: var(--color-focus) !important;
-    background: var(--color-surface) !important;
-    outline: var(--focus-ring-width) solid var(--color-focus) !important;
+    border-color: #52525b !important;
+    background: #f4f4f5 !important;
+    outline: var(--focus-ring-width) solid #71717a !important;
     outline-offset: var(--focus-ring-offset) !important;
+    box-shadow: none !important;
+}
+
+.login-form-input:active {
+    border-color: #71717a !important;
+    background: #f4f4f5 !important;
     box-shadow: none !important;
 }
 
@@ -51,11 +70,11 @@
     align-items: center;
     justify-content: center;
     min-height: var(--control-height-default);
-    border: var(--border-width-default) solid var(--color-brand);
+    border: var(--border-width-default) solid #52525b;
     border-radius: var(--farm-radius-md);
-    background: var(--color-brand);
+    background: #52525b;
     padding: var(--space-2) var(--space-4);
-    color: var(--color-text-inverse);
+    color: #fafafa;
     font-family: var(--font-family-interface);
     font-size: var(--type-control-size);
     font-weight: var(--type-control-weight);
@@ -72,16 +91,16 @@
 }
 
 .login-submit:hover {
-    border-color: var(--color-brand-hover);
-    background: var(--color-brand-hover);
+    border-color: #3f3f46;
+    background: #3f3f46;
 }
 
 .login-submit:active {
-    border-color: var(--color-brand-active);
-    background: var(--color-brand-active);
+    border-color: #27272a;
+    background: #27272a;
 }
 
 .login-submit:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline: var(--focus-ring-width) solid #71717a;
     outline-offset: var(--focus-ring-offset);
 }

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import calendar
 
-from django.core.paginator import Paginator
 from django.db.models import Sum
 from django.db.models.functions import ExtractYear
 from django.shortcuts import render
@@ -39,7 +38,6 @@ from reports.analytics import (
     zero,
 )
 from reports.dashboard import (
-    ANNUAL_SUMMARY_PAGE_SIZE,
     COMPARISON_WINDOW_OPTIONS,
     FARMERS_AVERAGE_START_YEAR,
     KPI_COMPARISON_WINDOW,
@@ -77,6 +75,7 @@ from reports.incident_attribution import (
 )
 from reports.location_ordering import region_sort_key, sort_region_names
 from reports.models import DamageReport, RefHazard
+from reports.views.route_context import el_nino_route_name, is_el_nino_view
 
 # Backwards compatibility re-exports for private helpers
 _short_region_label = short_region_label
@@ -113,6 +112,7 @@ _build_active_filter_chips = build_active_filter_chips
 
 def analytics(request):
     """Show a visual analytics dashboard from normalized damage_report records."""
+    is_el_nino_scope = is_el_nino_view(request)
     current_year = timezone.now().year
     active_reports = DamageReport.objects.filter(is_active=True)
 
@@ -336,22 +336,6 @@ def analytics(request):
         for intervals in windows.values()
     )
 
-    annual_summary_paginator = Paginator(
-        annual_summary_rows,
-        ANNUAL_SUMMARY_PAGE_SIZE,
-    )
-    annual_summary_page = annual_summary_paginator.get_page(request.GET.get("page"))
-
-    annual_summary_empty_rows = range(
-        max(
-            0,
-            annual_summary_page.paginator.per_page
-            - len(annual_summary_page.object_list),
-        )
-    )
-    annual_summary_query_params = request.GET.copy()
-    annual_summary_query_params.pop("page", None)
-
     # Top 10 incidents by value loss
     top_incidents_qs = (
         filtered_reports.exclude(incident_key__isnull=True)
@@ -485,13 +469,25 @@ def analytics(request):
         kpi_cards.append(card)
 
     filter_context = _build_filter_context(annual_filters, available_years)
-    filter_context["time_label"] = annual_filters["period_label"] + (" (year-to-date)" if current_year in windows else "")
+    # Chart subtitles should expose the selected calendar year(s) directly.
+    # Provisional/current-year status belongs in the data-quality notes, not
+    # in the compact period label shown beside every chart.
+    filter_context["time_label"] = annual_filters["period_label"]
     filter_context.update(
         {
             "comparison_enabled": comparison["enabled"],
             "comparison_label": comparison["label"],
             "comparison_window": comparison["window"],
         }
+    )
+    scope_summary_parts = (
+        filter_context["location_label"],
+        filter_context["hazard_label"],
+        filter_context["commodity_label"],
+    )
+    filter_context["scope_summary"] = " • ".join(scope_summary_parts)
+    filter_context["historical_scope_summary"] = " • ".join(
+        ("All available years", *scope_summary_parts)
     )
 
     period_clear_url = _url_with_query(
@@ -521,10 +517,9 @@ def analytics(request):
         active_filter_chips.append(
             {
                 "label": selected_hazard_label,
-                "clear_url": _url_with_query(
-                    request,
-                    remove=["hazard"],
-                ),
+                "clear_url": ""
+                if is_el_nino_scope
+                else _url_with_query(request, remove=["hazard"]),
             }
         )
     else:
@@ -584,11 +579,23 @@ def analytics(request):
     unspecified_value = nullable_sum(row["value_loss"] for row in selected_observations if not row["location_psgc_key__province_huc_name"])
     if unspecified_value:
         quality_notes.append(f"{_format_exact_value(unspecified_value, prefix='PHP ')} has no province attribution and remains in the Unspecified Province category.")
+    dashboard_route_name = (
+        el_nino_route_name(request, "dashboard")
+        if is_el_nino_scope
+        else "reports:dashboard"
+    )
+    analytics_route_name = (
+        el_nino_route_name(request, "analytics")
+        if is_el_nino_scope
+        else "reports:analytics"
+    )
     return render(
         request,
         "reports/dashboard.html",
         {
             "quality_notes": quality_notes,
+            "is_el_nino_view": is_el_nino_scope,
+            "analytics_page_title": "El Niño Analytics" if is_el_nino_scope else "Analytics",
             "comparison_window_options": COMPARISON_WINDOW_OPTIONS,
             "available_years": available_years,
             "month_options": [
@@ -629,17 +636,19 @@ def analytics(request):
             "comparison_averages": comparison_averages,
             "annual_five_year_periods": annual_five_year_periods,
             "comparison_window_cards": comparison_window_cards,
-            "annual_summary_page": annual_summary_page,
-            "annual_summary_empty_rows": annual_summary_empty_rows,
-            "annual_summary_querystring": annual_summary_query_params.urlencode(),
             "top_incidents": top_incidents,
+            "top_incidents_subtitle": " • ".join(
+                (filter_context["time_label"], filter_context["scope_summary"])
+            ),
             "breakdown_tables": breakdown_tables,
+            "breakdown_tables_subtitle": filter_context["historical_scope_summary"],
             "breakdown_metric_options": breakdown_metric_options,
             "active_filter_chips": active_filter_chips,
             "map_navigation_url": _preserved_url(
                 request,
-                reverse("reports:dashboard"),
+                reverse(dashboard_route_name),
             ),
+            "analytics_reset_url": reverse(analytics_route_name),
         },
     )
 

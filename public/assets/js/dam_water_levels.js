@@ -1841,7 +1841,7 @@
 
         const dam = document.createElement("th");
         dam.scope = "row";
-        dam.textContent = metadata.dam_name;
+        dam.textContent = metadata.dam_name === "Magat Dam" ? "Magat" : metadata.dam_name;
         row.append(dam);
 
         const currentValue = sourceValue(metadata.current_value);

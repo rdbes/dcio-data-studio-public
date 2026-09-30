@@ -1,0 +1,740 @@
+/*
+ * Shared map-control contract
+ *
+ * Map backgrounds and legends may follow the active app or map palette, but
+ * the chrome used to operate every map stays neutral. Keeping this stylesheet
+ * loaded after module styles prevents theme variables and utility classes from
+ * changing the button/card treatment between Data Studio, Drought Monitor,
+ * and Map Studio.
+ */
+:root {
+    --map-control-bg-static: #ffffff;
+    --map-control-bg-hover-static: #f4f4f5;
+    --map-control-icon-static: #3f3f46;
+    --map-control-border-static: #e4e4e7;
+    --map-control-focus-static: #52525b;
+    --map-control-radius-static: 0.375rem;
+    --map-control-popup-shadow-static: 0 6px 16px rgb(24 24 27 / 14%);
+    --map-control-size-static: 1.75rem;
+    --map-control-gap-static: 0.25rem;
+    --map-control-inset-static: 0.625rem;
+    --map-control-popup-width-static: min(12rem, calc(100vw - 2rem));
+    --map-control-popup-padding-static: 0.625rem;
+    --map-control-popup-text-size-static: 0.6875rem;
+    --map-control-popup-text-line-static: 1.3;
+    --map-cartography-width-static: 4.5rem;
+    --map-cartography-label-size-static: 0.375rem;
+    --map-cartography-label-line-static: 0.5rem;
+    --map-cartography-north-label-size-static: 0.5rem;
+    --map-cartography-arrow-width-static: 1rem;
+    --map-cartography-arrow-height-static: 1.25rem;
+    --map-cartography-scale-bar-height-static: 0.1875rem;
+    --map-cartography-scale-label-offset-static: 0.25rem;
+}
+
+/* The dashboard map already paints its own map surface. Keep the reusable
+ * card shell transparent so a second white layer does not show around it. */
+[data-damage-losses-dashboard] [data-map-canvas-card] {
+    background: transparent !important;
+}
+
+/* Shared-shell map rails use one fixed inset and gap on every map canvas. */
+[data-map-control-rail],
+[data-map-export-controls] {
+    gap: var(--map-control-gap-static) !important;
+}
+
+[data-map-control-rail] {
+    top: var(--map-control-inset-static) !important;
+    left: var(--map-control-inset-static) !important;
+}
+
+[data-map-export-controls] {
+    align-items: flex-end !important;
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    min-width: var(--map-control-size-static) !important;
+    top: calc(var(--map-control-inset-static) + var(--map-control-size-static) + var(--map-control-gap-static)) !important;
+    right: var(--map-control-inset-static) !important;
+    width: var(--map-control-size-static) !important;
+}
+
+[data-map-export-controls] > * {
+    flex: 0 0 auto;
+}
+
+[data-map-primary-controls],
+[data-map-export-controls],
+[data-svtr-toolbar-controls],
+[data-map-control-group] {
+    gap: var(--map-control-gap-static) !important;
+}
+
+/* Never inherit a map palette or background tone on an operating control. */
+[data-map-canvas-card] .ui-map-icon-button,
+[data-map-canvas-card] .add-map-zoom-controls button,
+[data-map-canvas-card] .leaflet-control-zoom a,
+[data-svtr-toolbar-controls] .ui-map-icon-button {
+    box-sizing: border-box;
+    width: var(--map-control-size-static) !important;
+    height: var(--map-control-size-static) !important;
+    min-width: var(--map-control-size-static) !important;
+    min-height: var(--map-control-size-static) !important;
+    border: 0 !important;
+    border-radius: var(--map-control-radius-static) !important;
+    background: var(--map-control-bg-static) !important;
+    color: var(--map-control-icon-static) !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+[data-map-canvas-card] .ui-map-icon-button:hover,
+[data-map-canvas-card] .ui-map-icon-button:focus-visible,
+[data-map-canvas-card] .ui-map-icon-button[aria-pressed="true"],
+[data-map-canvas-card] .add-map-zoom-controls button:hover,
+[data-map-canvas-card] .add-map-zoom-controls button:focus-visible,
+[data-map-canvas-card] .leaflet-control-zoom a:hover,
+[data-map-canvas-card] .leaflet-control-zoom a:focus-visible,
+[data-svtr-toolbar-controls] .ui-map-icon-button:hover,
+[data-svtr-toolbar-controls] .ui-map-icon-button:focus-visible,
+[data-svtr-toolbar-controls] .ui-map-icon-button[aria-pressed="true"] {
+    border-color: transparent !important;
+    background: var(--map-control-bg-hover-static) !important;
+    color: var(--map-control-icon-static) !important;
+}
+
+[data-map-canvas-card] .ui-map-icon-button:focus-visible,
+[data-map-canvas-card] .add-map-zoom-controls button:focus-visible,
+[data-map-canvas-card] .leaflet-control-zoom a:focus-visible,
+[data-svtr-toolbar-controls] .ui-map-icon-button:focus-visible {
+    outline: 2px solid var(--map-control-focus-static) !important;
+    outline-offset: 2px !important;
+}
+
+/* Every map keeps its visibility toggle at the upper-right edge. Export
+ * actions use that same right edge and begin below the toggle so every
+ * right-side control shares one vertical alignment. */
+[data-map-canvas-card] > .map-canvas-controls-toggle {
+    position: absolute;
+    top: var(--map-control-inset-static) !important;
+    right: var(--map-control-inset-static) !important;
+    z-index: 1001;
+}
+
+/* Drought maps have a boundary/layers selector in addition to the shared
+ * visibility toggle. Keep the selectors and export actions in one readable
+ * right-side stack instead of letting the visibility button cover the layer
+ * control. */
+body[data-platform-app="drought-monitor"]
+[data-map-canvas-card]
+> div > .drought-map-layers-control {
+    top: calc(
+        var(--map-control-inset-static)
+        + var(--map-control-size-static)
+        + var(--map-control-gap-static)
+    ) !important;
+}
+
+body[data-platform-app="drought-monitor"]
+[data-map-canvas-card]
+> div > .drought-map-layers-control > #map-boundary-panel {
+    top: 0 !important;
+    right: calc(100% + var(--map-control-overlay-gap, 0.5rem)) !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+}
+
+body[data-platform-app="drought-monitor"]
+[data-map-canvas-card]
+> div > [data-map-export-controls][data-map-export-controls-lower] {
+    top: calc(
+        var(--map-control-inset-static)
+        + (2 * var(--map-control-size-static))
+        + (2 * var(--map-control-gap-static))
+    ) !important;
+}
+
+[data-map-canvas-card][data-map-controls-hidden="true"] [data-map-control-rail],
+[data-map-canvas-card][data-map-controls-hidden="true"] [data-map-export-controls],
+[data-map-canvas-card][data-map-controls-hidden="true"] .add-map-historical-tc-control,
+[data-map-canvas-card][data-map-controls-hidden="true"] [data-svtr-toolbar-controls] > :not([data-map-controls-toggle]) {
+    display: none !important;
+}
+
+[data-svtr-toolbar-controls] > .map-canvas-controls-toggle {
+    position: static;
+    flex: 0 0 auto;
+}
+
+/* The monthly SVTR workspace has one shared rail for its controls. Keep the
+ * controls horizontal and wrap them into two compact rows rather than
+ * letting the header or each control group determine the layout. */
+[data-svtr-toolbar-controls] {
+    direction: ltr !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, var(--map-control-size-static));
+    grid-auto-rows: var(--map-control-size-static);
+    align-items: start;
+    justify-content: end;
+    width: max-content !important;
+    max-width: calc(100% - (2 * var(--map-control-inset-static)));
+}
+
+/* The SVTR rail lives in the map header, so keep it pinned to the header's
+ * right edge while allowing the title and controls to wrap cleanly on small
+ * screens. */
+[data-svtr-workspace] .drought-map-toolbar > div {
+    flex-wrap: wrap;
+}
+
+[data-svtr-workspace] [data-svtr-toolbar-controls] {
+    margin-left: auto;
+    align-self: flex-start;
+}
+
+[data-svtr-toolbar-controls] > [data-map-control-group="view"],
+[data-svtr-toolbar-controls] [data-map-primary-controls],
+[data-svtr-toolbar-controls] [data-map-export-controls] {
+    display: contents !important;
+}
+
+[data-svtr-toolbar-controls] [data-map-export-controls] {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    width: auto !important;
+}
+
+[data-svtr-toolbar-controls] [data-map-zoom-controls] {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0 !important;
+    grid-column: span 2;
+    width: calc((2 * var(--map-control-size-static)) + var(--map-control-gap-static)) !important;
+}
+
+[data-svtr-toolbar-controls] #map-zoom-in {
+    border-radius: var(--map-control-radius-static) 0 0 var(--map-control-radius-static) !important;
+}
+
+[data-svtr-toolbar-controls] #map-zoom-out {
+    border-radius: 0 var(--map-control-radius-static) var(--map-control-radius-static) 0 !important;
+}
+
+@media (max-width: 48rem) {
+    [data-svtr-workspace] [data-svtr-toolbar-controls] {
+        margin-left: 0;
+    }
+
+    [data-svtr-toolbar-controls] {
+        grid-template-columns: repeat(4, var(--map-control-size-static));
+    }
+}
+
+/* Zoom in/out are two buttons with no additional surface behind them. */
+[data-map-canvas-card] .add-map-zoom-controls,
+[data-map-canvas-card] .leaflet-control-zoom,
+.map-studio-zoom-controls {
+    align-self: flex-start;
+    box-sizing: border-box;
+    display: flex !important;
+    flex: 0 0 auto;
+    flex-direction: column !important;
+    gap: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: var(--map-control-icon-static) !important;
+    box-shadow: none !important;
+    width: var(--map-control-size-static) !important;
+    min-width: var(--map-control-size-static) !important;
+}
+
+[data-map-canvas-card] .add-map-zoom-controls button,
+[data-map-canvas-card] .leaflet-control-zoom a,
+.map-studio-zoom-button {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: var(--map-control-bg-static) !important;
+}
+
+[data-map-canvas-card] .add-map-zoom-controls button + button,
+[data-map-canvas-card] .leaflet-control-zoom a + a,
+.map-studio-zoom-button + .map-studio-zoom-button {
+    border-top: 0 !important;
+}
+
+/* Round only the outside corners so the zoom pair reads as one connected
+ * control while retaining a clean square seam between plus and minus. */
+[data-map-canvas-card] .add-map-zoom-controls button:first-child,
+[data-map-canvas-card] .leaflet-control-zoom a:first-child,
+.map-studio-zoom-controls .map-studio-zoom-button:first-child {
+    border-top-left-radius: var(--map-control-radius-static) !important;
+    border-top-right-radius: var(--map-control-radius-static) !important;
+}
+
+[data-map-canvas-card] .add-map-zoom-controls button:last-child,
+[data-map-canvas-card] .leaflet-control-zoom a:last-child,
+.map-studio-zoom-controls .map-studio-zoom-button:last-child {
+    border-bottom-left-radius: var(--map-control-radius-static) !important;
+    border-bottom-right-radius: var(--map-control-radius-static) !important;
+}
+
+/* Module rails are declared before this shared zoom contract. Reassert the
+ * SVTR horizontal pair after the common vertical zoom rules so it remains a
+ * single connected control in the first row. */
+[data-map-canvas-card] [data-svtr-toolbar-controls] [data-map-zoom-controls] {
+    flex-direction: row !important;
+    width: calc((2 * var(--map-control-size-static)) + var(--map-control-gap-static)) !important;
+    min-width: calc((2 * var(--map-control-size-static)) + var(--map-control-gap-static)) !important;
+}
+
+[data-map-canvas-card] [data-svtr-toolbar-controls] #map-zoom-in {
+    border-radius: var(--map-control-radius-static) 0 0 var(--map-control-radius-static) !important;
+}
+
+[data-map-canvas-card] [data-svtr-toolbar-controls] #map-zoom-out {
+    border-radius: 0 var(--map-control-radius-static) var(--map-control-radius-static) 0 !important;
+}
+
+/* Flyout cards use the same static surface and radius as the controls. */
+[data-map-canvas-card] :is(.add-map-style-panel, .add-map-metric-panel, .map-resize-menu),
+.map-studio-theme-panel,
+.map-studio-basemap-panel,
+.map-studio-export-panel {
+    border: 1px solid var(--map-control-border-static) !important;
+    border-radius: var(--map-control-radius-static) !important;
+    background: var(--map-control-bg-static) !important;
+    color: var(--map-control-icon-static) !important;
+    box-shadow: var(--map-control-popup-shadow-static) !important;
+}
+
+/* Map Studio creates its controls in JavaScript, so give its parallel class
+ * names the exact same geometry and neutral palette. */
+.map-studio-control-rail,
+.map-studio-primary-controls,
+.map-studio-right-control-rail,
+.map-studio-right-map-actions {
+    gap: var(--map-control-gap-static) !important;
+}
+
+.map-studio-action-button,
+.map-studio-zoom-button {
+    box-sizing: border-box;
+    width: var(--map-control-size-static) !important;
+    height: var(--map-control-size-static) !important;
+    min-width: var(--map-control-size-static) !important;
+    min-height: var(--map-control-size-static) !important;
+    border: 0 !important;
+    border-radius: var(--map-control-radius-static) !important;
+    background: var(--map-control-bg-static) !important;
+    color: var(--map-control-icon-static) !important;
+    box-shadow: none !important;
+}
+
+.map-studio-action-button:hover,
+.map-studio-action-button:focus-visible,
+.map-studio-action-button[aria-pressed="true"],
+.map-studio-zoom-button:hover,
+.map-studio-zoom-button:focus-visible {
+    border-color: transparent !important;
+    background: var(--map-control-bg-hover-static) !important;
+    color: var(--map-control-icon-static) !important;
+}
+
+.map-studio-action-button:focus-visible,
+.map-studio-zoom-button:focus-visible {
+    outline: 2px solid var(--map-control-focus-static) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+}
+
+/* One popup contract for every map implementation.  The map-specific
+ * controls can still change their selected state (for example, the active
+ * metric), but the popup surface, type scale, spacing, and anchor geometry
+ * are shared across Data Studio, Drought Monitor, and Map Studio. */
+[data-map-canvas-card]
+:is(.add-map-style-panel, .add-map-metric-panel, .map-resize-menu),
+body > .map-studio-export-panel[data-map-control-popover],
+.map-canvas
+:is(.map-studio-theme-panel, .map-studio-basemap-panel) {
+    box-sizing: border-box !important;
+    width: var(--map-control-popup-width-static) !important;
+    max-width: var(--map-control-popup-width-static) !important;
+    padding: var(--map-control-popup-padding-static) !important;
+    font-family: var(--font-family-interface, Inter, ui-sans-serif, system-ui, sans-serif) !important;
+    font-size: var(--map-control-popup-text-size-static) !important;
+    line-height: var(--map-control-popup-text-line-static) !important;
+}
+
+/* Left-rail popups open from the same top edge as their trigger. */
+[data-map-canvas-card]
+:is(.add-map-style-control, .add-map-metric-control, .add-map-boundary-control, .drought-map-product-control)
+> :is(.add-map-style-panel, .add-map-metric-panel) {
+    top: 0 !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: calc(100% + var(--map-control-gap-static)) !important;
+    transform: none !important;
+}
+
+/* The resize menu belongs to the right rail, so it opens inward while
+ * retaining the same top edge and gap as left-rail popups. */
+[data-map-canvas-card] [data-map-resize-control] > .map-resize-menu {
+    top: 0 !important;
+    right: calc(100% + var(--map-control-gap-static)) !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+}
+
+/* Map Studio's theme and basemap panels use the same left-rail anchor. Its
+ * export panel is positioned by JavaScript so it can remain inside a resized
+ * canvas; the shared width and typography above still apply to it. */
+@media (min-width: 621px) {
+    .map-canvas
+    :is(.map-studio-theme-control, .map-studio-basemap-control)
+    > :is(.map-studio-theme-panel, .map-studio-basemap-panel) {
+        top: 0 !important;
+        right: auto !important;
+        bottom: auto !important;
+        left: calc(100% + var(--map-control-gap-static)) !important;
+        transform: none !important;
+    }
+}
+
+/* Shared popup headings and section dividers. */
+[data-map-canvas-card]
+:is(
+    .add-map-style-panel__heading,
+    .add-map-metric-panel__heading,
+    .map-resize-menu__title,
+    .drought-map-layer-section__heading
+),
+.map-canvas
+:is(.map-studio-theme-title, .map-studio-basemap-title, .map-studio-basemap-section__title),
+body > .map-studio-export-panel[data-map-control-popover]
+.map-studio-export-title {
+    display: block !important;
+    margin: 0 0 0.5rem !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: var(--map-control-icon-static) !important;
+    font-size: var(--map-control-popup-text-size-static) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.25 !important;
+    text-transform: none !important;
+}
+
+/* Popup labels and option states stay neutral when a map changes its
+ * background or palette. The map theme belongs to the map surface; control
+ * chrome uses one readable white/dark-gray treatment everywhere. */
+[data-map-canvas-card]
+:is(
+    .add-map-style-panel__heading,
+    .add-map-metric-panel__heading,
+    .map-resize-menu__title,
+    .drought-map-layer-section__heading,
+    .add-map-metric-option,
+    .map-resize-menu__options > button,
+    .add-map-background-option,
+    .add-map-palette-option
+),
+.map-canvas
+:is(
+    .map-studio-basemap-option,
+    .map-studio-basemap-position-option,
+    .map-studio-basemap-toggle-option,
+    .pagasa-layer-option,
+    .map-studio-palette-option,
+    .map-studio-theme-option,
+    .map-studio-export-option,
+    .map-studio-export-action
+),
+body > .map-studio-export-panel[data-map-control-popover]
+:is(.map-studio-export-option, .map-studio-export-action) {
+    color: var(--map-control-icon-static) !important;
+    background: transparent !important;
+}
+
+[data-map-canvas-card]
+:is(
+    .add-map-metric-option__detail,
+    .map-resize-menu__option-detail,
+    .add-map-palette-name
+),
+.map-canvas
+:is(
+    .map-studio-basemap-toggle-option__state,
+    .map-studio-export-option__detail,
+    .map-studio-palette-option
+) {
+    color: #71717a !important;
+}
+
+[data-map-canvas-card]
+:is(
+    .add-map-metric-option:hover,
+    .add-map-metric-option:focus-visible,
+    .add-map-metric-option[aria-checked="true"],
+    .map-resize-menu__options > button:hover,
+    .map-resize-menu__options > button:focus-visible,
+    .map-resize-menu__options > button[data-selected="true"],
+    .add-map-background-option:hover,
+    .add-map-background-option:focus-visible,
+    .add-map-background-option[aria-pressed="true"],
+    .add-map-palette-option:hover,
+    .add-map-palette-option:focus-visible,
+    .add-map-palette-option[aria-pressed="true"]
+),
+.map-canvas
+:is(
+    .map-studio-basemap-option:hover,
+    .map-studio-basemap-option:focus-visible,
+    .map-studio-basemap-option[aria-pressed="true"],
+    .map-studio-basemap-position-option:hover,
+    .map-studio-basemap-position-option:focus-visible,
+    .map-studio-basemap-position-option[aria-pressed="true"],
+    .map-studio-basemap-toggle-option:hover,
+    .map-studio-basemap-toggle-option:focus-visible,
+    .map-studio-basemap-toggle-option[aria-pressed="true"],
+    .pagasa-layer-option:hover,
+    .pagasa-layer-option:focus-visible,
+    .pagasa-layer-option[aria-pressed="true"],
+    .map-studio-palette-option:hover,
+    .map-studio-palette-option:focus-visible,
+    .map-studio-palette-option[aria-pressed="true"],
+    .map-studio-theme-option:hover,
+    .map-studio-theme-option:focus-visible,
+    .map-studio-theme-option[aria-pressed="true"],
+    .map-studio-export-option:hover,
+    .map-studio-export-option:focus-visible,
+    .map-studio-export-option[aria-pressed="true"],
+    .map-studio-export-action:hover,
+    .map-studio-export-action:focus-visible
+),
+body > .map-studio-export-panel[data-map-control-popover]
+:is(.map-studio-export-option:hover, .map-studio-export-option:focus-visible, .map-studio-export-option[aria-pressed="true"], .map-studio-export-action:hover, .map-studio-export-action:focus-visible) {
+    border-color: var(--map-control-border-static) !important;
+    background: var(--map-control-bg-hover-static) !important;
+    color: var(--map-control-icon-static) !important;
+}
+
+/* Keep module-specific selected-state rules from reintroducing app-theme
+ * colors after this shared contract is loaded. */
+body[data-platform-app]
+[data-map-canvas-card]
+:is(
+    .add-map-metric-option[aria-checked="true"],
+    .map-resize-menu__options > button[data-selected="true"],
+    .add-map-background-option[aria-pressed="true"],
+    .add-map-palette-option[aria-pressed="true"]
+),
+body[data-platform-app]
+.map-canvas
+:is(
+    .map-studio-basemap-option[aria-pressed="true"],
+    .map-studio-basemap-position-option[aria-pressed="true"],
+    .map-studio-basemap-toggle-option[aria-pressed="true"],
+    .pagasa-layer-option[aria-pressed="true"],
+    .map-studio-palette-option[aria-pressed="true"],
+    .map-studio-theme-option[aria-pressed="true"],
+    .map-studio-export-option[aria-pressed="true"]
+) {
+    border-color: var(--map-control-border-static) !important;
+    background: var(--map-control-bg-hover-static) !important;
+    color: var(--map-control-icon-static) !important;
+    font-weight: 700 !important;
+}
+
+/* Agricultural Drought has an older, highly specific accent rule for these
+ * swatches. Match that specificity so its orange theme cannot leak into the
+ * shared control popup. */
+html body[data-platform-app]
+[data-map-canvas-card]
+:is(
+    .add-map-style-panel .add-map-background-option:hover,
+    .add-map-style-panel .add-map-background-option:focus-visible,
+    .add-map-style-panel .add-map-background-option[aria-pressed="true"],
+    .add-map-style-panel .add-map-palette-option:hover,
+    .add-map-style-panel .add-map-palette-option:focus-visible,
+    .add-map-style-panel .add-map-palette-option[aria-pressed="true"],
+    .add-map-metric-panel .add-map-metric-option[aria-checked="true"],
+    .map-resize-menu__options > button[data-selected="true"]
+) {
+    border-color: var(--map-control-border-static) !important;
+    background: var(--map-control-bg-hover-static) !important;
+    color: var(--map-control-icon-static) !important;
+}
+
+[data-map-canvas-card]
+:is(.add-map-style-panel fieldset, .add-map-style-panel__section),
+.map-canvas
+:is(.map-studio-theme-title--palette, .map-studio-basemap-section),
+body > .map-studio-export-panel[data-map-control-popover]
+.map-studio-export-actions--top {
+    margin: 0.625rem 0 0 !important;
+    padding: 0.625rem 0 0 !important;
+    border-top: 1px solid var(--map-control-border-static) !important;
+}
+
+[data-map-canvas-card] .add-map-style-panel fieldset:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    border-top: 0 !important;
+}
+
+/* Option rows use one readable label/detail rhythm in every popup. */
+[data-map-canvas-card]
+:is(.add-map-metric-options, .map-resize-menu__options),
+.map-canvas
+:is(.map-studio-basemap-options),
+body > .map-studio-export-panel[data-map-control-popover]
+.map-studio-export-options {
+    display: grid !important;
+    gap: var(--map-control-gap-static) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+[data-map-canvas-card]
+:is(.add-map-metric-option, .map-resize-menu__options > button),
+.map-canvas
+:is(.map-studio-basemap-option, .map-studio-basemap-position-option, .map-studio-basemap-toggle-option),
+body > .map-studio-export-panel[data-map-control-popover]
+:is(.map-studio-export-option, .map-studio-export-action) {
+    box-sizing: border-box !important;
+    min-height: var(--map-control-size-static) !important;
+    padding: 0.375rem 0.5rem !important;
+    border-radius: var(--map-control-radius-static) !important;
+    font-size: var(--map-control-popup-text-size-static) !important;
+    line-height: var(--map-control-popup-text-line-static) !important;
+}
+
+[data-map-canvas-card]
+:is(.add-map-metric-option__detail, .map-resize-menu__option-detail),
+.map-canvas .map-studio-export-option__detail,
+body > .map-studio-export-panel[data-map-control-popover]
+.map-studio-export-option__detail {
+    font-size: 0.625rem !important;
+    line-height: 1.25 !important;
+}
+
+.map-canvas .map-studio-theme-options {
+    grid-template-columns: repeat(6, 1.5rem) !important;
+    gap: var(--map-control-gap-static) !important;
+    margin: 0 !important;
+}
+
+/* Keep mobile popups inside the viewport while preserving the same compact
+ * scale. Map Studio's mobile script supplies the exact fixed coordinates. */
+@media (max-width: 620px) {
+    [data-map-canvas-card]
+    :is(.add-map-style-panel, .add-map-metric-panel, .map-resize-menu),
+    body > .map-studio-export-panel[data-map-control-popover] {
+        max-width: calc(100vw - 2rem) !important;
+    }
+}
+
+/* Keep Map Studio's zoom pair connected after its general action-button rule. */
+.map-studio-zoom-controls .map-studio-zoom-button {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: var(--map-control-bg-static) !important;
+}
+
+.map-studio-zoom-controls .map-studio-zoom-button + .map-studio-zoom-button {
+    border-top: 0 !important;
+}
+
+/* The mobile disclosure remains a touch target, while its visual treatment
+ * still uses the same white/dark-gray control palette. */
+@media (max-width: 62rem) {
+    .map-studio-action-button.map-studio-mobile-menu-button {
+        width: 2.75rem !important;
+        height: 2.75rem !important;
+        min-width: 2.75rem !important;
+        min-height: 2.75rem !important;
+    }
+}
+
+/* Shared map cartography contract. Keep the coordinate reference label,
+ * north marker, and scale treatment compact and identical across Data
+ * Studio, Drought Monitor, Bulletin, and Map Studio canvases. The !important
+ * declarations intentionally win over page-specific utility classes so a
+ * module cannot silently restore a larger, different treatment. */
+[data-map-cartography],
+.bulletin-map-cartography,
+.map-studio-cartography {
+    width: var(--map-cartography-width-static) !important;
+}
+
+[data-map-north-arrow] > span,
+.drought-north-arrow > span,
+.bulletin-map-north-arrow > span,
+.map-studio-north-arrow > span {
+    top: 0 !important;
+    font-size: var(--map-cartography-north-label-size-static) !important;
+    line-height: 1 !important;
+}
+
+[data-map-north-arrow] > svg,
+.drought-north-arrow > svg,
+.bulletin-map-north-arrow > svg,
+.map-studio-north-arrow > svg {
+    width: var(--map-cartography-arrow-width-static) !important;
+    height: var(--map-cartography-arrow-height-static) !important;
+}
+
+.add-map-scale-host,
+.map-studio-scale-host {
+    width: 100% !important;
+}
+
+.drought-map-scale-host {
+    width: var(--map-cartography-width-static) !important;
+}
+
+.add-map-scale-host .leaflet-control-scale-line,
+.map-studio-scale-host .leaflet-control-scale-line {
+    height: var(--map-cartography-label-line-static) !important;
+    font-size: var(--map-cartography-label-size-static) !important;
+    line-height: var(--map-cartography-label-line-static) !important;
+}
+
+.add-map-scale-host .add-map-scale-bar,
+.map-studio-scale-bar {
+    height: var(--map-cartography-scale-bar-height-static) !important;
+}
+
+.add-map-scale-host .add-map-scale-label,
+.map-studio-scale-label {
+    top: var(--map-cartography-scale-label-offset-static) !important;
+    font-size: var(--map-cartography-label-size-static) !important;
+    line-height: var(--map-cartography-label-line-static) !important;
+}
+
+.add-map-scale-host .add-map-crs-label,
+.map-studio-crs-label {
+    margin-top: var(--map-cartography-scale-label-offset-static) !important;
+    font-size: var(--map-cartography-label-size-static) !important;
+    line-height: var(--map-cartography-label-line-static) !important;
+}
+
+/* Transparent legends use their own element box as the backdrop-filter
+ * surface. Keep that box intrinsic to the title, swatches, and longest value
+ * label—rather than the old fixed 13rem cap—so the transparent treatment
+ * always extends behind the complete legend. The viewport cap prevents a
+ * legend from escaping a narrow canvas. */
+[data-map-canvas-card] :is(#ph-map, [id^="drought-map-"]) .add-map-legend,
+.tc-tracks-map .leaflet-bottom.leaflet-left .add-map-legend,
+.map-canvas .map-studio-legend-host .map-studio-legend {
+    box-sizing: border-box !important;
+    width: max-content !important;
+    max-width: calc(100vw - 2rem) !important;
+}

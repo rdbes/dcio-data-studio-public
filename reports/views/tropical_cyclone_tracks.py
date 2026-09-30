@@ -9,6 +9,10 @@ from django.db.models import Count, Prefetch, Q, Sum
 from django.shortcuts import render
 
 from reports.analytics.filters import url_with_query
+from reports.climate.roni import (
+    build_tropical_cyclone_enso_attribution,
+    load_roni_observations,
+)
 from reports.hazards.tropical_cyclones import (
     MIN_TROPICAL_CYCLONE_YEAR,
     TROPICAL_CYCLONE_HAZARD_KEY,
@@ -241,7 +245,7 @@ def _serialize_damage_loss_records(cyclone_keys):
     }
 
 
-def _serialize_tracks(cyclones):
+def _serialize_tracks(cyclones, roni_observations=()):
     tracks = []
 
     for cyclone in cyclones:
@@ -260,6 +264,11 @@ def _serialize_tracks(cyclones):
             if occurrence_month_value
             else ""
         )
+        enso_attribution = build_tropical_cyclone_enso_attribution(
+            cyclone,
+            cyclone.all_track_points,
+            roni_observations,
+        )
 
         if not points_by_source:
             tracks.append(
@@ -268,6 +277,7 @@ def _serialize_tracks(cyclones):
                     "cyclone_key": cyclone.cyclone_key,
                     "cyclone_name": cyclone.cyclone_name or "",
                     "international_name": cyclone.international_name or "",
+                    **enso_attribution,
                     "occurrence_year": cyclone.occurrence_year,
                     "occurrence_month": occurrence_month_value,
                     "occurrence_month_label": occurrence_month_label,
@@ -319,6 +329,7 @@ def _serialize_tracks(cyclones):
                     "cyclone_key": cyclone.cyclone_key,
                     "cyclone_name": cyclone.cyclone_name or "",
                     "international_name": cyclone.international_name or "",
+                    **enso_attribution,
                     "occurrence_year": cyclone.occurrence_year,
                     "occurrence_month": occurrence_month_value,
                     "occurrence_month_label": occurrence_month_label,
@@ -435,7 +446,7 @@ def tropical_cyclone_tracks(request):
             "cyclone_key",
         )
     )
-    tracks = _serialize_tracks(cyclones)
+    tracks = _serialize_tracks(cyclones, load_roni_observations())
     damage_loss_records_by_cyclone = _serialize_damage_loss_records(
         {track["cyclone_key"] for track in tracks}
     )

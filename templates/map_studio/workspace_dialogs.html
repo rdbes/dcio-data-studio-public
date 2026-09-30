@@ -1,0 +1,182 @@
+{% load static %}
+<dialog id="boundary-template-dialog" class="template-download-dialog" aria-labelledby="boundary-template-dialog-title">
+      <div class="template-download-dialog__header">
+        <div>
+          <h2 id="boundary-template-dialog-title">PSGC Mapping Template</h2>
+          <p>PSA PSGC reference · 2Q 2026 publication · 30 June 2026</p>
+        </div>
+      </div>
+      <div class="template-download-dialog__body">
+        <fieldset class="template-download-options">
+          <legend>Geographic coverage</legend>
+          <label class="template-download-option">
+            <input type="radio" name="boundary-template-scope" value="region" checked>
+            <span><strong>Region only</strong><small data-template-row-count="region">Loading rows…</small></span>
+          </label>
+          <label class="template-download-option">
+            <input type="radio" name="boundary-template-scope" value="province_huc">
+            <span><strong>Province / HUC only</strong><small data-template-row-count="province_huc">Loading rows…</small></span>
+          </label>
+          <label class="template-download-option">
+            <input type="radio" name="boundary-template-scope" value="municipality_city">
+            <span><strong>Municipality / City only</strong><small data-template-row-count="municipality_city">Loading rows…</small></span>
+          </label>
+          <label class="template-download-option">
+            <input type="radio" name="boundary-template-scope" value="all">
+            <span><strong>All levels, grouped</strong><small data-template-row-count="all">Loading rows…</small></span>
+          </label>
+        </fieldset>
+        <h3 class="template-download-dialog__note-heading">Notes</h3>
+        <ul class="template-download-dialog__note">
+          <li>The template includes <strong>PSGC_code</strong> and <strong>correspondence_code</strong> as reference fields. Use either code for matching.</li>
+          <li>Boundary Mapping uploads need one code column and <strong>location_name</strong>. The matcher accepts a 10-digit PSGC code or a 9-digit correspondence code, with or without the <strong>PH</strong> prefix.</li>
+          <li>Add your measure in the blank <strong>metric_value</strong> column.</li>
+          <li>Rows follow the PSA PSGC reference. Boundary geometry is maintained separately from the mapping template.</li>
+        </ul>
+        <p id="boundary-template-status" class="template-download-dialog__status" role="status" aria-live="polite"></p>
+        <div class="template-download-dialog__actions">
+          <button type="button" class="ds-button ds-button--secondary ghost-button" data-template-dialog-close>Cancel</button>
+          <button id="boundary-template-confirm" type="button" class="ds-button ds-button--primary primary-button" disabled>Download CSV</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="standing-template-dialog" class="template-download-dialog" aria-labelledby="standing-template-dialog-title">
+      <div class="template-download-dialog__header">
+        <div>
+          <h2 id="standing-template-dialog-title">Standing Crops Template</h2>
+          <p>RRDBES Compatible  ·  PSA PSGC Reference - 2Q 2026</p>
+        </div>
+      </div>
+      <div class="template-download-dialog__body">
+        <fieldset class="template-download-options">
+          <legend>Crop template</legend>
+          <label class="template-download-option">
+            <input type="radio" name="standing-template-crop" value="corn" checked>
+            <span><strong>Corn</strong><small>17 columns · Yellow, White, Grand Total</small></span>
+          </label>
+          <label class="template-download-option">
+            <input type="radio" name="standing-template-crop" value="rice">
+            <span><strong>Rice</strong><small>22 columns · Irrigated, Rainfed, Upland, Grand Total</small></span>
+          </label>
+        </fieldset>
+        <p class="template-download-dialog__note">The CSV includes two header rows, the official PSA PSGC hierarchy, and blank stage-value cells ready for data entry.</p>
+        <p id="standing-template-status" class="template-download-dialog__status" role="status" aria-live="polite"></p>
+        <div class="template-download-dialog__actions">
+          <button type="button" class="ds-button ds-button--secondary ghost-button" data-standing-template-dialog-close>Cancel</button>
+          <button id="standing-template-confirm" type="button" class="ds-button ds-button--primary primary-button">Download CSV</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="geopackage-download-dialog" class="template-download-dialog" aria-labelledby="geopackage-download-dialog-title">
+      <div class="template-download-dialog__header">
+        <div>
+          <h2 id="geopackage-download-dialog-title">Base Map GeoPackage</h2>
+          <p>Choose a package compatible with the latest PSA PSGC reference · 2Q 2026 publication.</p>
+        </div>
+      </div>
+      <div class="template-download-dialog__body">
+        <fieldset class="template-download-options">
+          <legend>Package</legend>
+          <label class="template-download-option">
+            <input type="radio" name="geopackage-download" value="administrative" checked>
+            <span><strong>Administrative Base Map</strong><small>16.7 MB · outline, regions, provinces/HUCs, municipalities/cities</small></span>
+          </label>
+          <label class="template-download-option">
+            <input type="radio" name="geopackage-download" value="barangays">
+            <span><strong>Barangay Boundaries</strong><small>Nationwide barangay reference package · 42,026 features</small></span>
+          </label>
+        </fieldset>
+        <p class="template-download-dialog__note">The Administrative Base Map matches the layers used by Map Studio. The Barangay Boundaries package is a separate nationwide reference download. Both are compatible with the PSA PSGC 2Q 2026 reference.</p>
+        <p class="template-download-dialog__note template-download-dialog__disclaimer"><strong>Disclaimer:</strong> These are Map Studio derived/reference geometries aligned to the PSA 2Q 2026 PSGC attributes. They are not an official PSA administrative-boundary publication.</p>
+        <p id="geopackage-download-status" class="template-download-dialog__status" role="status" aria-live="polite"></p>
+        <div class="template-download-dialog__actions">
+          <button type="button" class="ds-button ds-button--secondary ghost-button" data-geopackage-dialog-close>Cancel</button>
+          <button id="geopackage-download-confirm" type="button" class="ds-button ds-button--primary primary-button">Download GeoPackage</button>
+        </div>
+      </div>
+    </dialog>
+
+  <dialog id="general-breakdown-dialog" class="data-breakdown-dialog" aria-labelledby="general-breakdown-dialog-title">
+    <div class="data-breakdown-dialog__header">
+      <div>
+        <h2 id="general-breakdown-dialog-title">Data Breakdown</h2>
+      </div>
+      <button type="button" class="data-breakdown-dialog__close" data-general-breakdown-close aria-label="Close data breakdown">×</button>
+    </div>
+    <div class="data-breakdown-dialog__body">
+      <div class="data-breakdown-dialog__toolbar">
+        <div class="data-breakdown-dialog__field">
+          <label for="general-breakdown-level">Breakdown level</label>
+          <select id="general-breakdown-level">
+            <option value="region">Region</option>
+            <option value="province_huc">Province / HUC</option>
+          </select>
+        </div>
+        <div class="data-breakdown-dialog__field data-breakdown-dialog__metrics-field">
+          <span class="data-breakdown-dialog__field-label">Columns to show</span>
+          <details id="general-breakdown-metrics-dropdown" class="data-breakdown-multi-dropdown">
+            <summary>
+              <span id="general-breakdown-metrics-label" class="data-breakdown-multi-dropdown__label">All metric columns</span>
+              <i class="data-breakdown-multi-dropdown__chevron fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </summary>
+            <div class="data-breakdown-multi-dropdown__menu">
+              <div class="data-breakdown-multi-dropdown__menu-header">
+                <span>Select one or more</span>
+                <button id="general-breakdown-metrics-clear" type="button">Clear</button>
+              </div>
+              <div id="general-breakdown-metrics" class="data-breakdown-multi-select" role="group" aria-label="Metric columns to show"></div>
+            </div>
+          </details>
+        </div>
+      </div>
+      <div class="data-breakdown-table-wrap">
+        <table class="data-breakdown-table">
+          <thead id="general-breakdown-head"></thead>
+          <tbody id="general-breakdown-body"></tbody>
+          <tfoot id="general-breakdown-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="standing-breakdown-dialog" class="data-breakdown-dialog" aria-labelledby="standing-breakdown-dialog-title">
+    <div class="data-breakdown-dialog__header">
+      <div>
+        <h2 id="standing-breakdown-dialog-title">Standing Crops Breakdown</h2>
+      </div>
+      <button type="button" class="data-breakdown-dialog__close" data-standing-breakdown-close aria-label="Close Standing Crops breakdown">×</button>
+    </div>
+    <div class="data-breakdown-dialog__body">
+      <div class="data-breakdown-dialog__toolbar">
+        <div class="data-breakdown-dialog__field">
+          <label for="standing-breakdown-level">Breakdown level</label>
+          <select id="standing-breakdown-level"></select>
+        </div>
+        <div class="data-breakdown-dialog__field data-breakdown-dialog__metrics-field">
+          <span class="data-breakdown-dialog__field-label">Columns to show</span>
+          <details id="standing-breakdown-metrics-dropdown" class="data-breakdown-multi-dropdown">
+            <summary>
+              <span id="standing-breakdown-metrics-label" class="data-breakdown-multi-dropdown__label">All metric columns</span>
+              <i class="data-breakdown-multi-dropdown__chevron fa-solid fa-chevron-down" aria-hidden="true"></i>
+            </summary>
+            <div class="data-breakdown-multi-dropdown__menu">
+              <div class="data-breakdown-multi-dropdown__menu-header">
+                <span>Select one or more</span>
+                <button id="standing-breakdown-metrics-clear" type="button">Clear</button>
+              </div>
+              <div id="standing-breakdown-metrics" class="data-breakdown-multi-select" role="group" aria-label="Standing Crops metric columns to show"></div>
+            </div>
+          </details>
+        </div>
+      </div>
+      <div class="data-breakdown-table-wrap">
+        <table class="data-breakdown-table data-breakdown-table--standing">
+          <thead id="standing-breakdown-head"></thead>
+          <tbody id="standing-breakdown-body"></tbody>
+          <tfoot id="standing-breakdown-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </dialog>

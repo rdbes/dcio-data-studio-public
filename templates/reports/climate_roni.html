@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block title %}RONI - RRDBES · Weather and Climate Data{% endblock %}
+
+{% block breadcrumbs %}
+<span class="truncate text-zinc-600">RONI</span>
+{% endblock %}
+
+{% block page_body_overflow_class %}overflow-hidden{% endblock %}
+{% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}h-full min-h-0 max-w-none{% endblock %}
+
+{% block content %}
+<div class="flex h-full min-h-0 flex-col">
+    <section
+        class="ui-main-card flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-xs"
+        aria-label="Relative Oceanic Niño Index table"
+    >
+        <div class="shrink-0 bg-white">
+            <header class="ui-section-header border-b border-zinc-200 bg-zinc-50 px-5 py-3 sm:px-6">
+                <h1 class="ui-section-title text-base font-semibold text-zinc-950">
+                    <i class="fa-solid fa-temperature-half text-zinc-500 mr-2" aria-hidden="true"></i>Relative Oceanic Niño Index (RONI)
+                </h1>
+                <p class="ui-section-subtitle mt-1 w-full text-xs leading-5 text-zinc-500">
+                    Historical El Niño and La Niña episodes from
+                    {{ roni_table.start_year }}{% if roni_table.latest_year %}–{{ roni_table.latest_year }}{% endif %}.
+                    Values are three-month running relative Niño 3.4 anomalies
+                    using NOAA’s 1991–2020 base period.
+                </p>
+            </header>
+
+            {% if roni_table.rows %}
+                <div class="roni-phase-legend" aria-label="RONI phase legend">
+                    <span class="roni-phase-legend__item">
+                        <span class="roni-phase-legend__swatch roni-phase-legend__swatch--warm" aria-hidden="true"></span>
+                        El Niño episode
+                    </span>
+                    <span class="roni-phase-legend__item">
+                        <span class="roni-phase-legend__swatch roni-phase-legend__swatch--cold" aria-hidden="true"></span>
+                        La Niña episode
+                    </span>
+                    <span class="roni-phase-legend__item">
+                        <span class="roni-phase-legend__swatch roni-phase-legend__swatch--neutral" aria-hidden="true"></span>
+                        Neutral
+                    </span>
+                    <span class="roni-phase-legend__item">
+                        <span class="roni-phase-legend__swatch roni-phase-legend__swatch--missing" aria-hidden="true"></span>
+                        Unavailable
+                    </span>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if roni_table.rows %}
+            <div
+                data-roni-scroll-region
+                tabindex="0"
+                aria-label="Scrollable RONI year and seasonal values"
+                class="min-h-0 flex-1 overflow-auto"
+            >
+                <table class="ui-table--compact min-w-[1000px] w-full border-collapse text-center">
+                    <caption class="sr-only">
+                        Relative Oceanic Niño Index seasonal values from
+                        {{ roni_table.latest_year }} through {{ roni_table.start_year }}.
+                    </caption>
+
+                    <thead>
+                        <tr class="border-b border-zinc-200 bg-zinc-50">
+                            <th
+                                scope="col"
+                                class="sticky left-0 top-0 z-30 min-w-16 border-r border-zinc-200 bg-zinc-50 text-center text-xs font-bold uppercase tracking-wider text-zinc-500"
+                            >
+                                Year
+                            </th>
+
+                            {% for header in roni_table.headers %}
+                                <th
+                                    scope="col"
+                                    class="sticky top-0 z-20 min-w-[76px] border-r border-zinc-100 bg-zinc-50 last:border-r-0"
+                                >
+                                    <span class="block text-xs font-bold tracking-wide text-zinc-700">
+                                        {{ header.code }}
+                                    </span>
+                                    <span class="mt-1 block text-xs font-medium text-zinc-400">
+                                        {{ header.months }}
+                                    </span>
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-zinc-100">
+                        {% for row in roni_table.rows %}
+                            <tr class="group">
+                                <th
+                                    scope="row"
+                                    class="sticky left-0 z-10 border-r border-zinc-200 bg-white text-center font-bold tabular-nums text-zinc-800 group-hover:bg-zinc-50"
+                                >
+                                    {{ row.year }}
+                                </th>
+
+                                {% for cell in row.cells %}
+                                    <td
+                                        data-phase="{{ cell.phase }}"
+                                        class="roni-phase-cell roni-phase-cell--{{ cell.phase }} border-r border-zinc-100 last:border-r-0"
+                                        {% if cell.value != None %}
+                                            title="{{ cell.season_code }} {{ row.year }}: {{ cell.display_value }}°C{% if cell.is_provisional %} — provisional NOAA value{% endif %}"
+                                        {% endif %}
+                                    >
+                                        <span class="tabular-nums">
+                                            {{ cell.display_value }}
+                                        </span>
+
+                                        {% if cell.is_provisional %}
+                                            <span
+                                                class="ml-1 align-super text-xs font-bold text-amber-600"
+                                                aria-label="Provisional value"
+                                                title="Recent NOAA estimate; subject to revision"
+                                            >●</span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <footer class="shrink-0 border-t border-zinc-200 bg-zinc-50 px-5 py-2 sm:px-6">
+                <div class="flex flex-col gap-2 text-xs leading-4 text-zinc-500 lg:flex-row lg:items-center lg:justify-between">
+                    <p class="max-w-4xl">
+                        Values are shown to two decimal places. Warm values are
+                        greater than +0.50°C and cold values are less than −0.50°C.
+                        Colors are applied only when the threshold persists for at
+                        least five consecutive overlapping seasons. A dot marks
+                        recent provisional values.
+                    </p>
+
+                    <a
+                        href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="shrink-0 font-semibold text-zinc-700 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-950"
+                    >
+                        NOAA Climate Prediction Center
+                    </a>
+                </div>
+            </footer>
+        {% else %}
+            <div class="flex min-h-0 flex-1 items-center justify-center px-6 py-16 text-center">
+                <div>
+                    <h2 class="text-sm font-semibold text-zinc-900">
+                        RONI data has not been loaded
+                    </h2>
+                    <p class="mx-auto mt-1 max-w-lg text-xs leading-5 text-zinc-500">
+                        Run the manual NOAA RONI importer before using seasonal
+                        climate analysis.
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

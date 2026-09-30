@@ -6,6 +6,8 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.1rem 1rem;
+    margin-bottom: 0;
+    padding-top: 0;
     padding-bottom: var(--space-2);
 }
 
@@ -39,9 +41,16 @@
     line-height: var(--type-caption-line-height);
 }
 
-[data-dam-water-levels] .module-page-header > .module-page-header-meta {
+[data-dam-water-levels] .dam-water-level-source-row {
     display: flex;
-    width: 100%;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.75rem;
+}
+
+[data-dam-water-levels] .dam-water-level-source-row > .module-page-header-meta {
+    display: flex;
+    width: auto;
     flex-wrap: nowrap;
     align-items: center;
     flex-shrink: 0;
@@ -403,6 +412,10 @@
     height: 100% !important;
 }
 
+[data-dam-water-levels] [data-dam-chart-card] {
+    border-radius: var(--ui-card-radius);
+}
+
 .dam-water-level-chart-copy {
     position: absolute;
     top: 0.7rem;
@@ -546,9 +559,10 @@
     vertical-align: middle;
 }
 
-.dam-water-level-summary-table__trend {
+.dam-water-level-summary-table td.dam-water-level-summary-table__trend {
     width: 8rem;
     min-width: 8rem;
+    vertical-align: middle;
 }
 
 .dam-water-level-summary-table__sparkline {
@@ -800,12 +814,16 @@
         flex: 0 0 2.75rem;
     }
 
-    [data-dam-water-levels] .module-page-header > .module-page-header-meta {
+    [data-dam-water-levels] .dam-water-level-source-row {
+        align-items: flex-start;
+        gap: 0.35rem 0.75rem;
+    }
+
+    [data-dam-water-levels] .dam-water-level-source-row > .module-page-header-meta {
         order: 2;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        row-gap: 0.35rem;
-        column-gap: 0.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.75rem;
     }
 
     [data-dam-water-levels] .module-page-header-meta__item {
@@ -931,4 +949,11 @@
         position: static;
         padding-top: 0;
     }
+}
+
+/* Keep the Data Studio monitoring cards on the same compact outer rhythm as
+ * Dashboard and Analytics; internal chart/control gaps remain unchanged. */
+body[data-platform-app="data-studio"] [data-dam-water-levels],
+body[data-platform-app="data-studio"] [data-dam-water-levels] .dam-water-level-chart-grid {
+    gap: var(--ui-card-gap, var(--space-3, 0.75rem));
 }

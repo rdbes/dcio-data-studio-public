@@ -1,18 +1,43 @@
 /* Workspace topbar texture. */
+:root {
+    --platform-topbar-filter: none;
+}
+
 [data-workspace-topbar] {
+    --platform-topbar-color: var(--color-brand);
     --topbar-inline-padding: 1rem;
     --topbar-control-inset: calc((2.5rem - var(--geometry-size-7)) / 2);
     /* Keep the navigation above page content and below modal overlays. */
     z-index: 1200;
-    background-color: var(--color-brand);
-    background-image: url("../img/patterns/blue-bg.svg?v=20260903-bluebg-v2");
-    background-repeat: repeat-x;
-    background-position: center;
-    background-size: auto 100%;
+    position: relative;
+    background-color: var(--platform-topbar-color);
+    background-image: none;
     border-bottom: 0;
-    /* Match DCIO Map Studio's 11px workspace corner radius. */
-    border-radius: 11px 11px 0 0;
+    /* Match the canonical Dashboard map-canvas card radius. */
+    border-radius: var(--ui-card-radius) var(--ui-card-radius) 0 0;
     margin-bottom: var(--space-3);
+}
+
+/* Use the shared top-nav artwork as the single source. App themes recolor it
+   with a filter; the navigation content remains above it. */
+[data-workspace-topbar]::before {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: transparent;
+    background-image: url("../img/patterns/top-nav-bg.svg?v=20260923-shared-topbar-art-v2");
+    background-position: center;
+    background-repeat: repeat-x;
+    background-size: auto 100%;
+    border-radius: inherit;
+    content: "";
+    filter: var(--platform-topbar-filter);
+    pointer-events: none;
+}
+
+[data-workspace-topbar] > * {
+    position: relative;
+    z-index: 1;
 }
 
 /*
@@ -128,8 +153,8 @@
  * above map/chart content while retaining the shell's rounded top corners. */
 [data-workspace-topbar].farm-workspace-topbar--filter-only {
     z-index: 1400;
-    border-top-left-radius: 11px;
-    border-top-right-radius: 11px;
+    border-top-left-radius: var(--ui-card-radius);
+    border-top-right-radius: var(--ui-card-radius);
 }
 
 /* FARM sidebar palette — START */
@@ -170,8 +195,9 @@
     border-color: var(--color-border);
 }
 
-/* DCIO Data Studio brand, matching Map Studio's sidebar geometry. */
-[data-sidebar-shell] > div > div:first-child > a.sidebar-brand-link {
+/* RRDBES Data Studio brand, matching Map Studio's sidebar geometry. */
+[data-sidebar-shell] > div > div:first-child > a.sidebar-brand-link,
+[data-sidebar-shell] > div > div:first-child > details.platform-app-switcher > summary.sidebar-brand-link {
     display: inline-flex;
     align-items: center;
     gap: 12px;
@@ -181,7 +207,8 @@
     color: var(--color-primary) !important;
 }
 
-[data-sidebar-shell] > div > div:first-child > a.sidebar-brand-link:hover {
+[data-sidebar-shell] > div > div:first-child > a.sidebar-brand-link:hover,
+[data-sidebar-shell] > div > div:first-child > details.platform-app-switcher > summary.sidebar-brand-link:hover {
     color: var(--color-primary-hover) !important;
 }
 
@@ -217,7 +244,7 @@
     font-family: inherit;
     font-size: 0.78rem;
     font-weight: 400;
-    color: var(--color-brand);
+    color: var(--platform-theme, var(--color-brand));
     margin-left: 2px;
 }
 
@@ -233,6 +260,7 @@
 
 /* Inactive primary links, utility links, and group summaries. */
 [data-sidebar-shell] nav a:not([aria-current="page"]),
+[data-sidebar-shell] nav button:not([aria-current="page"]),
 [data-sidebar-shell] nav summary,
 [data-sidebar-shell] [data-sidebar-utilities] a:not([aria-current="page"]),
 [data-sidebar-shell] [data-sidebar-utilities] summary {
@@ -241,6 +269,7 @@
 }
 
 [data-sidebar-shell] nav a:not([aria-current="page"]):hover,
+[data-sidebar-shell] nav button:not([aria-current="page"]):hover,
 [data-sidebar-shell] nav summary:hover,
 [data-sidebar-shell] [data-sidebar-utilities] a:not([aria-current="page"]):hover,
 [data-sidebar-shell] [data-sidebar-utilities] summary:hover {
@@ -252,9 +281,11 @@
  * Preserve the existing active-item card shape.
  * No left stripe, inset highlight, outline, or new active behavior.
  */
-[data-sidebar-shell] a[aria-current="page"] {
+[data-sidebar-shell] nav a[aria-current="page"],
+[data-sidebar-shell] nav button[aria-current="page"] {
     background-color: var(--color-surface);
     color: var(--color-text-strong);
+    box-shadow: none !important;
 }
 
 /* Preserve the existing expanded-group behavior with a light equivalent. */
@@ -281,6 +312,7 @@
 [data-sidebar-shell] .sidebar-submodule-link[aria-current="page"] {
     background-color: var(--color-surface);
     color: var(--color-text-strong);
+    box-shadow: none !important;
 }
 
 /* Chevron colors and geometry. Keep the parent indicator independent from
@@ -308,9 +340,29 @@
     transition: transform 150ms ease, color 150ms ease;
 }
 
+/* Keep the Tropical Cyclone group indicator on the same right edge as the
+ * application switcher chevron, even when the summary label is short. */
+[data-sidebar-shell] .sidebar-group-chevron {
+    margin-inline-start: auto !important;
+}
+
+/* Give the Tropical Cyclone summary a fixed right-hand chevron slot. This
+ * keeps the indicator aligned with the application switcher at every label
+ * length and sidebar width. */
+[data-sidebar-shell] .sidebar-group-summary {
+    display: grid !important;
+    grid-template-columns: 1.25rem minmax(0, 1fr) 1.375rem;
+    width: 100%;
+}
+
+[data-sidebar-shell] .sidebar-group-summary > .sidebar-group-chevron {
+    justify-self: end;
+    margin-inline-start: 0 !important;
+}
+
 [data-sidebar-shell] details[open] > summary > [data-sidebar-chevron] {
     color: var(--color-brand);
-    transform: rotate(90deg);
+    transform: rotate(180deg);
 }
 
 /* The bottom navigation group opens upward, so the collapsed state points up
@@ -363,11 +415,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.375rem;
-    height: 1.375rem;
-    flex: 0 0 1.375rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 1.25rem;
     color: var(--color-brand);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     line-height: 1;
     transition: color 150ms ease;
 }
@@ -415,49 +467,97 @@
     color: #fca5a5;
 }
 
-[data-sidebar-shell] [aria-label="Signed-in user profile"] {
-    border-color: var(--color-danger-hover);
-    background-color: var(--color-danger-hover);
+[data-sidebar-shell] [data-account-card] {
+    border-color: var(--platform-theme);
+    /* Keep the shared account card neutral across themes. The active app
+       still owns the outline, while the profile image remains readable. */
+    background-color: var(--charcoal-light, #565650);
     background-image: var(--profile-wallpaper, none);
     background-position: 78% 18%;
     background-repeat: no-repeat;
     background-size: cover;
+    background-blend-mode: luminosity;
 }
 
-[data-sidebar-shell]
-[aria-label="Signed-in user profile"]
-> div
-> div:first-child {
+[data-sidebar-shell] .sidebar-profile-card {
+    min-height: 2.75rem;
+}
+
+[data-sidebar-shell] .sidebar-profile-card__name {
+    color: #fff;
+    font-size: 0.6875rem;
+    line-height: 1.1;
+}
+
+[data-sidebar-shell] .sidebar-profile-card__role {
+    margin-top: 0.125rem;
+    color: #fff;
+    font-size: 0.5625rem;
+    line-height: 1.1;
+}
+
+[data-sidebar-shell] [data-account-card] .sidebar-profile-card__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-color: var(--color-border);
     background-color: var(--ash-lighter);
     color: var(--color-text);
 }
 
-[data-sidebar-shell]
-[aria-label="Signed-in user profile"]
-.text-zinc-100 {
+[data-sidebar-shell] [data-account-card] .text-zinc-100 {
     color: var(--color-text-inverse);
 }
 
-[data-sidebar-shell]
-[aria-label="Signed-in user profile"]
-.text-zinc-500 {
+[data-sidebar-shell] [data-account-card] .text-zinc-500 {
     color: var(--color-text-inverse);
 }
 
-/* Existing sign-out control and red hover behavior. */
-[data-sidebar-shell] [data-profile-signout] {
-    border-color: color-mix(in srgb, var(--color-text-inverse) 28%, transparent);
-    background-color: color-mix(in srgb, var(--color-danger-active) 34%, transparent);
-    color: color-mix(in srgb, var(--color-text-inverse) 78%, transparent);
+/* Shared sign-out and sign-in controls. */
+[data-sidebar-shell] :is([data-profile-signout], .profile-auth-link) {
+    display: flex;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(255 255 255 / 42%);
+    border-radius: 0.5rem;
+    background-color: rgb(255 255 255 / 20%);
+    color: #fff !important;
     filter: none;
 }
 
-[data-sidebar-shell] [data-profile-signout]:hover {
-    border-color: color-mix(in srgb, var(--color-text-inverse) 52%, transparent);
-    background-color: color-mix(in srgb, var(--color-text-inverse) 14%, transparent);
-    color: var(--color-text-inverse);
+[data-sidebar-shell] :is([data-profile-signout], .profile-auth-link):hover,
+[data-sidebar-shell] :is([data-profile-signout], .profile-auth-link):focus-visible {
+    border-color: rgb(255 255 255 / 66%);
+    background-color: rgb(255 255 255 / 32%);
+    color: #fff !important;
     filter: none;
+}
+
+[data-sidebar-shell] .profile-admin-link {
+    display: flex;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgb(255 255 255 / 42%);
+    border-radius: 0.5rem;
+    background: rgb(255 255 255 / 20%);
+    color: #fff !important;
+}
+
+[data-sidebar-shell] :is([data-profile-signout], .profile-admin-link, .profile-auth-link) > :is(i, svg) {
+    color: #fff !important;
+}
+
+[data-sidebar-shell] .profile-admin-link:hover,
+[data-sidebar-shell] .profile-admin-link:focus-visible {
+    border-color: rgb(255 255 255 / 66%);
+    background: rgb(255 255 255 / 32%);
+    color: #fff !important;
 }
 
 /* Existing version label. */
@@ -472,29 +572,30 @@
 /*
  * Match Map Studio's final navigation layout while keeping Data Studio's
  * existing labels, routes, active colors, and hover behavior:
- * - 2.75rem card height
+ * - 2rem card height
  * - 0.1875rem card gap
- * - 1.375rem icon slot
+ * - 1.25rem icon slot
  */
 [data-sidebar-shell] > div > nav {
     display: flex;
     flex-direction: column;
     gap: 0.1875rem;
     border-top: 1px solid #e5e9e4;
-    padding: 0.9375rem 0.75rem 1.25rem 0 !important;
+    padding: 0.75rem 0.75rem 1.25rem 0 !important;
 }
 
 [data-sidebar-shell] nav > a,
+[data-sidebar-shell] nav > button,
 [data-sidebar-shell] nav > details > summary,
 [data-sidebar-shell] nav > .sidebar-bottom-nav > a,
 [data-sidebar-shell] nav > .sidebar-bottom-nav > summary,
 [data-sidebar-shell] nav > .sidebar-bottom-nav > [data-sidebar-bottom-links] > a,
 [data-sidebar-shell] [data-sidebar-utilities] > a,
 [data-sidebar-shell] [data-sidebar-utilities] > details > summary {
-    min-height: 2.75rem;
-    padding: 0.625rem 0.75rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
     border: 1px solid transparent;
-    border-radius: 0.5625rem;
+    border-radius: var(--ui-card-radius);
     box-sizing: border-box;
     gap: 0.625rem;
     font-size: 0.72rem !important;
@@ -502,8 +603,9 @@
     margin: 0 !important;
 }
 
-/* Use the same 22px icon slot and 0.9rem glyph scale as Map Studio. */
+/* Use a compact 20px icon slot and 0.8rem glyph scale across the shared shell. */
 [data-sidebar-shell] nav > a > i,
+[data-sidebar-shell] nav > button > i,
 [data-sidebar-shell] nav > details > summary i,
 [data-sidebar-shell] nav > .sidebar-bottom-nav > a > i,
 [data-sidebar-shell] nav > .sidebar-bottom-nav > summary > i,
@@ -512,19 +614,19 @@
 [data-sidebar-shell] [data-sidebar-utilities] > details > summary i {
     align-items: center;
     display: inline-flex;
-    flex: 0 0 1.375rem;
-    font-size: 0.9rem;
-    height: 1.375rem;
+    flex: 0 0 1.25rem;
+    font-size: 0.8rem;
+    height: 1.25rem;
     justify-content: center;
     line-height: 1;
-    width: 1.375rem;
+    width: 1.25rem;
 }
 
 [data-sidebar-shell] .sidebar-nav-icon {
-    flex-basis: 1.375rem;
-    font-size: 0.9rem;
-    height: 1.375rem;
-    width: 1.375rem;
+    flex-basis: 1.25rem;
+    font-size: 0.8rem;
+    height: 1.25rem;
+    width: 1.25rem;
 }
 
 /* Keep local-only actions at the bottom while matching primary-link geometry. */
@@ -544,10 +646,10 @@
  * the wrapper's indent and divider still communicate the hierarchy. */
 [data-sidebar-shell] .sidebar-submodule-link,
 [data-sidebar-shell] [data-sidebar-utilities] details > div > a {
-    min-height: 2.75rem;
-    padding: 0.625rem 0.75rem;
+    min-height: 2rem;
+    padding: 0.25rem 0.75rem;
     border: 1px solid transparent;
-    border-radius: 0.5625rem;
+    border-radius: var(--ui-card-radius);
     box-sizing: border-box;
     gap: 0.625rem;
     font-size: 0.72rem !important;
@@ -615,6 +717,7 @@
  * Active state continues to be communicated by the existing card fill.
  */
 [data-sidebar-shell] nav a,
+[data-sidebar-shell] nav button,
 [data-sidebar-shell] nav summary,
 [data-sidebar-shell] [data-sidebar-utilities] a,
 [data-sidebar-shell] [data-sidebar-utilities] summary,
@@ -623,6 +726,7 @@
 }
 
 [data-sidebar-shell] nav > a,
+[data-sidebar-shell] nav > button,
 [data-sidebar-shell] nav > details > summary,
 [data-sidebar-shell] nav > .sidebar-bottom-nav > a {
     font-weight: 500 !important;
@@ -632,6 +736,6 @@
 
 @media (min-width: 30rem) {
     [data-sidebar-shell] > div > nav {
-        padding-top: 0.9375rem;
+        padding-top: 0.75rem;
     }
 }

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Crop Production - DCIO Data Studio{% endblock %}
+{% block title %}Crop Production - RRDBES · Crop Studio{% endblock %}
 
 {% block breadcrumbs %}
 <span class="text-zinc-900 font-semibold">Crop Production</span>
@@ -9,7 +9,7 @@
 
 {% block extra_head %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'css/crop-production.css' %}?v=20260920-crop-production-v69">
+    <link rel="stylesheet" href="{% static 'css/crop-production.css' %}?v=20260927-card-gaps-v1">
     <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
 {% endblock %}
 
@@ -18,14 +18,9 @@
 
 {% block content %}
 <section class="crop-production-page mx-auto flex w-full flex-col gap-4" data-crop-production-page aria-labelledby="crop-production-title">
-    <article class="crop-production-card crop-production-accordion rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6" data-crop-production-accordion>
+    <article class="crop-production-card rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
         <header class="crop-production-card__header">
-            <h1 id="crop-production-title" class="crop-production-accordion__heading">
-                <button type="button" class="crop-production-accordion__toggle" data-crop-production-accordion-toggle aria-expanded="true" aria-controls="crop-production-content">
-                    <span>Crop Production Summary</span>
-                    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
-                </button>
-            </h1>
+            <h1 id="crop-production-title" class="crop-production-card__title">Crop Production Summary</h1>
             <div class="crop-production-card__controls">
                 <label class="crop-production-area-toggle">
                     <input type="checkbox" class="sr-only" data-crop-production-area-toggle role="switch" aria-checked="false" aria-label="Show area harvested">
@@ -70,7 +65,7 @@
             </div>
         </header>
 
-        <div id="crop-production-content" class="crop-production-accordion__content" data-crop-production-accordion-content>
+        <div id="crop-production-content">
         <div class="crop-production-main-grid mt-4">
             <div class="crop-production-chart-grid">
                 <section class="crop-production-chart-panel" aria-labelledby="crop-production-palay-title">
@@ -309,15 +304,10 @@
 
     </article>
 
-<article class="crop-production-location-card crop-production-accordion rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6" data-crop-production-location data-crop-production-accordion>
+<article class="crop-production-location-card rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6" data-crop-production-location>
     <header class="crop-production-location-card__header">
         <div class="crop-production-location-card__title">
-            <h2 id="crop-production-location-title" class="crop-production-accordion__heading">
-                <button type="button" class="crop-production-accordion__toggle" data-crop-production-accordion-toggle aria-expanded="true" aria-controls="crop-location-content">
-                    <span>Crop Production by Area</span>
-                    <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
-                </button>
-            </h2>
+            <h2 id="crop-production-location-title" class="crop-production-location-card__title-heading">Crop Production by Area</h2>
         </div>
         <div class="crop-production-location-card__controls">
             <span class="ui-select-wrap crop-production-location-select-wrap crop-production-location-select-wrap--period">
@@ -366,7 +356,7 @@
             </span>
         </div>
     </header>
-    <div id="crop-location-content" class="crop-production-accordion__content" data-crop-production-accordion-content>
+    <div id="crop-location-content">
     <div class="crop-production-location-grid">
         <section class="crop-production-location-map-panel" data-map-canvas-card aria-label="Production by Location">
             <div class="crop-production-location-map-wrap" data-crop-location-map-wrap>
@@ -374,7 +364,7 @@
                 <div data-map-coordinate-labels class="add-map-coordinate-labels" aria-hidden="true"></div>
                 <div data-map-control-rail class="absolute left-2.5 top-2.5 z-[1000] flex flex-col items-start gap-1">
                     <div data-map-primary-controls class="flex flex-col gap-1">
-                        <button type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" data-crop-location-map-fullscreen aria-label="Expand map to browser window" aria-pressed="false" title="Expand map to browser window"><i data-crop-location-map-fullscreen-icon class="fa-solid fa-expand text-xs" aria-hidden="true"></i></button>
+                        <button id="map-fullscreen" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" data-crop-location-map-fullscreen aria-label="Expand map to browser window" aria-pressed="false" title="Expand map to browser window"><i data-map-fullscreen-icon data-crop-location-map-fullscreen-icon class="fa-solid fa-expand text-xs" aria-hidden="true"></i></button>
                         <button type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" data-crop-location-map-reset aria-label="Reset map extent" title="Reset map extent"><i class="fa-solid fa-location-crosshairs text-xs" aria-hidden="true"></i></button>
                         <div data-map-zoom-controls class="add-map-zoom-controls" role="group" aria-label="Map zoom controls">
                             <button type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-400" data-crop-location-map-zoom-in aria-label="Zoom in" title="Zoom in"><i class="fa-solid fa-plus text-xs" aria-hidden="true"></i></button>
@@ -409,6 +399,67 @@
             </section>
         </div>
     </div>
+    <section class="crop-production-yoy-card" data-crop-production-yoy aria-labelledby="crop-production-yoy-title">
+        <header class="crop-production-yoy-card__header">
+            <div class="crop-production-yoy-card__title">
+                <h3 id="crop-production-yoy-title">Year-over-Year Production Comparison</h3>
+                <p data-crop-production-yoy-subtitle>All Provinces / HUCs</p>
+            </div>
+            <div class="crop-production-yoy-card__controls">
+                <span class="ui-select-wrap crop-production-yoy-select-wrap">
+                    <label class="sr-only" for="crop-production-yoy-enso">ENSO period</label>
+                    <select id="crop-production-yoy-enso" class="ui-control ui-select" data-crop-production-yoy-enso aria-label="ENSO period">
+                        <option value="all" selected>All ENSO periods</option>
+                        <option value="warm">El Niño</option>
+                        <option value="cold">La Niña</option>
+                        <option value="neutral">Neutral</option>
+                    </select>
+                    <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </span>
+                <span class="ui-select-wrap crop-production-yoy-select-wrap crop-production-yoy-select-wrap--region">
+                    <label class="sr-only" for="crop-production-yoy-region">Region</label>
+                    <select id="crop-production-yoy-region" class="ui-control ui-select" data-crop-production-yoy-region aria-label="Region">
+                        <option value="" selected>All Regions</option>
+                    </select>
+                    <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </span>
+                <span class="ui-select-wrap crop-production-yoy-select-wrap crop-production-yoy-select-wrap--province">
+                    <label class="sr-only" for="crop-production-yoy-province">Province or HUC</label>
+                    <select id="crop-production-yoy-province" class="ui-control ui-select" data-crop-production-yoy-province aria-label="Province or HUC" disabled>
+                        <option value="" selected>Select a region first</option>
+                    </select>
+                    <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                </span>
+            </div>
+        </header>
+        <div class="crop-production-yoy-table-wrap">
+            <table class="crop-production-yoy-table" data-crop-production-yoy-table aria-label="Year-over-year Palay and Corn production comparison">
+                <thead>
+                    <tr>
+                        <th scope="col" rowspan="2">Year</th>
+                        <th scope="col" rowspan="2">ENSO period</th>
+                        <th scope="col" rowspan="2">Strength</th>
+                        <th scope="col" rowspan="2">Comparison</th>
+                        <th scope="colgroup" colspan="4" class="crop-production-yoy-table__group crop-production-yoy-table__group--palay">Palay</th>
+                        <th scope="colgroup" colspan="4" class="crop-production-yoy-table__group crop-production-yoy-table__group--corn">Corn</th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Production (MT)</th>
+                        <th scope="col">Previous (MT)</th>
+                        <th scope="col">Change (MT)</th>
+                        <th scope="col">% Difference</th>
+                        <th scope="col">Production (MT)</th>
+                        <th scope="col">Previous (MT)</th>
+                        <th scope="col">Change (MT)</th>
+                        <th scope="col">% Difference</th>
+                    </tr>
+                </thead>
+                <tbody data-crop-production-yoy-body></tbody>
+            </table>
+        </div>
+        <p class="crop-production-yoy-empty" data-crop-production-yoy-empty hidden>No year-over-year data matches the selected filters.</p>
+    </section>
+
     <section class="crop-production-location-table-panel" aria-labelledby="crop-location-table-title">
         <div class="crop-production-location-panel__header">
             <h3 id="crop-location-table-title">Location detail</h3>
@@ -440,7 +491,8 @@
 <script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
 <script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
 <script src="{% static 'js/maps/map_appearance.js' %}?v=20260919-crop-map-appearance-v1"></script>
-<script src="{% static 'js/maps/map_administrative_base.js' %}?v=20260919-crop-map-base-v1"></script>
+<script src="{% static 'js/maps/map_administrative_base.js' %}?v=20260925-national-extent-v1"></script>
 <script src="{% static 'js/maps/map_legend_scale.js' %}?v=20260919-crop-map-scale-v1"></script>
-<script src="{% static 'js/crop_production.js' %}?v=20260920-crop-production-v100"></script>
+<script src="{% static 'js/map_browser_fullscreen.js' %}?v=20260924-map-studio-fullscreen-v1"></script>
+<script src="{% static 'js/crop_production.js' %}?v=20260925-crop-production-v73"></script>
 {% endblock %}

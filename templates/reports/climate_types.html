@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Climate Types - RRDBES · Weather and Climate Data{% endblock %}
+{% block breadcrumbs %}<span class="text-zinc-900 font-semibold">Climate Types</span>{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+    <link rel="stylesheet" href="{% static 'css/climate-types.css' %}?v=20260928-climate-types-v15">
+    <script defer src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+    <script defer src="{% static 'js/maps/map_administrative_base.js' %}?v=20260925-national-extent-v1"></script>
+    <script defer src="{% static 'js/map_browser_fullscreen.js' %}?v=20260924-map-studio-fullscreen-v1"></script>
+    <script defer src="{% static 'js/climate_types.js' %}?v=20260928-climate-map-controls-v2"></script>
+{% endblock %}
+
+{% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none h-full min-h-0{% endblock %}
+
+{% block content %}
+<section
+    class="climate-types-page flex min-h-0 w-full flex-col"
+    data-climate-types-page
+    data-climate-types-url="{% static 'geo/ph/climate-types/climate_types.geojson' %}?v=20260928-approved-trace"
+    data-location-data-url="{% static 'geo/ph/climate-types/climate_type_locations.json' %}?v=20260928-climate-region-short-names-v1"
+    data-provinces-url="{% static 'geo/ph/climate-types/provinces.geojson' %}?v=20260928-climate-types-v1"
+    data-regions-url="{% static 'geo/ph/climate-types/regions.geojson' %}?v=20260928-climate-types-v1"
+    data-municipalities-url="{% static 'geo/ph/climate-types/municipalities.geojson' %}?v=20260928-climate-types-v1"
+    aria-labelledby="climate-types-title"
+>
+    <div class="climate-types-workspace">
+        <section class="ui-main-card climate-types-map-card relative" data-map-canvas-card aria-label="Climate type map" aria-describedby="climate-types-map-description">
+            <h1 id="climate-types-title" class="sr-only">Philippine Climate Types</h1>
+            <div class="climate-types-map" data-climate-types-map role="application" aria-label="Philippine climate type map"></div>
+            <div data-map-control-rail class="absolute left-2.5 top-2.5 z-[1000] flex flex-col items-start gap-1">
+                <div data-map-primary-controls class="flex flex-col gap-1">
+                    <button id="map-fullscreen" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Expand map to browser window" aria-pressed="false" title="Expand map to browser window">
+                        <i data-map-fullscreen-icon class="fa-solid fa-expand text-xs" aria-hidden="true"></i>
+                    </button>
+                    <button id="map-reset-view" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-zinc-500 backdrop-blur-sm hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Reset map extent" title="Reset map extent">
+                        <i data-map-reset-icon class="fa-solid fa-location-crosshairs text-xs" aria-hidden="true"></i>
+                    </button>
+                    <div data-map-zoom-controls class="add-map-zoom-controls" role="group" aria-label="Map zoom controls">
+                        <button id="map-zoom-in" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-400" aria-label="Zoom in" title="Zoom in">
+                            <i class="fa-solid fa-plus text-xs" aria-hidden="true"></i>
+                        </button>
+                        <button id="map-zoom-out" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center bg-transparent text-zinc-500 hover:bg-white hover:text-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-400" aria-label="Zoom out" title="Zoom out">
+                            <i class="fa-solid fa-minus text-xs" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="climate-types-map-description" class="climate-types-map-description" role="region" aria-label="Climate type descriptions">
+                <div class="climate-types-description-item">
+                    <span class="climate-types-description-heading"><i class="climate-types-swatch climate-types-swatch--1"></i>Type I</span>
+                    <p>Two pronounced seasons, dry from November to April and wet during the rest of the year. Maximum rain period is from June to September.</p>
+                </div>
+                <div class="climate-types-description-item">
+                    <span class="climate-types-description-heading"><i class="climate-types-swatch climate-types-swatch--2"></i>Type II</span>
+                    <p>No dry season with a very pronounced maximum rain period from December to February. There is not a single dry month. Minimum monthly rainfall occurs during the period from December to February or from March to May.</p>
+                </div>
+                <div class="climate-types-description-item">
+                    <span class="climate-types-description-heading"><i class="climate-types-swatch climate-types-swatch--3"></i>Type III</span>
+                    <p>No very pronounced maximum rain period, with a dry season lasting only from one to three months, either during the period from December to February or from March to May. This type resembles Type I since it has a short dry season.</p>
+                </div>
+                <div class="climate-types-description-item">
+                    <span class="climate-types-description-heading"><i class="climate-types-swatch climate-types-swatch--4"></i>Type IV</span>
+                    <p>Rainfall is more or less evenly distributed throughout the year. This type resembles Type II since it has no dry season.</p>
+                </div>
+            </div>
+            <div class="climate-types-map-status" data-climate-types-status role="status">Loading climate boundaries…</div>
+        </section>
+
+        <aside class="ui-main-card climate-types-location-card" aria-labelledby="climate-types-location-title">
+            <header class="ui-section-header border-b border-zinc-200 bg-zinc-50">
+                <h2 id="climate-types-location-title" class="ui-section-title">Boundary classification</h2>
+            </header>
+            <div class="climate-types-location-filter-row">
+                <label class="climate-types-search">
+                    <span class="ui-label">Find a location</span>
+                    <input type="search" class="ui-control" data-climate-types-search placeholder="Region, province, or municipality" autocomplete="off">
+                </label>
+                <div class="climate-types-location-controls">
+                    <label class="ui-label sr-only" for="climate-types-level">Boundary</label>
+                    <span class="ui-select-wrap">
+                        <select id="climate-types-level" class="ui-control ui-select" data-climate-types-level aria-label="Boundary level">
+                            <option value="province">Provinces</option>
+                            <option value="region">Regions</option>
+                            <option value="municipality">Municipalities</option>
+                        </select>
+                        <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="climate-types-location-list" data-climate-types-location-list tabindex="0" aria-label="Climate classifications by location"></div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

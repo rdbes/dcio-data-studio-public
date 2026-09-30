@@ -1,6 +1,12 @@
-<section data-map-canvas-card class="ui-main-card relative h-[32rem] overflow-visible border border-zinc-200/80 bg-white text-left shadow-xs lg:h-auto lg:min-h-0{% if map_canvas_class %} {{ map_canvas_class }}{% endif %}">
+<div data-map-canvas-scroll-region class="map-canvas-scroll-region h-full min-h-0 min-w-0 w-full">
+<section data-map-canvas-card class="ds-card ui-main-card relative h-[32rem] overflow-hidden border border-zinc-200/80 bg-white text-left shadow-xs lg:h-auto lg:min-h-0{% if map_canvas_class %} {{ map_canvas_class }}{% endif %}">
             <div class="relative h-full min-h-0">
-                <div id="ph-map" class="h-full min-h-0 w-full overflow-hidden bg-sky-50" data-map-root{% if map_aria_label %} role="application" aria-label="{{ map_aria_label }}"{% endif %}></div>
+                <div id="{{ map_root_id|default:'ph-map' }}" class="h-full min-h-0 w-full overflow-hidden bg-sky-50{% if map_root_class %} {{ map_root_class }}{% endif %}" data-map-root{% if seed_distribution_map %} data-seed-distribution-map data-provinces-url="{{ seed_distribution_map_url }}" data-regions-url="{{ seed_distribution_regions_url }}" data-municipalities-url="{{ seed_distribution_municipalities_url }}"{% endif %}{% if map_aria_label %} role="application" aria-label="{{ map_aria_label }}"{% endif %}>
+                    {% if seed_distribution_map %}
+                    <div data-seed-distribution-map-status class="pointer-events-none absolute left-1/2 top-3 z-[500] -translate-x-1/2 rounded-md bg-white/90 px-2 py-1 text-[0.625rem] text-zinc-600">Loading boundaries…</div>
+                    <div data-map-legend data-seed-distribution-legend class="add-map-legend map-studio-legend-host pointer-events-none" role="img" aria-label="Seed distribution legend"></div>
+                    {% endif %}
+                </div>
                 <div data-map-coordinate-labels class="add-map-coordinate-labels" aria-hidden="true"></div>
                 <div data-map-control-rail class="absolute left-2.5 top-2.5 z-[1000] flex flex-col items-start gap-1">
                 <div data-map-primary-controls class="flex flex-col gap-1">
@@ -21,6 +27,9 @@
                         </button>
                     </div>
                 </div>
+                {% if show_boundary_switcher and not drought_layers %}
+                    {% include 'partials/map_boundary_switcher.html' with drought_layers=drought_layers show_region_boundary=show_region_boundary show_drought_mask_option=show_drought_mask_option %}
+                {% endif %}
                 {% if show_map_level_switcher %}
                 <div
                     data-map-level-control
@@ -45,8 +54,8 @@
 
                     <div
                         id="map-level-panel"
+                        data-map-control-popover="level"
                         class="add-map-metric-panel hidden"
-                        data-map-control-popover="boundary"
                         role="dialog"
                         aria-label="Map boundary level selection"
                     >
@@ -116,25 +125,29 @@
                         <i data-map-metric-icon class="fa-solid fa-chart-simple text-xs" aria-hidden="true"></i>
                     </button>
 
-                    <div id="map-metric-panel" class="add-map-metric-panel hidden" data-map-control-popover="metric" role="dialog" aria-label="Map metric selection">
+                    <div id="map-metric-panel" data-map-control-popover="metric" class="add-map-metric-panel hidden" role="dialog" aria-label="Map metric selection">
                         <div class="add-map-metric-panel__heading">Map metric</div>
 
                         <div class="add-map-metric-options" role="radiogroup" aria-label="Map display metric">
                             <button type="button" data-map-metric-option="value" class="add-map-metric-option" role="radio" aria-checked="true">
                                 <span>Value</span>
+                                <span class="add-map-metric-option__detail">Production value loss</span>
                             </button>
 
                             <button type="button" data-map-metric-option="volume" class="add-map-metric-option" role="radio" aria-checked="false">
                                 <span>Volume</span>
+                                <span class="add-map-metric-option__detail">Production loss</span>
                             </button>
 
                             <button type="button" data-map-metric-option="area" class="add-map-metric-option" role="radio" aria-checked="false">
                                 <span>Area</span>
+                                <span class="add-map-metric-option__detail">Area affected</span>
                             </button>
 
                             {% if not hide_farmers_metric %}
                             <button type="button" data-map-metric-option="farmers" class="add-map-metric-option" role="radio" aria-checked="false">
                                 <span>Farmers</span>
+                                <span class="add-map-metric-option__detail">Affected farmers and fisherfolk</span>
                             </button>
                             {% endif %}
                         </div>
@@ -145,7 +158,7 @@
                     <button id="map-style-toggle" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Customize map appearance" aria-controls="map-style-panel" aria-expanded="false" title="Customize map appearance">
                         <i data-map-appearance-icon class="fa-solid fa-circle-half-stroke text-xs" aria-hidden="true"></i>
                     </button>
-                    <div id="map-style-panel" class="add-map-style-panel hidden absolute" data-map-control-popover="style" role="dialog" aria-label="Map color settings">
+                    <div id="map-style-panel" data-map-control-popover="style" class="add-map-style-panel hidden absolute" role="dialog" aria-label="Map color settings">
                         <fieldset>
                             <legend class="add-map-style-panel__heading">Background</legend>
                             <div class="add-map-background-palette">
@@ -177,25 +190,38 @@
                         </fieldset>
                         {% endif %}
                     </div>
-                    {% if show_copy_control %}
-                    <div data-map-resize-control class="add-map-resize-control relative shrink-0">
-                        <button id="map-resize" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Resize map canvas" aria-controls="map-resize-menu" aria-expanded="false" aria-pressed="false" title="Resize map canvas">
-                            <i data-map-resize-icon class="fa-solid fa-up-right-and-down-left-from-center text-xs" aria-hidden="true"></i>
-                        </button>
-                        {% include 'partials/map_resize_menu.html' %}
-                    </div>
+                </div>
+                {% if show_drought_product_switcher %}
+                    {% include 'partials/drought_product_switcher.html' %}
+                {% endif %}
+                </div>
+                {% if show_boundary_switcher and drought_layers %}
+                    {% include 'partials/map_boundary_switcher.html' with drought_layers=drought_layers show_region_boundary=show_region_boundary show_drought_mask_option=show_drought_mask_option show_pagasa_overlay_option=show_pagasa_overlay_option show_pagasa_condition_option=show_pagasa_condition_option %}
+                {% endif %}
+                {% if show_copy_control %}
+                <div data-map-export-controls{% if drought_layers %} data-map-export-controls-lower{% endif %} class="absolute right-2.5 top-2.5 z-[1000] flex flex-col items-end gap-1">
                     <button id="map-copy-image" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 disabled:cursor-wait disabled:opacity-50" aria-label="Copy visible map as image" title="Copy high-quality visible map image">
                         <svg data-map-copy-icon width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                             <rect x="5" y="5" width="8" height="8" rx="1.25" stroke="currentColor" stroke-width="1.25"></rect>
                             <path d="M11 5V3.75A1.75 1.75 0 0 0 9.25 2h-5.5A1.75 1.75 0 0 0 2 3.75v5.5A1.75 1.75 0 0 0 3.75 11H5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"></path>
                         </svg>
                     </button>
+                    <div data-map-resize-control class="add-map-resize-control relative shrink-0">
+                        <button id="map-resize" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400" aria-label="Resize map canvas" aria-controls="map-resize-menu" aria-expanded="false" aria-pressed="false" title="Resize map canvas">
+                            <i data-map-resize-icon class="fa-solid fa-up-right-and-down-left-from-center text-xs" aria-hidden="true"></i>
+                        </button>
+                        {% include 'partials/map_resize_menu.html' %}
+                    </div>
                     <button id="map-download-image" type="button" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 disabled:cursor-wait disabled:opacity-50" aria-label="Download visible map as PNG" title="Download high-quality visible map PNG">
                         <i data-map-download-icon class="fa-solid fa-download text-xs" aria-hidden="true"></i>
                     </button>
+                    {% if show_outlook_shapefile_download %}
+                    <button type="button" data-drought-outlook-shapefile-download data-drought-outlook-shapefile-url="{{ outlook_shapefile_download_url }}" class="ui-icon-button ui-map-icon-button inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/80 text-xs backdrop-blur-sm hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-400 disabled:cursor-wait disabled:opacity-50" aria-label="Download Outlook Shapefile" title="Download dissolved Outlook Shapefile">
+                        <i data-drought-shapefile-download-icon class="fa-solid fa-file-zipper text-xs" aria-hidden="true"></i>
+                    </button>
                     {% endif %}
                 </div>
-                </div>
+                {% endif %}
                 <div id="map-overview-wrap" class="pointer-events-none invisible absolute right-3 top-3 z-[500] h-36 w-28 overflow-hidden rounded-lg opacity-0 shadow-sm" role="img" aria-label="Philippines reference map showing the current map extent" aria-hidden="true">
                     <div id="ph-map-overview" class="h-full w-full"></div>
                 </div>
@@ -216,4 +242,5 @@
             <div id="map-fallback" class="absolute bottom-4 left-1/2 z-[550] hidden -translate-x-1/2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-600 shadow-sm">
                 {{ fallback_message|default:"Map library or GeoJSON could not load. Check the locally served map assets." }}
             </div>
-        </section>
+</section>
+</div>

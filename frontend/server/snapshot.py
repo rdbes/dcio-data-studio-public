@@ -15,6 +15,7 @@ from django.db import connections, transaction
 
 from reports import models
 from scripts.validate_public_release import validate_manifest
+from reports.services.supabase_storage import SupabaseStorageClient, SupabaseStorageError
 
 COLLECTION_MODELS = {
     "hazards": models.RefHazard,
@@ -29,15 +30,39 @@ COLLECTION_MODELS = {
 
 
 def initialize_snapshot():
-    release_dir = Path(os.environ.get(
-        "PUBLIC_RELEASE_DIR", settings.BASE_DIR / "data" / "releases",
-    ))
-    manifest_path = release_dir / "current.json"
-    manifest = json.loads(manifest_path.read_text())
-    data_url = manifest.get("data_url")
-    if not isinstance(data_url, str) or Path(data_url).name != data_url:
-        raise RuntimeError("Invalid public release filename.")
-    release_bytes = (release_dir / data_url).read_bytes()
+    if getattr(settings, "PUBLIC_DATA_SOURCE", "bundled") == "supabase":
+        try:
+            client = SupabaseStorageClient.from_environment(
+                getattr(settings, "SUPABASE_PUBLIC_BUCKET", None)
+            )
+            prefix = str(
+                getattr(settings, "SUPABASE_PUBLIC_PREFIX", "public")
+                or "public"
+            ).strip("/")
+            pointer = client.download_json(f"{prefix}/current/manifest.json")
+            active_prefix = str(pointer.get("active_prefix") or "").strip("/")
+            if not active_prefix:
+                raise RuntimeError("Supabase public snapshot has no active prefix.")
+            manifest_bytes = client.download_bytes(f"{active_prefix}/releases/current.json")
+            manifest = json.loads(manifest_bytes.decode("utf-8"))
+            data_url = manifest.get("data_url")
+            if not isinstance(data_url, str) or Path(data_url).name != data_url:
+                raise RuntimeError("Invalid public release filename.")
+            release_bytes = client.download_bytes(
+                f"{active_prefix}/releases/{data_url}"
+            )
+        except (SupabaseStorageError, RuntimeError, UnicodeDecodeError, ValueError) as exc:
+            raise RuntimeError("Unable to load the Supabase public release.") from exc
+    else:
+        release_dir = Path(os.environ.get(
+            "PUBLIC_RELEASE_DIR", settings.BASE_DIR / "data" / "releases",
+        ))
+        manifest_path = release_dir / "current.json"
+        manifest = json.loads(manifest_path.read_text())
+        data_url = manifest.get("data_url")
+        if not isinstance(data_url, str) or Path(data_url).name != data_url:
+            raise RuntimeError("Invalid public release filename.")
+        release_bytes = (release_dir / data_url).read_bytes()
     release = json.loads(release_bytes)
     # Full schema and relationship validation runs when packaging. Verify the
     # exact packaged bytes here without revalidating every row on cold starts.

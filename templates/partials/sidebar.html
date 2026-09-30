@@ -1,25 +1,47 @@
 {% load static %}
 
 <aside
-    id="dcio-sidebar"
+    id="rrdbes-sidebar"
     data-sidebar-shell
     class="fixed inset-y-0 left-0 z-50 flex h-screen shrink-0 transition-transform duration-300 ease-out xl:relative xl:inset-auto xl:h-full"
     inert
-    aria-label="DCIO Data Studio navigation"
+    aria-label="{{ platform_active_app.name|default:'Data Studio' }} navigation"
 >
     <div class="relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 text-zinc-400 shadow-2xl shadow-zinc-950/20">
         <div class="sidebar-brand relative flex h-10 shrink-0 items-center px-2.5">
-            <a href="{% url 'reports:dashboard' %}" class="sidebar-brand-link" aria-label="DCIO Data Studio">
-                <img class="sidebar-brand-logo" src="{% static 'img/dala-logo.png' %}" alt="DALA logo">
+            {% if platform_apps|length > 1 %}
+            <details class="platform-app-switcher mr-10 w-full xl:mr-0">
+                <summary class="sidebar-brand-link" aria-label="Switch RRDBES application" title="Switch application">
+                    <img class="sidebar-brand-logo" src="{% static platform_active_app.logo_path|default:'img/dala-logo.png' %}?v=20260927-studio-logos-v2" alt="{{ platform_active_app.short_name|default:'Data Studio' }} logo">
+                    <div class="sidebar-brand-text">
+                        <h1>{{ platform_active_app.short_name|default:'Data Studio' }}</h1>
+                    </div>
+                    <i class="platform-app-switcher__chevron fa-solid fa-caret-down text-xs" aria-hidden="true"></i>
+                </summary>
+                <div class="platform-app-switcher__menu" role="navigation" aria-label="Applications">
+                    {% for app in platform_apps %}
+                        {% if app.key != platform_active_app.key %}
+                        <a href="{% url app.home_url_name %}" class="platform-app-switcher__option platform-app-switcher__option--{{ app.theme }}" {% if app.key == platform_active_app.key %}aria-current="page"{% endif %}>
+                            <img class="platform-app-switcher__logo" src="{% static app.logo_path %}?v=20260927-studio-logos-v2" alt="">
+                            <span class="platform-app-switcher__brand">{{ app.short_name }}</span>
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </details>
+            {% else %}
+            <a href="{% url platform_active_app.home_url_name|default:'reports:dashboard' %}" class="sidebar-brand-link" aria-label="{{ platform_active_app.name|default:'Data Studio' }}">
+                <img class="sidebar-brand-logo" src="{% static platform_active_app.logo_path|default:'img/dala-logo.png' %}?v=20260927-studio-logos-v2" alt="{{ platform_active_app.short_name|default:'Data Studio' }} logo">
                 <div class="sidebar-brand-text">
-                    <h1>DCIO <span>Data Studio</span></h1>
+                    <h1>{{ platform_active_app.short_name|default:'Data Studio' }}</h1>
                 </div>
             </a>
+            {% endif %}
             <button type="button" data-sidebar-close class="absolute right-4 cursor-pointer rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-900 hover:text-zinc-200 focus:outline-none xl:hidden" aria-label="Close Sidebar">
                 <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
             </button>
         </div>
-
+        {% if not platform_active_app or platform_active_app.key == 'data_studio' %}
         {% with current_view=request.resolver_match.url_name %}
             <nav class="flex flex-1 flex-col overflow-y-auto px-3 py-5" aria-label="Primary modules">
                 <a href="{% url 'reports:dashboard' %}" {% if current_view == 'dashboard' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'dashboard' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
@@ -33,33 +55,6 @@
                 <a href="{% url 'reports:hazard_incidents' %}" {% if current_view == 'hazard_incidents' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'hazard_incidents' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
                     <i class="fa-solid fa-triangle-exclamation sidebar-nav-icon sidebar-nav-icon--red" aria-hidden="true"></i>
                     <span>Incidents</span>
-                </a>
-                <details class="group" {% if current_view == 'tropical_cyclone_tracks' or current_view == 'tropical_cyclone_frequency' %}open{% endif %}>
-                    <summary class="flex cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150">
-                        <i class="fa-solid fa-hurricane sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
-                        <span>Tropical Cyclone</span>
-                        <i data-sidebar-chevron class="fa-solid fa-caret-right text-xs transition-transform" aria-hidden="true"></i>
-                    </summary>
-                    <div class="sidebar-submodule-list">
-                        <a href="{% url 'reports:tropical_cyclone_tracks' %}" {% if current_view == 'tropical_cyclone_tracks' %}aria-current="page"{% endif %} class="sidebar-submodule-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'tropical_cyclone_tracks' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
-                            <i class="fa-solid fa-route sidebar-submodule-icon" aria-hidden="true"></i>
-                            <span>TC Tracks</span>
-                        </a>
-                        <a href="{% url 'reports:tropical_cyclone_frequency' %}" {% if current_view == 'tropical_cyclone_frequency' %}aria-current="page"{% endif %} class="sidebar-submodule-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'tropical_cyclone_frequency' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
-                            <i class="fa-solid fa-chart-column sidebar-submodule-icon" aria-hidden="true"></i>
-                            <span>Frequency</span>
-                        </a>
-                    </div>
-                </details>
-                {% if PUBLIC_RELEASE_RENDERER or LOCAL_MODE %}
-                <a href="{% url 'reports:crop_production' %}" {% if current_view == 'crop_production' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'crop_production' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
-                    <i class="fa-solid fa-wheat-awn sidebar-nav-icon sidebar-nav-icon--green" aria-hidden="true"></i>
-                    <span>Crop Production</span>
-                </a>
-                {% endif %}
-                <a href="{% url 'reports:dam_water_levels' %}" {% if current_view == 'dam_water_levels' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'dam_water_levels' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
-                    <i class="fa-solid fa-water sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
-                    <span>Dam Water Levels</span>
                 </a>
                 <details class="sidebar-bottom-nav" {% if current_view == 'bulletin_checker' or current_view == 'report_generation' or current_view == 'upload_report' or current_view == 'data_libraries' or current_view == 'data_library_create' or current_view == 'data_library_edit' or current_view == 'data_library_delete' %}open{% endif %}>
                     <summary class="sidebar-bottom-nav__summary flex cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150" aria-label="Toggle additional navigation links">
@@ -92,6 +87,154 @@
                 </details>
             </nav>
         {% endwith %}
+        {% else %}
+            <nav class="flex flex-1 flex-col overflow-y-auto px-3 py-5" aria-label="Primary modules">
+                {% if platform_active_app.key == 'drought_monitor' %}
+                    {% with current_view=request.resolver_match.url_name %}
+                    {% if PUBLIC_RELEASE_RENDERER %}{% url 'drought_monitor:el_nino_dashboard' as el_nino_dashboard_url %}{% else %}{% url 'agri_drought:el_nino_dashboard' as el_nino_dashboard_url %}{% endif %}
+                    <a href="{{ el_nino_dashboard_url }}" {% if current_view == 'el_nino_dashboard' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'el_nino_dashboard' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-chart-line sidebar-nav-icon sidebar-nav-icon--orange" aria-hidden="true"></i>
+                        <span>El Niño Dashboard</span>
+                    </a>
+                    {% if PUBLIC_RELEASE_RENDERER %}{% url 'drought_monitor:el_nino_analytics' as el_nino_analytics_url %}{% else %}{% url 'agri_drought:el_nino_analytics' as el_nino_analytics_url %}{% endif %}
+                    <a href="{{ el_nino_analytics_url }}" {% if current_view == 'el_nino_analytics' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'el_nino_analytics' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-chart-pie sidebar-nav-icon sidebar-nav-icon--orange" aria-hidden="true"></i>
+                        <span>El Niño Analytics</span>
+                    </a>
+                    {% if PUBLIC_RELEASE_RENDERER %}{% url 'drought_monitor:agricultural_drought' as drought_home_url %}{% else %}{% url 'agri_drought:agricultural_drought' as drought_home_url %}{% endif %}
+                    <a href="{{ drought_home_url }}" {% if current_view == 'agricultural_drought' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'agricultural_drought' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-map sidebar-nav-icon sidebar-nav-icon--orange" aria-hidden="true"></i>
+                        <span>Agri Drought Maps</span>
+                    </a>
+                    {% if PUBLIC_RELEASE_RENDERER %}{% url 'drought_monitor:seed_distribution' as seed_distribution_url %}{% else %}{% url 'agri_drought:seed_distribution' as seed_distribution_url %}{% endif %}
+                    <a href="{{ seed_distribution_url }}" {% if current_view == 'seed_distribution' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'seed_distribution' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-seedling sidebar-nav-icon sidebar-nav-icon--orange" aria-hidden="true"></i>
+                        <span>Seed Distribution</span>
+                    </a>
+                    {% if PUBLIC_RELEASE_RENDERER %}{% url 'drought_monitor:program_areas' as program_areas_url %}{% else %}{% url 'agri_drought:program_areas' as program_areas_url %}{% endif %}
+                    <a href="{{ program_areas_url }}" {% if current_view == 'program_areas' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'program_areas' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-layer-group sidebar-nav-icon sidebar-nav-icon--orange" aria-hidden="true"></i>
+                        <span>Program Areas</span>
+                    </a>
+                    {% if PUBLIC_RELEASE_RENDERER %}{% url 'drought_monitor:susceptible_rice_areas' as susceptible_rice_areas_url %}{% else %}{% url 'agri_drought:susceptible_rice_areas' as susceptible_rice_areas_url %}{% endif %}
+                    <a href="{{ susceptible_rice_areas_url }}" {% if current_view == 'susceptible_rice_areas' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'susceptible_rice_areas' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-wheat-awn sidebar-nav-icon sidebar-nav-icon--orange" aria-hidden="true"></i>
+                        <span>Susceptible Rice Areas</span>
+                    </a>
+                    {% if can_manage_reports %}
+                        <details class="sidebar-bottom-nav" {% if current_view == 'agricultural_drought_upload' %}open{% endif %}>
+                            <summary class="sidebar-bottom-nav__summary flex cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150" aria-label="Toggle additional navigation links">
+                                <i class="fa-solid fa-ellipsis sidebar-nav-icon sidebar-nav-icon--orange" aria-hidden="true"></i>
+                                <span>More</span>
+                                <i data-sidebar-bottom-chevron class="fa-solid fa-caret-up text-xs" aria-hidden="true"></i>
+                            </summary>
+                            <div class="sidebar-bottom-nav__links" data-sidebar-bottom-links>
+                                <a href="{% url 'agri_drought:agricultural_drought_upload' %}" {% if current_view == 'agricultural_drought_upload' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'agricultural_drought_upload' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                                    <i class="fa-solid fa-upload sidebar-nav-icon sidebar-nav-icon--orange" aria-hidden="true"></i>
+                                    <span>Upload</span>
+                                </a>
+                            </div>
+                        </details>
+                    {% endif %}
+                    {% endwith %}
+                {% elif platform_active_app.key == 'crop_studio' %}
+                    {% with current_view=request.resolver_match.url_name %}
+                    <a href="{% url 'crop_studio:crop_production' %}" {% if current_view == 'crop_production' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'crop_production' %}bg-zinc-100 font-bold text-zinc-950 shadow-sm{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-wheat-awn sidebar-nav-icon sidebar-nav-icon--green" aria-hidden="true"></i>
+                        <span>Crop Production</span>
+                    </a>
+                    <a href="{% url 'crop_studio:damage_matrix' %}" {% if current_view == 'damage_matrix' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'damage_matrix' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-chart-area sidebar-nav-icon sidebar-nav-icon--green" aria-hidden="true"></i>
+                        <span>Damage Matrix</span>
+                    </a>
+                    {% endwith %}
+                {% elif platform_active_app.key == 'hazard_studio' %}
+                    {% with current_view=request.resolver_match.url_name %}
+                    <a href="{% url 'hazard_studio:dam_water_levels' %}" {% if current_view == 'dam_water_levels' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'dam_water_levels' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                        <i class="fa-solid fa-water sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
+                        <span>Dam Water Levels</span>
+                    </a>
+                    <details class="group" {% if current_view == 'tropical_cyclone_tracks' or current_view == 'similar_track_occurrence' or current_view == 'tropical_cyclone_frequency' %}open{% endif %}>
+                        <summary class="sidebar-group-summary flex cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150">
+                            <i class="fa-solid fa-hurricane sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
+                            <span>Tropical Cyclone</span>
+                            <i data-sidebar-chevron class="sidebar-group-chevron fa-solid fa-caret-down text-xs transition-transform" aria-hidden="true"></i>
+                        </summary>
+                        <div class="sidebar-submodule-list">
+                            <a href="{% url 'hazard_studio:tropical_cyclone_tracks' %}" {% if current_view == 'tropical_cyclone_tracks' %}aria-current="page"{% endif %} class="sidebar-submodule-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'tropical_cyclone_tracks' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                                <i class="fa-solid fa-route sidebar-submodule-icon" aria-hidden="true"></i>
+                                <span>TC Tracks</span>
+                            </a>
+                            <a href="{% url 'hazard_studio:similar_track_occurrence' %}" {% if current_view == 'similar_track_occurrence' %}aria-current="page"{% endif %} class="sidebar-submodule-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'similar_track_occurrence' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                                <i class="fa-solid fa-arrows-to-circle sidebar-submodule-icon" aria-hidden="true"></i>
+                                <span>Track Matching</span>
+                            </a>
+                            <a href="{% url 'hazard_studio:tropical_cyclone_frequency' %}" {% if current_view == 'tropical_cyclone_frequency' %}aria-current="page"{% endif %} class="sidebar-submodule-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'tropical_cyclone_frequency' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                                <i class="fa-solid fa-chart-column sidebar-submodule-icon" aria-hidden="true"></i>
+                                <span>Frequency</span>
+                            </a>
+                        </div>
+                    </details>
+                        <a href="{% url 'hazard_studio:dry_days' %}" {% if current_view == 'dry_days' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'dry_days' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                            <i class="fa-solid fa-sun sidebar-nav-icon" aria-hidden="true"></i>
+                            <span>Dry Days</span>
+                        </a>
+                        <a href="{% url 'hazard_studio:roni' %}" {% if current_view == 'roni' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'roni' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                            <i class="fa-solid fa-temperature-half sidebar-nav-icon" aria-hidden="true"></i>
+                            <span>RONI</span>
+                        </a>
+                        <a href="{% url 'hazard_studio:climate_types' %}" {% if current_view == 'climate_types' %}aria-current="page"{% endif %} class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150 {% if current_view == 'climate_types' %}bg-zinc-100 font-bold text-zinc-950{% else %}text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100{% endif %}">
+                            <i class="fa-solid fa-layer-group sidebar-nav-icon" aria-hidden="true"></i>
+                            <span>Climate Types</span>
+                        </a>
+                    {% endwith %}
+                {% else %}
+                    <a href="{% url 'map_studio:home' %}" data-map-studio-mode="general" class="flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-zinc-400 transition-all duration-150 hover:bg-zinc-900 hover:text-zinc-100">
+                        <i class="fa-solid fa-map sidebar-nav-icon" aria-hidden="true"></i>
+                        <span>Boundary Mapping</span>
+                    </a>
+                    <button type="button" data-map-studio-mode="standing" class="flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-zinc-400 transition-all duration-150 hover:bg-zinc-900 hover:text-zinc-100">
+                        <i class="fa-solid fa-seedling sidebar-nav-icon sidebar-nav-icon--green" aria-hidden="true"></i>
+                        <span>Standing Crops</span>
+                    </button>
+                    <button type="button" data-map-studio-mode="hazards" class="flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-zinc-400 transition-all duration-150 hover:bg-zinc-900 hover:text-zinc-100">
+                        <i class="fa-solid fa-triangle-exclamation sidebar-nav-icon sidebar-nav-icon--red" aria-hidden="true"></i>
+                        <span>Geologic Hazards</span>
+                    </button>
+                    <button type="button" data-map-studio-mode="psgc" class="flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-zinc-400 transition-all duration-150 hover:bg-zinc-900 hover:text-zinc-100">
+                        <i class="fa-solid fa-table-list sidebar-nav-icon sidebar-nav-icon--cyan" aria-hidden="true"></i>
+                        <span>PSGC 2Q 2026</span>
+                    </button>
+                    <details class="sidebar-bottom-nav">
+                        <summary class="sidebar-bottom-nav__summary flex cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-150" aria-label="Toggle additional navigation links">
+                            <i class="fa-solid fa-ellipsis sidebar-nav-icon sidebar-nav-icon--green" aria-hidden="true"></i>
+                            <span>More</span>
+                            <i data-sidebar-bottom-chevron class="fa-solid fa-caret-up text-xs" aria-hidden="true"></i>
+                        </summary>
+                        <div class="sidebar-bottom-nav__links" data-sidebar-bottom-links>
+                            <section class="platform-map-downloads" aria-labelledby="platform-map-downloads-label">
+                                <p id="platform-map-downloads-label" class="platform-map-downloads__label">Downloads</p>
+                                <a href="{% static 'map_studio/downloads/general-map-template.csv' %}" download="general-map-template.csv" class="platform-map-downloads__link">
+                                    <span>PSGC Mapping Template</span><i class="fa-solid fa-download" aria-hidden="true"></i>
+                                </a>
+                                <a href="{% static 'map_studio/downloads/corn-standing-crops-template.csv' %}" download="corn-standing-crops-template.csv" class="platform-map-downloads__link">
+                                    <span>Corn Standing Crops</span><i class="fa-solid fa-download" aria-hidden="true"></i>
+                                </a>
+                                <a href="{% static 'map_studio/downloads/rice-standing-crops-template.csv' %}" download="rice-standing-crops-template.csv" class="platform-map-downloads__link">
+                                    <span>Rice Standing Crops</span><i class="fa-solid fa-download" aria-hidden="true"></i>
+                                </a>
+                                <a href="{% static 'map_studio/downloads/philippines-base-map.gpkg' %}" download="philippines-base-map.gpkg" class="platform-map-downloads__link">
+                                    <span>Base Map GeoPackage</span><i class="fa-solid fa-download" aria-hidden="true"></i>
+                                </a>
+                                <a href="{% static 'map_studio/downloads/earthquake-template.csv' %}" download="earthquake-template.csv" class="platform-map-downloads__link">
+                                    <span>Earthquake Template</span><i class="fa-solid fa-download" aria-hidden="true"></i>
+                                </a>
+                            </section>
+                        </div>
+                    </details>
+                {% endif %}
+            </nav>
+        {% endif %}
 
         <div
             class="sidebar-build-version{% if deployment_is_dirty %} sidebar-build-version--dirty{% endif %}"
@@ -102,24 +245,52 @@
             <span>Data as of {{ deployment_data_version }}</span>
         </div>
 
-        {% if request.user.is_authenticated %}
-            <div class="flex shrink-0 items-center gap-2 border-t border-zinc-800 px-3 py-3">
-                <span class="min-w-0 flex-1 truncate text-xs font-medium text-zinc-300" title="{{ request.user.get_username }}">
-                    {{ request.user.get_username }}
-                </span>
-                {% if can_access_admin_link %}
-                    <a href="{% url 'admin:index' %}" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-900 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500" aria-label="Administration" title="Administration">
-                        <i class="fa-solid fa-gear" aria-hidden="true"></i>
-                    </a>
-                {% endif %}
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-500 transition-colors hover:bg-zinc-900 hover:text-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500" aria-label="Sign out" title="Sign out">
-                        <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
-                    </button>
-                </form>
+        {% firstof request.user.get_full_name request.user.get_username "Public visitor" as profile_name %}
+        <div class="shrink-0 border-t border-zinc-900 px-0 py-2">
+            <div
+                class="sidebar-profile-card rounded-lg border border-zinc-800 bg-zinc-900/70 p-2"
+                data-account-card
+                aria-label="{% if request.user.is_authenticated %}Signed-in user profile{% else %}Public account{% endif %}"
+                style="--profile-wallpaper: url('{% static 'images/avatars/profile-wallpaper.png' %}?v=20260927-profile-wallpaper-v1');"
+            >
+                <div class="flex items-center gap-2">
+                    <div class="sidebar-profile-card__avatar h-7 w-7 shrink-0 overflow-hidden rounded-full border border-zinc-700 bg-zinc-800" aria-hidden="true">
+                        {% if request.user.is_authenticated %}
+                            <img src="{% static 'images/avatars/spidey.jpeg' %}" alt="" class="h-full w-full object-cover">
+                        {% else %}
+                            <i class="fa-solid fa-user-lock text-xs" aria-hidden="true"></i>
+                        {% endif %}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="sidebar-profile-card__name truncate font-semibold" title="{{ profile_name }}">{{ profile_name }}</div>
+                        <div class="sidebar-profile-card__role truncate font-medium uppercase tracking-wider">
+                            {% if request.user.is_authenticated %}
+                                {% if request.user.role %}{{ request.user.role }}{% elif can_manage_reports %}Data Manager{% elif can_view_analytics %}Viewer{% else %}Signed-in user{% endif %}
+                            {% else %}
+                                Public access
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                        {% if can_access_admin_link and not PUBLIC_RELEASE_RENDERER %}
+                            <a href="{% url 'admin:index' %}" class="profile-admin-link" aria-label="Administration" title="Administration">
+                                <i class="fa-solid fa-gear text-xs" aria-hidden="true"></i>
+                            </a>
+                        {% endif %}
+                        <form method="post" action="{% url 'logout' %}" class="shrink-0">
+                            {% csrf_token %}
+                            <button type="submit" data-profile-signout aria-label="Sign out" title="Sign out" class="flex cursor-pointer items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 transition-[color,background-color,border-color,filter] duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60">
+                                <i class="fa-solid fa-arrow-right-from-bracket text-xs" aria-hidden="true"></i>
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="profile-auth-link" aria-label="Sign in" title="Sign in">
+                            <i class="fa-solid fa-arrow-right-to-bracket text-xs" aria-hidden="true"></i>
+                        </a>
+                    {% endif %}
+                </div>
             </div>
-        {% endif %}
+        </div>
 
     </div>
 </aside>

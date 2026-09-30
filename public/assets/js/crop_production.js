@@ -21,6 +21,10 @@
             && typeof data.roni_phase_by_year_month === "object"
             ? data.roni_phase_by_year_month
             : {};
+        const roniAnomalyByYearMonth = data.roni_anomaly_by_year_month
+            && typeof data.roni_anomaly_by_year_month === "object"
+            ? data.roni_anomaly_by_year_month
+            : {};
         const quarterKeys = ["q1", "q2", "q3", "q4"];
         const quarterMonths = {
             q1: [1, 2, 3],
@@ -72,7 +76,6 @@
         const summaryBreakdownCards = [...page.querySelectorAll("[data-crop-production-summary-breakdown]")];
         const summaryKpiCards = [...page.querySelectorAll("[data-crop-production-summary-kpis]")];
         const summaryItems = [...page.querySelectorAll("[data-crop-production-summary-item]")];
-        const accordionToggles = [...page.querySelectorAll("[data-crop-production-accordion-toggle]")];
         const periods = {
             annual: {
                 label: "Annual",
@@ -132,12 +135,9 @@
         const locationCropSelect = locationCard?.querySelector("[data-crop-location-crop]");
         const locationFocusSelect = locationCard?.querySelector("[data-crop-location-focus]");
         const locationMapNode = locationCard?.querySelector("[data-crop-location-map]");
-        const locationMapPanel = locationMapNode?.closest(".crop-production-location-map-panel");
         const locationMapWrap = locationCard?.querySelector("[data-crop-location-map-wrap]");
         const locationMapCoordinateLayer = locationCard?.querySelector("[data-map-coordinate-labels]");
         const locationMapScaleHost = locationCard?.querySelector("[data-crop-location-map-scale-host]");
-        const locationMapFullscreenButton = locationCard?.querySelector("[data-crop-location-map-fullscreen]");
-        const locationMapFullscreenIcon = locationCard?.querySelector("[data-crop-location-map-fullscreen-icon]");
         const locationMapResetButton = locationCard?.querySelector("[data-crop-location-map-reset]");
         const locationMapZoomInButton = locationCard?.querySelector("[data-crop-location-map-zoom-in]");
         const locationMapZoomOutButton = locationCard?.querySelector("[data-crop-location-map-zoom-out]");
@@ -154,6 +154,13 @@
         const locationContributionCanvas = locationCard?.querySelector("[data-crop-location-contribution-chart]");
         const locationTrendCanvas = locationCard?.querySelector("[data-crop-location-trend-chart]");
         const locationTableBody = locationCard?.querySelector("[data-crop-location-table-body]");
+        const yoyCard = page.querySelector("[data-crop-production-yoy]");
+        const yoyEnsoSelect = yoyCard?.querySelector("[data-crop-production-yoy-enso]");
+        const yoyRegionSelect = yoyCard?.querySelector("[data-crop-production-yoy-region]");
+        const yoyProvinceSelect = yoyCard?.querySelector("[data-crop-production-yoy-province]");
+        const yoySubtitleNode = yoyCard?.querySelector("[data-crop-production-yoy-subtitle]");
+        const yoyTableBody = yoyCard?.querySelector("[data-crop-production-yoy-body]");
+        const yoyEmptyNode = yoyCard?.querySelector("[data-crop-production-yoy-empty]");
         const locationYears = Array.isArray(locationData.years) ? locationData.years.map(String) : [];
         const locationRangeOptions = {
             all: `All Years (${locationYears.length})`,
@@ -188,6 +195,10 @@
         let locationMapScaleControl = null;
         let locationMapResizeObserver = null;
         let locationFocusId = "";
+        const mapBase = window.ADDAdministrativeBaseMap;
+        let selectedYoyEnso = yoyEnsoSelect?.value || "all";
+        let selectedYoyRegion = yoyRegionSelect?.value || "";
+        let selectedYoyProvince = yoyProvinceSelect?.value || "";
         let productionScopeId = "national";
         // Reuse the established muted commodity/hazard colors, while keeping
         // location trends separate from the green Palay and yellow Corn
@@ -700,6 +711,235 @@
             return hasValue ? total : null;
         };
 
+        const yoyStrengthForAnomaly = (anomaly, phaseKey) => {
+            if (phaseKey === "neutral") return "Neutral";
+            if (!Number.isFinite(anomaly)) return "—";
+            const magnitude = Math.abs(anomaly);
+            if (magnitude < 0.5) return "Neutral";
+            if (magnitude < 1.0) return "Weak";
+            if (magnitude < 1.5) return "Moderate";
+            if (magnitude < 2.0) return "Strong";
+            return "Very Strong";
+        };
+
+        const yoyPhaseForAnomaly = (anomaly) => {
+            if (!Number.isFinite(anomaly) || Math.abs(anomaly) < 0.5) return "neutral";
+            return anomaly > 0 ? "warm" : "cold";
+        };
+
+        const yoyPhaseForYear = (year) => {
+            const phaseByMonth = roniPhaseByYearMonth?.[String(year)] || {};
+            const anomalyByMonth = roniAnomalyByYearMonth?.[String(year)] || {};
+            const months = [...new Set([
+                ...Object.keys(phaseByMonth),
+                ...Object.keys(anomalyByMonth),
+            ])].sort((left, right) => Number(left) - Number(right));
+            const phaseForMonth = (month) => {
+                // The published RONI phase calendar is the source of truth for
+                // annual ENSO periods.  Raw anomalies are only a fallback for
+                // months without an assigned phase; otherwise a single weak
+                // value (for example 2013 or 2014) can incorrectly promote a
+                // published Neutral year to La Niña or El Niño.
+                if (phaseByMonth[month]) return phaseByMonth[month];
+                return yoyPhaseForAnomaly(Number(anomalyByMonth[month]));
+            };
+            const extremeMonths = months.filter((month) => ["warm", "cold"].includes(phaseForMonth(month)));
+            if (!months.length) return {key: "unknown", label: "No RONI data", strength: "—"};
+            if (!extremeMonths.length) return {key: "neutral", label: "Neutral", strength: "Neutral"};
+
+            const phaseRuns = [];
+            extremeMonths.forEach((month) => {
+                const phase = phaseForMonth(month);
+                const previous = phaseRuns[phaseRuns.length - 1];
+                if (!previous || previous.key !== phase) {
+                    phaseRuns.push({key: phase, months: [month]});
+                } else {
+                    previous.months.push(month);
+                }
+            });
+            const phaseLabels = {warm: "El Niño", cold: "La Niña", neutral: "Neutral"};
+            const strengths = phaseRuns.map((run) => {
+                const anomaly = run.months
+                    .map((month) => Number(anomalyByMonth[month]))
+                    .filter(Number.isFinite)
+                    .sort((left, right) => Math.abs(right) - Math.abs(left))[0];
+                return yoyStrengthForAnomaly(anomaly, run.key);
+            });
+            const segments = [];
+            phaseRuns.forEach((run, index) => {
+                if (index) {
+                    const previousRun = phaseRuns[index - 1];
+                    const previousMonth = Number(previousRun.months[previousRun.months.length - 1]);
+                    const currentMonth = Number(run.months[0]);
+                    const hasNeutralGap = months.some((month) => {
+                        const monthNumber = Number(month);
+                        return monthNumber > previousMonth
+                            && monthNumber < currentMonth
+                            && phaseForMonth(month) === "neutral";
+                    });
+                    if (hasNeutralGap) {
+                        segments.push({key: "neutral", label: phaseLabels.neutral, strength: "Neutral"});
+                    }
+                }
+                segments.push({
+                    key: run.key,
+                    label: phaseLabels[run.key],
+                    strength: strengths[index],
+                });
+            });
+            if (phaseRuns.length === 1) {
+                return {
+                    key: phaseRuns[0].key,
+                    label: phaseLabels[phaseRuns[0].key],
+                    strength: strengths[0],
+                    segments,
+                };
+            }
+            return {
+                key: "transition",
+                label: phaseRuns.length === 2
+                    ? segments.map((segment) => segment.label).join(" → ")
+                    : "Mixed ENSO",
+                strength: segments.map((segment) => segment.strength).join(" → "),
+                segments,
+            };
+        };
+
+        const yoyPhaseMatchesFilter = (phase, phaseFilter) => {
+            if (phaseFilter === "all") return true;
+            if (phase.key === phaseFilter) return true;
+            return phase.key === "transition"
+                && Array.isArray(phase.segments)
+                && phase.segments.some((segment) => segment.key === phaseFilter);
+        };
+
+        const yoyValueFor = (key, locationId, year) => locationPeriodValue(key, locationId, {
+            year: String(year),
+            label: "Annual",
+            quarters: quarterKeys,
+        });
+
+        const yoyLocationLabel = (locationId) => {
+            if (locationId === "national") return "All Provinces / HUCs";
+            return locationRows.find((location) => location.id === locationId)?.name || "Selected location";
+        };
+
+        const updateYoyProvinceFilter = (regionId = selectedYoyRegion) => {
+            if (!yoyProvinceSelect) return;
+            const region = locationRows.find((location) => (
+                location.level === "region" && location.id === regionId
+            ));
+            const provinces = region ? productionProvinceLocations(region.region_code) : [];
+            const provinceStillAvailable = provinces.some((location) => location.id === selectedYoyProvince);
+            selectedYoyProvince = provinceStillAvailable ? selectedYoyProvince : "";
+            yoyProvinceSelect.replaceChildren(
+                new Option(region ? "All Provinces / HUCs" : "Select a region first", ""),
+            );
+            provinces.forEach((location) => {
+                yoyProvinceSelect.appendChild(new Option(location.name, location.id));
+            });
+            yoyProvinceSelect.disabled = !region;
+            yoyProvinceSelect.value = selectedYoyProvince;
+        };
+
+        const populateYoyLocationFilters = () => {
+            if (yoyRegionSelect) {
+                const regionStillAvailable = productionRegionLocations()
+                    .some((location) => location.id === selectedYoyRegion);
+                selectedYoyRegion = regionStillAvailable ? selectedYoyRegion : "";
+                yoyRegionSelect.replaceChildren(new Option("All Regions", ""));
+                productionRegionLocations().forEach((location) => {
+                    yoyRegionSelect.appendChild(new Option(location.name, location.id));
+                });
+                yoyRegionSelect.value = selectedYoyRegion;
+            }
+            updateYoyProvinceFilter();
+        };
+
+        const appendYoyCell = (row, value, className = "", formatter = formatValue) => {
+            const cell = document.createElement("td");
+            if (className) cell.className = className;
+            cell.textContent = Number.isFinite(value) ? formatter(value) : "—";
+            row.appendChild(cell);
+        };
+
+        const appendYoyDeltaCells = (row, current, previous) => {
+            const change = Number.isFinite(current) && Number.isFinite(previous) ? current - previous : null;
+            const percent = Number.isFinite(change) && previous !== 0 ? (change / Math.abs(previous)) * 100 : null;
+            const direction = !Number.isFinite(change) ? "unavailable" : change > 0 ? "increase" : change < 0 ? "decrease" : "flat";
+            appendYoyCell(row, change, `crop-production-yoy-table__delta crop-production-yoy-table__delta--${direction}`, (value) => `${value > 0 ? "+" : ""}${formatValue(value)}`);
+            appendYoyCell(row, percent, `crop-production-yoy-table__delta crop-production-yoy-table__delta--${direction}`, (value) => `${value > 0 ? "+" : ""}${value.toFixed(1)}%`);
+        };
+
+        const updateYoyTable = () => {
+            if (!yoyTableBody) return;
+            const phaseFilter = yoyEnsoSelect?.value || selectedYoyEnso || "all";
+            const regionId = yoyRegionSelect?.value || selectedYoyRegion || "";
+            const provinceId = yoyProvinceSelect?.value || selectedYoyProvince || "";
+            const locationId = provinceId || regionId || "national";
+            selectedYoyEnso = phaseFilter;
+            selectedYoyRegion = regionId;
+            selectedYoyProvince = provinceId;
+            if (yoySubtitleNode) yoySubtitleNode.textContent = yoyLocationLabel(locationId);
+            yoyTableBody.replaceChildren();
+            const filteredYears = locationYears
+                .slice()
+                .sort((left, right) => Number(right) - Number(left))
+                .filter((year) => {
+                    const phase = yoyPhaseForYear(year);
+                    return yoyPhaseMatchesFilter(phase, phaseFilter);
+                });
+            filteredYears.forEach((year) => {
+                const previousYear = locationYears.find(
+                    (candidate) => Number(candidate) === Number(year) - 1,
+                ) || null;
+                const phase = yoyPhaseForYear(year);
+                const row = document.createElement("tr");
+                row.dataset.yoyYear = year;
+                row.dataset.yoyPhase = phase.key;
+                const yearCell = document.createElement("th");
+                yearCell.scope = "row";
+                yearCell.textContent = year;
+                row.appendChild(yearCell);
+                const phaseCell = document.createElement("td");
+                phaseCell.className = `crop-production-yoy-table__phase crop-production-yoy-table__phase--${phase.key}`;
+                const phaseSegments = Array.isArray(phase.segments) ? phase.segments : [];
+                phaseSegments.forEach((segment, index) => {
+                    if (index) phaseCell.append(" → ");
+                    const segmentNode = document.createElement("span");
+                    segmentNode.className = `crop-production-yoy-table__phase--${segment.key}`;
+                    segmentNode.textContent = segment.label;
+                    phaseCell.appendChild(segmentNode);
+                });
+                if (!phaseSegments.length) phaseCell.textContent = phase.label;
+                row.appendChild(phaseCell);
+                const strengthCell = document.createElement("td");
+                strengthCell.className = `crop-production-yoy-table__strength crop-production-yoy-table__strength--${phase.key}`;
+                phaseSegments.forEach((segment, index) => {
+                    if (index) strengthCell.append(" → ");
+                    const segmentNode = document.createElement("span");
+                    segmentNode.className = `crop-production-yoy-table__strength--${segment.key}`;
+                    segmentNode.textContent = segment.strength;
+                    strengthCell.appendChild(segmentNode);
+                });
+                if (!phaseSegments.length) strengthCell.textContent = phase.strength;
+                row.appendChild(strengthCell);
+                const comparisonCell = document.createElement("td");
+                comparisonCell.className = "crop-production-yoy-table__comparison";
+                comparisonCell.textContent = previousYear ? `${year} vs ${previousYear}` : `${year} vs —`;
+                row.appendChild(comparisonCell);
+                ["Palay", "Corn"].forEach((key) => {
+                    const current = yoyValueFor(key, locationId, year);
+                    const previous = previousYear ? yoyValueFor(key, locationId, previousYear) : null;
+                    appendYoyCell(row, current);
+                    appendYoyCell(row, previous);
+                    appendYoyDeltaCells(row, current, previous);
+                });
+                yoyTableBody.appendChild(row);
+            });
+            if (yoyEmptyNode) yoyEmptyNode.hidden = filteredYears.length > 0;
+        };
+
         const locationAreaPeriodValue = (key, locationId, period) => {
             let total = 0;
             let hasValue = false;
@@ -1058,8 +1298,26 @@
                 return;
             }
             if (locationMapInitialBounds?.isValid?.()) {
-                locationMap.fitBounds(locationMapInitialBounds, {padding: [8, 8]});
+                if (mapBase?.fitNationalExtent) {
+                    mapBase.fitNationalExtent(locationMap, locationMapInitialBounds);
+                } else {
+                    locationMap.fitBounds(locationMapInitialBounds, {
+                        padding: [8, 8]
+                    });
+                }
             }
+        };
+
+        // Reset must clear the focused location before fitting. Reusing the
+        // scoped fit alone leaves the map filtered to the previously selected
+        // region or province, which makes the reset control appear inert.
+        const resetLocationMapExtent = () => {
+            locationFocusId = "";
+            if (locationFocusSelect) locationFocusSelect.value = "";
+            updateLocationPerformance(
+                selectedLocationPeriod,
+                locationYearsForRange(selectedLocationRange),
+            );
         };
 
         const updateLocationMap = (rows, level, metric, key) => {
@@ -1074,6 +1332,7 @@
             const palette = locationPaletteFor(key);
             const scale = locationScaleFor(values, metric);
             const selectedScope = selectedLocationMapScope();
+            const boundaryColor = window.ADDMapAppearance?.boundaryOutlineColor || "#fcfcfa";
             const regionPolygonLayer = level === "region"
                 && (locationRegionBoundaryGeojson?.features || []).some((feature) => ["Polygon", "MultiPolygon"].includes(feature?.geometry?.type));
             const fillGeojson = regionPolygonLayer ? locationRegionBoundaryGeojson : locationGeojson;
@@ -1084,14 +1343,15 @@
                 filter: (feature) => !selectedScope || locationFeatureMatchesScope(feature, selectedScope),
                 style: (feature) => {
                     const value = valueByLocation.get(locationIdForFeature(feature, level));
-                    const showBoundary = level !== "region" || !regionPolygonLayer;
                     return {
                         className: "add-map-boundary-path",
-                        color: showBoundary
-                            ? (window.ADDMapAppearance?.boundaryOutlineColor || "#fcfcfa")
-                            : "transparent",
-                        weight: showBoundary ? (level === "region" ? 0.15 : 0.25) : 0,
-                        opacity: showBoundary ? 0.85 : 0,
+                        color: boundaryColor,
+                        // Region GeoJSON contains one feature per region, so
+                        // its own outline is the visible boundary at region
+                        // level. Keep the same light outline treatment used
+                        // by the shared dashboard map at both levels.
+                        weight: level === "region" ? 0.5 : 0.25,
+                        opacity: 0.9,
                         lineCap: "round",
                         lineJoin: "round",
                         smoothFactor: 0.25,
@@ -1119,7 +1379,7 @@
                     filter: (feature) => !selectedScope || locationFeatureMatchesScope(feature, selectedScope),
                     style: {
                         className: "add-map-boundary-path add-map-region-boundary-path",
-                        color: window.ADDMapAppearance?.boundaryOutlineColor || "#fcfcfa",
+                        color: boundaryColor,
                         weight: 0.35,
                         opacity: 0.95,
                         fill: false,
@@ -1354,7 +1614,6 @@
                 return;
             }
             const mapAppearance = window.ADDMapAppearance;
-            const mapBase = window.ADDAdministrativeBaseMap;
             const skyBackground = mapAppearance?.backgrounds?.sky || {};
             locationMapNode.style.backgroundColor = skyBackground.color || "#c0e8ff";
             locationMapNode.dataset.mapBackground = skyBackground.tone || "light";
@@ -1389,33 +1648,7 @@
                     locationMapScaleHost.insertBefore(scaleContainer, locationMapScaleHost.firstChild);
                 }
             }
-            const syncFullscreenState = () => {
-                const active = document.fullscreenElement === locationMapPanel;
-                locationMapFullscreenButton?.setAttribute("aria-pressed", String(active));
-                if (locationMapFullscreenIcon) {
-                    locationMapFullscreenIcon.classList.toggle("fa-expand", !active);
-                    locationMapFullscreenIcon.classList.toggle("fa-compress", active);
-                }
-            };
-            locationMapFullscreenButton?.addEventListener("click", async () => {
-                try {
-                    if (document.fullscreenElement === locationMapPanel) {
-                        await document.exitFullscreen();
-                    } else if (locationMapPanel?.requestFullscreen) {
-                        await locationMapPanel.requestFullscreen();
-                    }
-                } catch (error) {
-                    // Fullscreen is optional; the map remains usable when unavailable.
-                }
-                syncFullscreenState();
-            });
-            document.addEventListener("fullscreenchange", syncFullscreenState);
-            locationMapResetButton?.addEventListener("click", () => {
-                fitLocationMapToScope();
-                if (!locationMapInitialBounds?.isValid?.() && !selectedLocationMapScope()) {
-                    locationMap.setView([12.8797, 121.774], 5);
-                }
-            });
+            locationMapResetButton?.addEventListener("click", resetLocationMapExtent);
             locationMapZoomInButton?.addEventListener("click", () => locationMap.zoomIn());
             locationMapZoomOutButton?.addEventListener("click", () => locationMap.zoomOut());
             if ("ResizeObserver" in window) {
@@ -1448,29 +1681,16 @@
                         : boundaryLayer.getBounds();
                     if (bounds.isValid()) {
                         locationMapInitialBounds = bounds;
-                        locationMap.fitBounds(bounds, {padding: [8, 8]});
+                        if (mapBase?.fitNationalExtent) {
+                            mapBase.fitNationalExtent(locationMap, bounds);
+                        } else {
+                            locationMap.fitBounds(bounds, {padding: [8, 8]});
+                        }
                     }
                     updateLocationCoordinateLabels();
                     updateLocationPerformance(selectedLocationPeriod, locationYearsForRange(selectedLocationRange));
                 })
                 .catch(() => setLocationStatus("Map boundaries could not be loaded; charts and table remain available."));
-        };
-
-        const setAccordionExpanded = (toggle, expanded) => {
-            const article = toggle.closest("[data-crop-production-accordion]");
-            const contentId = toggle.getAttribute("aria-controls");
-            const content = contentId ? document.getElementById(contentId) : article?.querySelector("[data-crop-production-accordion-content]");
-            if (!article || !content) return;
-            toggle.setAttribute("aria-expanded", String(expanded));
-            content.hidden = !expanded;
-            article.dataset.cropProductionAccordionExpanded = String(expanded);
-            if (!expanded) return;
-            window.requestAnimationFrame(() => {
-                charts.forEach((chart) => chart.resize());
-                locationRankingChart?.resize();
-                locationTrendChart?.resize();
-                if (locationMap && article.contains(locationMapNode)) locationMap.invalidateSize();
-            });
         };
 
         const buildChart = (canvas, mode, scopedYears) => {
@@ -1898,11 +2118,19 @@
             locationFocusId = locationFocusSelect.value || "";
             updateLocationPerformance(selectedLocationPeriod, locationYearsForRange(selectedLocationRange));
         });
-        accordionToggles.forEach((toggle) => {
-            toggle.addEventListener("click", () => {
-                setAccordionExpanded(toggle, toggle.getAttribute("aria-expanded") !== "true");
-            });
-            setAccordionExpanded(toggle, toggle.getAttribute("aria-expanded") !== "false");
+        yoyEnsoSelect?.addEventListener("change", () => {
+            selectedYoyEnso = yoyEnsoSelect.value || "all";
+            updateYoyTable();
+        });
+        yoyRegionSelect?.addEventListener("change", () => {
+            selectedYoyRegion = yoyRegionSelect.value || "";
+            selectedYoyProvince = "";
+            updateYoyProvinceFilter(selectedYoyRegion);
+            updateYoyTable();
+        });
+        yoyProvinceSelect?.addEventListener("change", () => {
+            selectedYoyProvince = yoyProvinceSelect.value || "";
+            updateYoyTable();
         });
         phaseToggles.forEach((toggle) => {
             toggle.addEventListener("click", () => {
@@ -1923,9 +2151,11 @@
             render(selectedPeriod, selectedRange);
         });
         populateProductionLocationFilters();
+        populateYoyLocationFilters();
         initializeLocationMap();
         render(selectedPeriod, selectedRange);
         updateLocationPerformance(selectedLocationPeriod, locationYearsForRange(selectedLocationRange));
+        updateYoyTable();
         return true;
     };
 

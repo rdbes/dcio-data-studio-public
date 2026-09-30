@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load batch_tags filter_tags %}
+
+{% block title %}Dry Days - RRDBES · Weather and Climate Data{% endblock %}
+
+{% block breadcrumbs %}
+<span class="truncate text-zinc-600">Dry Days</span>
+{% endblock %}
+
+{% block page_body_spacing_class %}analytics-workspace-page-body p-3 sm:p-4{% endblock %}
+{% block page_body_inner_class %}max-w-none{% endblock %}
+
+{% block content %}
+<div
+    data-climate-data-page
+    class="relative flex w-full flex-col gap-3"
+>
+    <div class="map-filter-layer relative shrink-0">
+        <details
+            id="climate-data-filter-panel"
+            data-analytics-filter-panel
+            class="group relative rounded-xl border border-zinc-200/80 bg-white text-left shadow-xs"
+        >
+            {% include 'partials/filter_card_summary.html' with static_chip_label=analysis.selected_region chips_sr_label='Active climate-data filters' only %}
+
+            <div class="absolute left-0 right-0 top-full z-50 hidden max-h-[calc(100dvh-8rem)] overflow-y-auto rounded-b-xl border-t border-zinc-200/80 bg-white shadow-xl group-open:block xl:max-h-none xl:overflow-visible">
+                <form method="get" class="space-y-3 px-4 pb-3 pt-4" aria-label="Filter dry-day normals">
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Location</h3>
+                            <label for="climate-data-region" class="block">
+                                <span class="ui-label">Region</span>
+                                <span class="ui-select-wrap block w-full sm:max-w-80">
+                                    <select
+                                        id="climate-data-region"
+                                        name="region"
+                                        class="ui-control ui-select"
+                                    >
+                                        <option value="">All Regions</option>
+                                        {% for region in analysis.region_options %}
+                                            <option value="{{ region }}" {% if analysis.selected_region == region %}selected{% endif %}>
+                                                {{ region|title_case_label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <i class="ui-select__icon fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    {% url 'hazard_studio:dry_days' as clear_url %}
+                    {% include 'partials/filter_card_actions.html' with reset_url=clear_url only %}
+                </form>
+            </div>
+        </details>
+    </div>
+
+    <section
+        class="ui-main-card overflow-hidden rounded-xl border border-zinc-200/80 bg-white shadow-xs"
+        aria-label="Dry-day normals by published climate location"
+    >
+        <header class="ui-section-header border-b border-zinc-200 bg-zinc-50 px-4 py-3">
+            <div class="flex flex-col gap-3">
+                <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <h1 class="ui-section-title text-sm font-semibold text-zinc-950">Location Normals</h1>
+                        <span class="text-xs text-zinc-500">
+                            {{ analysis.location_count }} location{{ analysis.location_count|pluralize }} ·
+                            {{ analysis.climatology_start_year }}–{{ analysis.climatology_end_year }} ·
+                            rainfall below {{ analysis.rainfall_threshold_mm|floatformat:0 }} mm
+                        </span>
+                    </div>
+                    <div class="mt-1 flex items-center gap-3 text-xs font-normal" aria-label="Statistic color legend">
+                        <span class="text-blue-700">Min</span>
+                        <span class="text-green-700">Average</span>
+                        <span class="text-red-700">Max</span>
+                    </div>
+                    <div
+                        class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-600"
+                        aria-label="PAGASA dry-day heatmap ranges"
+                    >
+                        <span class="font-medium text-zinc-500">Dry days</span>
+                        {% for band in analysis.heatmap_bands %}
+                            <span class="inline-flex items-center gap-1">
+                                <span
+                                    data-dry-day-band="{{ band.key }}"
+                                    class="h-3 w-5 rounded-sm border border-black/10"
+                                    aria-hidden="true"
+                                ></span>
+                                {{ band.label }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </header>
+
+        {% if analysis.location_rows %}
+            <div class="report-table-wrap max-h-[calc(100vh-11rem)] overflow-auto">
+                <table class="report-table ui-table--compact dry-day-normal-table min-w-[1080px]">
+                    <caption class="sr-only">
+                        Monthly dry-day normals by PAGASA climate location, with monthly and annual minimum, average, and maximum values.
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="min-w-44">Province</th>
+                            {% for summary in analysis.month_summaries %}
+                                <th scope="col" class="is-numeric min-w-16">
+                                    <span class="block text-center">{{ summary.month_name|slice:":3" }}</span>
+                                    <span class="mt-1 grid grid-cols-3 gap-1 text-center text-xs font-normal tracking-normal normal-case">
+                                        <span
+                                            data-month-stat="minimum"
+                                            class="text-blue-700"
+                                            aria-label="{{ summary.month_name }} minimum: {{ summary.minimum_normal|default_if_none:'not available' }}"
+                                        >{{ summary.minimum_normal|default_if_none:"—" }}</span>
+                                        <span
+                                            data-month-stat="average"
+                                            class="text-green-700"
+                                            aria-label="{{ summary.month_name }} average: {{ summary.average_normal_display }}"
+                                        >{{ summary.average_normal_display }}</span>
+                                        <span
+                                            data-month-stat="maximum"
+                                            class="text-red-700"
+                                            aria-label="{{ summary.month_name }} maximum: {{ summary.maximum_normal|default_if_none:'not available' }}"
+                                        >{{ summary.maximum_normal|default_if_none:"—" }}</span>
+                                    </span>
+                                </th>
+                            {% endfor %}
+                            <th scope="col" class="is-numeric min-w-24">
+                                <span class="block text-center">Annual</span>
+                                <span class="mt-1 grid grid-cols-3 gap-1 text-center text-xs font-normal tracking-normal normal-case">
+                                    <span class="text-blue-700">Min</span>
+                                    <span class="text-green-700">Avg</span>
+                                    <span class="text-red-700">Max</span>
+                                </span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in analysis.location_rows %}
+                            <tr
+                                {% ifchanged row.region_label %}
+                                    {% if not forloop.first %}data-region-divider{% endif %}
+                                {% endifchanged %}
+                            >
+                                <th scope="row" class="whitespace-nowrap font-medium text-zinc-800">
+                                    {{ row.display_label }}
+                                </th>
+
+                                {% for cell in row.monthly_cells %}
+                                    <td
+                                        data-dry-day-heatmap-cell
+                                        data-dry-day-band="{{ cell.heatmap_band_key }}"
+                                        class="is-numeric"
+                                    >
+                                        {{ cell.value|default_if_none:"—" }}
+                                    </td>
+                                {% endfor %}
+
+                                <td class="is-numeric">
+                                    <span class="grid grid-cols-3 gap-1 text-center font-normal">
+                                        <span data-annual-stat="minimum" class="text-blue-700" aria-label="Annual minimum: {{ row.annual_minimum|default_if_none:'not available' }}">
+                                            {{ row.annual_minimum|default_if_none:"—" }}
+                                        </span>
+                                        <span data-annual-stat="average" class="text-green-700" aria-label="Annual average: {{ row.annual_average_display }}">
+                                            {{ row.annual_average_display }}
+                                        </span>
+                                        <span data-annual-stat="maximum" class="text-red-700" aria-label="Annual maximum: {{ row.annual_maximum|default_if_none:'not available' }}">
+                                            {{ row.annual_maximum|default_if_none:"—" }}
+                                        </span>
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <footer class="border-t border-zinc-200 bg-zinc-50 px-4 py-2 text-xs leading-4 text-zinc-500">
+                Source: DOST-PAGASA climate outlook tables. The overlapping source legend boundary is normalized to 21–25 and 26–31 whole days. Published climate labels are preserved independently from present-day PSGC boundaries.
+            </footer>
+        {% else %}
+            {% url 'hazard_studio:dry_days' as clear_url %}
+            {% include 'partials/empty_state.html' with title="No dry-day normals found" description="Load the reviewed PAGASA dry-day baseline or clear the current filters." icon="fa-solid fa-cloud-sun-rain" action_label="Clear filters" action_url=clear_url %}
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

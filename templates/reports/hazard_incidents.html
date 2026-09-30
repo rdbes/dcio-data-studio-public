@@ -6,7 +6,7 @@
     <script defer src="{% static 'js/hazard_incidents.js' %}?v=20260915-incident-native-scroll-v1"></script>
 {% endblock %}
 
-{% block title %}Incidents - DCIO Data Studio{% endblock %}
+{% block title %}Incidents - RRDBES · Data Studio{% endblock %}
 
 {% block breadcrumbs %}
 <span class="truncate text-zinc-600">Incidents</span>
@@ -17,7 +17,7 @@
 
 {% block content %}
 <section class="w-full" aria-label="Incidents" data-incident-page>
-    <div class="sticky top-0 z-50 mb-4 rounded-xl border border-zinc-200/80 bg-white p-3 shadow-md sm:p-4">
+    <div class="sticky top-0 z-50 mb-4 rounded-xl border border-zinc-200/80 bg-white p-3 sm:p-4">
         <form data-incident-search-form data-no-page-transition="true" role="search" class="flex flex-col gap-1.5">
             <label for="incident-search" class="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                 Search incident name
@@ -63,7 +63,7 @@
                     data-incident-year="{{ group.year }}"
                     {% if forloop.first %}open{% endif %}
                 >
-                    <summary class="incident-year-summary ui-section-header flex cursor-pointer list-none items-center justify-between gap-3 rounded-lg border-b border-zinc-100 bg-white px-4 py-2.5 [&::-webkit-details-marker]:hidden group-open:rounded-b-none">
+                    <summary class="incident-year-summary ui-section-header flex cursor-pointer list-none items-center justify-between gap-3 rounded-lg bg-white px-4 py-2.5 [&::-webkit-details-marker]:hidden group-open:rounded-b-none">
                         <span class="flex min-w-0 items-center gap-2.5">
                             <span class="incident-year-summary__year text-base font-semibold tabular-nums text-zinc-900">{{ group.year }}</span>
                             <span data-incident-year-count data-total-count="{{ group.incident_count }}" class="incident-year-summary__count rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-semibold text-zinc-600">

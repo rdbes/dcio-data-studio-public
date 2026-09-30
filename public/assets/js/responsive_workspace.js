@@ -2,7 +2,53 @@
 (function () {
     "use strict";
     const compact = window.matchMedia("(max-width: 1023px)");
+    function initializeMapControlToggles() {
+        document.querySelectorAll("[data-map-canvas-card]").forEach((card, index) => {
+            if (card.querySelector("[data-map-controls-toggle]")) return;
+
+            const svtrToolbar = card.querySelector(":scope [data-svtr-toolbar-controls]");
+            const controlGroups = svtrToolbar
+                ? [svtrToolbar]
+                : Array.from(card.querySelectorAll(
+                    ":scope [data-map-control-rail], :scope [data-map-export-controls]"
+                ));
+            if (!controlGroups.length) return;
+
+            const toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "ui-icon-button ui-map-icon-button map-canvas-controls-toggle";
+            toggle.dataset.mapControlsToggle = "true";
+            toggle.setAttribute("aria-pressed", "true");
+            toggle.setAttribute("aria-label", "Hide map controls");
+            toggle.title = "Hide map controls";
+            toggle.innerHTML = '<i class="fa-solid fa-eye-slash" aria-hidden="true"></i>';
+
+            const controlIds = controlGroups.map((group, groupIndex) => {
+                if (!group.id) group.id = `map-canvas-controls-${index}-${groupIndex}`;
+                return group.id;
+            });
+            toggle.setAttribute("aria-controls", controlIds.join(" "));
+
+            let hidden = false;
+            function render() {
+                card.dataset.mapControlsHidden = String(hidden);
+                toggle.setAttribute("aria-pressed", String(!hidden));
+                toggle.setAttribute("aria-label", hidden ? "Show map controls" : "Hide map controls");
+                toggle.title = hidden ? "Show map controls" : "Hide map controls";
+                toggle.innerHTML = `<i class="fa-solid ${hidden ? "fa-eye" : "fa-eye-slash"}" aria-hidden="true"></i>`;
+            }
+
+            toggle.addEventListener("click", event => {
+                event.stopPropagation();
+                hidden = !hidden;
+                render();
+            });
+            (svtrToolbar || card).append(toggle);
+            render();
+        });
+    }
     function initialize() {
+        initializeMapControlToggles();
         document.querySelectorAll("[data-map-control-rail]").forEach((rail, index) => {
             const button = document.createElement("button");
             button.type = "button";

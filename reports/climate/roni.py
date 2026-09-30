@@ -4,13 +4,13 @@ import calendar
 import logging
 import ssl
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 import certifi
-from django.db import transaction
+from django.db import DatabaseError, transaction
 from django.utils import timezone
 
 from reports.models import ClimateIndex, ClimateIndexObservation
@@ -31,6 +31,14 @@ RONI_EPISODE_THRESHOLD = Decimal("0.50")
 RONI_EPISODE_MIN_SEASONS = 5
 RONI_FETCH_TIMEOUT_SECONDS = 20
 logger = logging.getLogger(__name__)
+
+RONI_PHASE_LABELS = {
+    "warm": "El Niño",
+    "cold": "La Niña",
+    "neutral": "Neutral",
+    "mixed": "Mixed ENSO",
+    "unknown": "RONI unavailable",
+}
 
 _SEASON_CENTER_MONTHS = {
     "DJF": 1,
@@ -87,7 +95,7 @@ def fetch_roni_text(
     """
     request = Request(
         url,
-        headers={"User-Agent": "DCIO Data Studio RONI updater"},
+        headers={"User-Agent": "RRDBES RONI updater"},
     )
     try:
         context = ssl.create_default_context(cafile=certifi.where())
@@ -331,6 +339,244 @@ def classify_roni_episode_phases(
 
     finalize_run()
     return phases
+
+
+def build_roni_calendar_maps(
+    observations,
+    phases: dict[date, str] | None = None,
+) -> tuple[dict[str, dict[str, str]], dict[str, dict[str, float]]]:
+    """Build monthly phase and anomaly maps from overlapping RONI seasons."""
+
+    ordered = sorted(
+        observations,
+        key=lambda observation: _roni_observation_date(
+            observation, "period_center_date"
+        ),
+    )
+    if phases is None:
+        phases = _roni_phases_for_observations(ordered)
+
+    candidates: dict[tuple[str, str], list[tuple[str, Decimal]]] = {}
+    for observation in ordered:
+        center_date = _roni_observation_date(observation, "period_center_date")
+        phase = phases.get(center_date)
+        if phase is None:
+            phase = phases.get(center_date.isoformat(), "neutral")
+        value = Decimal(str(_roni_observation_field(observation, "value")))
+        month_start = _roni_observation_date(observation, "period_start_date")
+        end_date = _roni_observation_date(observation, "period_end_date")
+        while month_start <= end_date:
+            key = (str(month_start.year), str(month_start.month))
+            candidates.setdefault(key, []).append((phase, value))
+            month_start = (
+                month_start.replace(day=28) + timedelta(days=4)
+            ).replace(day=1)
+
+    phase_by_year_month: dict[str, dict[str, str]] = {}
+    anomaly_by_year_month: dict[str, dict[str, float]] = {}
+    for (year, month), monthly_candidates in candidates.items():
+        extreme_candidates = [
+            candidate
+            for candidate in monthly_candidates
+            if candidate[0] in {"warm", "cold"}
+        ]
+        selected_phase, selected_value = max(
+            extreme_candidates or monthly_candidates,
+            key=lambda candidate: abs(candidate[1]),
+        )
+        phase_by_year_month.setdefault(year, {})[month] = (
+            selected_phase if extreme_candidates else "neutral"
+        )
+        anomaly_by_year_month.setdefault(year, {})[month] = float(selected_value)
+
+    return phase_by_year_month, anomaly_by_year_month
+
+
+def load_roni_observations():
+    """Load the synchronized RONI observations for derived attributions."""
+
+    try:
+        return list(
+            ClimateIndexObservation.objects.filter(
+                climate_index_id=RONI_INDEX_KEY,
+            )
+            .only(
+                "period_start_date",
+                "period_center_date",
+                "period_end_date",
+                "value",
+            )
+            .order_by("period_center_date")
+        )
+    except DatabaseError:
+        logger.exception("Unable to load RONI observations for attribution")
+        return []
+
+
+def _month_start(value: date) -> date:
+    return date(value.year, value.month, 1)
+
+
+def _month_starts_between(start_date: date, end_date: date):
+    current = _month_start(start_date)
+    end_month = _month_start(end_date)
+    while current <= end_month:
+        yield current
+        year, month = _shift_month(current.year, current.month, 1)
+        current = date(year, month, 1)
+
+
+def _roni_date(value) -> date | None:
+    if value is None:
+        return None
+    if isinstance(value, date):
+        return value
+    return date.fromisoformat(str(value))
+
+
+def build_tropical_cyclone_enso_attribution(
+    cyclone,
+    track_points=(),
+    observations=(),
+) -> dict:
+    """Attribute a cyclone occurrence to the synchronized RONI phase.
+
+    The occurrence interval uses catalog dates when available and falls back
+    to the first and last stored track points. A multi-phase interval is kept
+    explicitly as ``mixed``; the dominant phase and the RONI value at the
+    start and PAR entry are retained for auditability.
+    """
+
+    points = list(track_points or ())
+    point_dates = [
+        point.valid_at.date()
+        for point in points
+        if getattr(point, "valid_at", None) is not None
+    ]
+    occurrence_start = _roni_date(getattr(cyclone, "start_date", None))
+    occurrence_end = _roni_date(getattr(cyclone, "end_date", None))
+    if occurrence_start is None and point_dates:
+        occurrence_start = min(point_dates)
+    if occurrence_end is None and point_dates:
+        occurrence_end = max(point_dates)
+    if occurrence_start is None:
+        return {
+            "enso_phase": "unknown",
+            "enso_phase_label": RONI_PHASE_LABELS["unknown"],
+            "enso_dominant_phase": "unknown",
+            "enso_dominant_phase_label": RONI_PHASE_LABELS["unknown"],
+            "enso_attribution_status": "unknown",
+            "roni_value_at_occurrence": None,
+            "roni_value_at_start": None,
+            "roni_value_at_par_entry": None,
+            "enso_phase_at_start": "unknown",
+            "enso_phase_at_start_label": RONI_PHASE_LABELS["unknown"],
+            "enso_phase_at_par_entry": "unknown",
+            "enso_phase_at_par_entry_label": RONI_PHASE_LABELS["unknown"],
+        }
+    occurrence_end = occurrence_end or occurrence_start
+    if occurrence_end < occurrence_start:
+        occurrence_start, occurrence_end = occurrence_end, occurrence_start
+
+    phase_by_year_month, anomaly_by_year_month = build_roni_calendar_maps(
+        observations,
+    )
+
+    def month_attribution(value: date):
+        key = (str(value.year), str(value.month))
+        phase = phase_by_year_month.get(key[0], {}).get(key[1], "unknown")
+        anomaly = anomaly_by_year_month.get(key[0], {}).get(key[1])
+        return phase, anomaly
+
+    start_phase, start_value = month_attribution(occurrence_start)
+    par_entry = getattr(cyclone, "first_tracked_within_par_at", None)
+    par_entry_date = par_entry.date() if par_entry is not None else None
+    par_phase, par_value = (
+        month_attribution(par_entry_date)
+        if par_entry_date is not None
+        else ("unknown", None)
+    )
+
+    weighted_values = []
+    phase_days = {}
+    for month_start in _month_starts_between(occurrence_start, occurrence_end):
+        month_end = date(
+            month_start.year,
+            month_start.month,
+            calendar.monthrange(month_start.year, month_start.month)[1],
+        )
+        overlap_start = max(occurrence_start, month_start)
+        overlap_end = min(occurrence_end, month_end)
+        days = (overlap_end - overlap_start).days + 1
+        phase, value = month_attribution(month_start)
+        if phase == "unknown" or value is None:
+            continue
+        phase_days[phase] = phase_days.get(phase, 0) + days
+        weighted_values.append((float(value), days))
+
+    known_phases = set(phase_days)
+    if not known_phases:
+        phase = "unknown"
+        dominant_phase = "unknown"
+        status = "unknown"
+        occurrence_value = None
+    else:
+        dominant_phase = max(
+            phase_days,
+            key=lambda item: (phase_days[item], item),
+        )
+        phase = next(iter(known_phases)) if len(known_phases) == 1 else "mixed"
+        status = "mixed" if phase == "mixed" else "resolved"
+        total_days = sum(days for _value, days in weighted_values)
+        occurrence_value = round(
+            sum(value * days for value, days in weighted_values) / total_days,
+            2,
+        )
+
+    return {
+        "enso_phase": phase,
+        "enso_phase_label": RONI_PHASE_LABELS[phase],
+        "enso_dominant_phase": dominant_phase,
+        "enso_dominant_phase_label": RONI_PHASE_LABELS[dominant_phase],
+        "enso_attribution_status": status,
+        "roni_value_at_occurrence": occurrence_value,
+        "roni_value_at_start": start_value,
+        "roni_value_at_par_entry": par_value,
+        "enso_phase_at_start": start_phase,
+        "enso_phase_at_start_label": RONI_PHASE_LABELS.get(
+            start_phase,
+            RONI_PHASE_LABELS["unknown"],
+        ),
+        "enso_phase_at_par_entry": par_phase,
+        "enso_phase_at_par_entry_label": RONI_PHASE_LABELS.get(
+            par_phase,
+            RONI_PHASE_LABELS["unknown"],
+        ),
+    }
+
+
+def _roni_phases_for_observations(observations) -> dict[date, str]:
+    """Resolve phases for model observations or serialized public snapshots."""
+
+    if observations and isinstance(observations[0], dict):
+        return {
+            _roni_observation_date(observation, "period_center_date"): observation.get(
+                "phase", "neutral"
+            )
+            for observation in observations
+        }
+    return classify_roni_episode_phases(observations)
+
+
+def _roni_observation_field(observation, field: str):
+    if isinstance(observation, dict):
+        return observation[field]
+    return getattr(observation, field)
+
+
+def _roni_observation_date(observation, field: str) -> date:
+    value = _roni_observation_field(observation, field)
+    return date.fromisoformat(value) if isinstance(value, str) else value
 
 
 def validate_complete_roni_source(

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "DCIO Data Studio public data release",
+  "title": "RRDBES public data release",
   "type": "object",
   "additionalProperties": false,
   "required": [

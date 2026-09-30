@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Bulletin Checker | DCIO Data Studio{% endblock %}
+{% block title %}Bulletin Checker | RRDBES · Data Studio{% endblock %}
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'css/bulletin_checker.css' %}?v=20260920-bulletin-responsive-v1">
 <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
@@ -137,13 +137,13 @@
     {{ bulletin|json_script:'bulletin-data' }}
     <div id="bulletin-assets" data-provinces-url="{% static 'geo/ph/provinces.geojson' %}" data-outline-url="{% static 'geo/ph/philippines_outline.geojson' %}"></div>
     <script src="{% static 'vendor/chartjs/chart.umd.js' %}" defer></script>
-    <script src="{% static 'js/analytics/chart_presets.js' %}?v=20260920-flat-axis-bars-v1" defer></script>
+    <script src="{% static 'js/analytics/chart_presets.js' %}?v=20260927-donut-legend-gap-v2" defer></script>
     <script src="{% static 'vendor/leaflet/leaflet.js' %}" defer></script>
     <script src="{% static 'js/maps/map_legend_scale.js' %}" defer></script>
     <script src="{% static 'js/maps/map_appearance.js' %}" defer></script>
     <script src="{% static 'js/maps/map_administrative_base.js' %}" defer></script>
     <script src="{% static 'js/map_coordinate_grid.js' %}" defer></script>
-    <script src="{% static 'js/analytics/bulletin_checker.js' %}?v=20260914-bulletin-v27" defer></script>
+    <script src="{% static 'js/analytics/bulletin_checker.js' %}?v=20260925-compact-cartography-v1" defer></script>
     {% elif selected_incident %}<p class="bulletin-empty"><span>This incident has no active damage reports to preview.</span></p>
     {% else %}<p class="bulletin-empty"><span>Select one incident or upload a validated temporary CSV to generate the cover, overview, and commodity map pages.</span></p>{% endif %}
     </div>

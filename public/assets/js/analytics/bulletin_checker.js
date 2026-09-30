@@ -539,7 +539,7 @@
             position: "bottomright",
             metric: true,
             imperial: false,
-            maxWidth: 96,
+            maxWidth: 72,
             updateWhenIdle: true,
         }).addTo(map);
         const scaleContainer = metricScaleControl.getContainer();
