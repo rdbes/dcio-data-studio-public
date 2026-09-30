@@ -130,13 +130,14 @@ class PublicOnlyMiddleware:
                 "/bulletin-checker",
                 "/dam-water-levels/report",
                 "/accounts/login",
+                "/accounts/logout",
             }
         )
         if request.method not in {"GET", "HEAD", "OPTIONS"} and not public_post:
             return HttpResponseNotAllowed(["GET", "HEAD"])
         if public_post:
-            # These endpoints have no session or database mutations. Reject
-            # cross-site submissions before parsing CSV or rendered chart data.
+            # Public POST endpoints are explicitly allowlisted. Reject
+            # cross-site submissions before parsing input or mutating session state.
             origin = request.headers.get("Origin")
             if request.headers.get("Sec-Fetch-Site") == "cross-site":
                 return HttpResponse("Cross-site submissions are not allowed.", status=403)

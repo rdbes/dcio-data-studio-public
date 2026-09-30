@@ -34,7 +34,7 @@ def login(request):
     return render(request, "registration/login.html", {"form": form, "next": next_url})
 
 
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["POST"])
 def logout(request):
     response = redirect("login")
     return clear_session_cookie(response)
