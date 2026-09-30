@@ -293,7 +293,7 @@
     "crop_studio/views.py": "67e46a0abbf2f45860191273465eb5f262b8a1b38c384a8a15369dc927d4fddf",
     "frontend/server/__init__.py": "76069ae80d4c517ace5d1e3d8b35af03eb587680efc06f663cbcbbf84d49daea",
     "frontend/server/app.py": "4cb65266a17c416389ef406b27a5aec172fe2c9837be86240ca085f477af7120",
-    "frontend/server/auth_views.py": "bec8865a52080f2abe133c47c7f60506cbe1761b27f94faac2dc3623933eca77",
+    "frontend/server/auth_views.py": "875f7825bcd2d116acfb874e9e572db95df3e1a9d900b7aa6b851ccd9c573e44",
     "frontend/server/middleware.py": "bcd5ed2bfbae157a4f9b9d2048831d6f885979a16a53075ec18c69e8623f0248",
     "frontend/server/public_data.py": "7ea4b9782fef0bfd0c419711e656539317336d8cd275fd420b18bebada2bcb23",
     "frontend/server/settings.py": "3a416412cf0ab48c0962924f23a18340515bd436874500d0750883324241ebef",

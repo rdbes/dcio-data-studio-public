@@ -36,7 +36,7 @@ def login(request):
 
 @require_http_methods(["POST"])
 def logout(request):
-    response = redirect("login")
+    response = redirect("/")
     return clear_session_cookie(response)
 
 
