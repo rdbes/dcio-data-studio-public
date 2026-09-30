@@ -245,7 +245,7 @@
             <span>Data as of {{ deployment_data_version }}</span>
         </div>
 
-        {% firstof request.user.get_full_name request.user.get_username "Public visitor" as profile_name %}
+        {% firstof request.user.get_full_name request.user.get_username "Public" as profile_name %}
         <div class="shrink-0 border-t border-zinc-900 px-0 py-2">
             <div
                 class="sidebar-profile-card rounded-lg border border-zinc-800 bg-zinc-900/70 p-2"
@@ -258,7 +258,7 @@
                         {% if request.user.is_authenticated %}
                             <img src="{% static 'images/avatars/spidey.jpeg' %}" alt="" class="h-full w-full object-cover">
                         {% else %}
-                            <i class="fa-solid fa-user-lock text-xs" aria-hidden="true"></i>
+                            <img src="{% static 'images/avatars/public-profile.png' %}?v=20260930-public-profile-v1" alt="" class="h-full w-full object-cover">
                         {% endif %}
                     </div>
                     <div class="min-w-0 flex-1">
