@@ -399,7 +399,7 @@
     "templates/partials/map_resize_menu.html": "9908b4b222b93614a54a0d1552402a9c9d65ea36054a8ede646d212944ffe6be",
     "templates/partials/quarterly_breakdown_card.html": "9bce68e1260bf6e3b0a6884a6c2469db268d00a9b84ca1d391e086e927c2bc75",
     "templates/partials/section_card_header.html": "7fcd5cf7bc2d4b6262c3ad043a1b7e28d0d7fbef70eb24d927cf13fb4a958ad1",
-    "templates/partials/sidebar.html": "c0f19c491e959586b44f6bb6798ad8cbd0d902b083f2596114507cf686ee1447",
+    "templates/partials/sidebar.html": "ee2f99816fd48bdb47ddc103198b37c17ef9caaabfedd181628e8764ca79105c",
     "templates/partials/toast.html": "1c82b44d678921229530f3b86974fffd495739288dc713e4098a4db56b327321",
     "templates/registration/login.html": "b42189ba630bb56a43381aae035fafe94b1038f33c200813bca122feefdced9b",
     "templates/reports/agricultural_drought.html": "0bb252515d06a3bfe5bb6c0664b82c983a969c093046c0f7ad9957dd18050c70",

@@ -266,11 +266,11 @@
                     <div class="min-w-0 flex-1">
                         <div class="sidebar-profile-card__name truncate font-semibold" title="{{ profile_name }}">{{ profile_name }}</div>
                         <div class="sidebar-profile-card__role truncate font-medium uppercase tracking-wider">
-                            {% if request.user.is_authenticated %}
-                                {% if request.user.role %}{{ request.user.role }}{% elif can_manage_reports %}Data Manager{% elif can_view_analytics %}Viewer{% else %}Signed-in user{% endif %}
-                            {% else %}
-                                DATA VIEWER
-                            {% endif %}
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.role %}{{ request.user.role }}{% elif can_manage_reports %}Data Manager{% elif can_view_analytics %}Viewer{% else %}Signed-in user{% endif %}
+                        {% else %}
+                            Public
+                        {% endif %}
                         </div>
                     </div>
                     {% if request.user.is_authenticated %}
