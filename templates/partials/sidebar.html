@@ -267,7 +267,7 @@
                             {% if request.user.is_authenticated %}
                                 {% if request.user.role %}{{ request.user.role }}{% elif can_manage_reports %}Data Manager{% elif can_view_analytics %}Viewer{% else %}Signed-in user{% endif %}
                             {% else %}
-                                Public access
+                                DATA VIEWER
                             {% endif %}
                         </div>
                     </div>
