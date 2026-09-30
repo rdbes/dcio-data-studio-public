@@ -33,17 +33,17 @@ def public_context(request):
         home_url_name="drought_monitor:agricultural_drought",
     )
     crop_studio = SimpleNamespace(
-        key="crop_studio", name="Crop Studio", short_name="Crop Studio",
+        key="crop_studio", name="Crop Data", short_name="Crop Data",
         theme="crop-studio", logo_path="img/crop-studio-logo.png",
         home_url_name="crop_studio:home",
     )
     hazard_studio = SimpleNamespace(
-        key="hazard_studio", name="Weather and Climate Data", short_name="Weather and Climate Data",
+        key="hazard_studio", name="Hazard Watch", short_name="Hazard Watch",
         theme="hazard-studio", logo_path="img/hazard-studio-logo.png",
         home_url_name="hazard_studio:home",
     )
     map_studio = SimpleNamespace(
-        key="map_studio", name="Map Studio", short_name="Map Studio",
+        key="map_studio", name="Mapping Hub", short_name="Mapping Hub",
         theme="map-studio", logo_path="img/map-studio-logo.png",
         home_url_name="map_studio:home",
     )
@@ -59,6 +59,9 @@ def public_context(request):
         active_app = data_studio
     can_manage = is_data_manager(user)
     can_view = is_viewer(user)
+    platform_apps = (data_studio, hazard_studio, drought_monitor, crop_studio, map_studio)
+    if not getattr(user, "is_authenticated", False):
+        platform_apps = tuple(app for app in platform_apps if app.key != "drought_monitor")
     return {
         "LOCAL_MODE": False,
         "project_name": settings.PROJECT_NAME,
@@ -67,7 +70,7 @@ def public_context(request):
         "can_view_analytics": can_view,
         "can_manage_reports": can_manage,
         "can_access_admin_link": can_access_admin_link(user),
-        "platform_apps": (data_studio, hazard_studio, drought_monitor, crop_studio, map_studio),
+        "platform_apps": platform_apps,
         "platform_active_app": active_app,
         **deployment_identity(),
     }

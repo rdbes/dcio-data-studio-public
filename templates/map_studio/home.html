@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Map Studio · RRDBES{% endblock %}
+{% block title %}Mapping Hub · RRDBES{% endblock %}
 
 {% block workspace_topbar_class %}platform-workspace-topbar--map{% endblock %}
 {% block breadcrumbs %}
@@ -21,7 +21,7 @@
 {% block content %}
     <div
         class="app-content map-studio-inline-content"
-        aria-label="Map Studio workspace"
+        aria-label="Mapping Hub workspace"
         data-map-studio-asset-base="{% static 'map_studio/assets/' %}"
         data-map-studio-pagasa-track-url="{% url 'map_studio:pagasa_track' %}"
     >
