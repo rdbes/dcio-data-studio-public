@@ -104,3 +104,36 @@
     outline: var(--focus-ring-width) solid #71717a;
     outline-offset: var(--focus-ring-offset);
 }
+
+.login-public-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--control-height-default);
+    margin-top: var(--space-3);
+    border: var(--border-width-default) solid #d4d4d8;
+    border-radius: var(--farm-radius-md);
+    background: transparent;
+    padding: var(--space-2) var(--space-4);
+    color: #52525b;
+    font-size: var(--type-control-size);
+    font-weight: var(--type-control-weight);
+    line-height: var(--type-control-line-height);
+    text-decoration: none;
+    transition:
+        color var(--motion-fast) var(--ease-standard),
+        background-color var(--motion-fast) var(--ease-standard),
+        border-color var(--motion-fast) var(--ease-standard),
+        box-shadow var(--motion-fast) var(--ease-standard);
+}
+
+.login-public-link:hover {
+    border-color: #a1a1aa;
+    background: #f4f4f5;
+    color: #27272a;
+}
+
+.login-public-link:focus-visible {
+    outline: var(--focus-ring-width) solid #71717a;
+    outline-offset: var(--focus-ring-offset);
+}
